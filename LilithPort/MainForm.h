@@ -4,7 +4,7 @@
 #include "StartupForm.h"
 #include "OptionForm.h"
 
-namespace MTSP {
+namespace LilithPort {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -35,6 +35,31 @@ namespace MTSP {
 			//
 			//TODO: ここにコンストラクタ コードを追加します
 			//
+
+			// ブックマークをメニューに登録
+			String^ tmpName;
+			//String^ tmpIP;
+			
+			if(MTOPTION.BOOKMARK_COUNT > 0) {
+				for(UINT i=0;i < MTOPTION.BOOKMARK_COUNT;i++) {
+					tmpName = gcnew String(MTOPTION.BOOKMARK_SERVER_NAME[i]);
+					//tmpIP   = gcnew String(MTOPTION.BOOKMARK_CONNECTION_IP[i]);
+					
+					toolStripMenuItemBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
+					toolStripMenuItemBookMarkMenu->DropDownItems->Add(toolStripMenuItemBookMark);
+					toolStripMenuItemBookMark->Text = tmpName;
+					toolStripMenuItemBookMark->Name = L"toolStripMenuItemBookMark" + i;
+					toolStripMenuItemBookMark->Tag = i;
+					toolStripMenuItemBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemBookMark_Click);
+					
+					toolStripMenuItemDelBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
+					toolStripMenuItemBookMark->DropDownItems->Add(toolStripMenuItemDelBookMark);
+					toolStripMenuItemDelBookMark->Text = L"削除(&D)";
+					toolStripMenuItemDelBookMark->Tag = L"toolStripMenuItemBookMark" + i;
+					toolStripMenuItemDelBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelBookMark_Click);
+				}
+			}
+			
 		}
 
 	protected:
@@ -103,6 +128,20 @@ namespace MTSP {
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemDelay10;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemDelay11;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemDelay12;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemBookMarkMenu;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAddBookMark;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemBookMark;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemDelBookMark;
+	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator8;
+
+	private: System::Windows::Forms::ToolStripMenuItem^  CommandToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  GameStartToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  RestartToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator9;
+	private: System::Windows::Forms::ToolStripMenuItem^  LeaveToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  RestToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  ClearToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator10;
 
 
 
@@ -129,6 +168,17 @@ namespace MTSP {
 			this->toolStripMenuItemSaveLog = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemExit = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemBookMarkMenu = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAddBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripSeparator8 = (gcnew System::Windows::Forms::ToolStripSeparator());
+			this->CommandToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->GameStartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripSeparator9 = (gcnew System::Windows::Forms::ToolStripSeparator());
+			this->RestartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->LeaveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->RestToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripSeparator10 = (gcnew System::Windows::Forms::ToolStripSeparator());
+			this->ClearToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemOption = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemSetting = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
@@ -177,267 +227,198 @@ namespace MTSP {
 			this->contextMenuStripMember->SuspendLayout();
 			this->contextMenuStripLog->SuspendLayout();
 			this->SuspendLayout();
-			// 
-			// menuStrip1
-			// 
-			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->toolStripMenuItemFile, 
-				this->toolStripMenuItemOption, this->toolStripMenuItemHelp});
+			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->toolStripMenuItemFile, 
+				this->toolStripMenuItemBookMarkMenu, this->CommandToolStripMenuItem, this->toolStripMenuItemOption, this->toolStripMenuItemHelp});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(528, 24);
+			this->menuStrip1->Size = System::Drawing::Size(528, 26);
 			this->menuStrip1->TabIndex = 0;
 			this->menuStrip1->Text = L"menuStrip1";
-			// 
-			// toolStripMenuItemFile
-			// 
 			this->toolStripMenuItemFile->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->toolStripMenuItemReplay, 
 				this->toolStripMenuItemSaveLog, this->toolStripSeparator1, this->toolStripMenuItemExit});
 			this->toolStripMenuItemFile->Name = L"toolStripMenuItemFile";
-			this->toolStripMenuItemFile->Size = System::Drawing::Size(66, 20);
+			this->toolStripMenuItemFile->Size = System::Drawing::Size(85, 22);
 			this->toolStripMenuItemFile->Text = L"ファイル(&F)";
-			// 
-			// toolStripMenuItemReplay
-			// 
 			this->toolStripMenuItemReplay->Name = L"toolStripMenuItemReplay";
-			this->toolStripMenuItemReplay->Size = System::Drawing::Size(188, 22);
+			this->toolStripMenuItemReplay->Size = System::Drawing::Size(226, 22);
 			this->toolStripMenuItemReplay->Text = L"リプレイファイルの再生(&R)";
 			this->toolStripMenuItemReplay->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemReplay_Click);
-			// 
-			// toolStripMenuItemSaveLog
-			// 
 			this->toolStripMenuItemSaveLog->Name = L"toolStripMenuItemSaveLog";
 			this->toolStripMenuItemSaveLog->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
-			this->toolStripMenuItemSaveLog->Size = System::Drawing::Size(188, 22);
+			this->toolStripMenuItemSaveLog->Size = System::Drawing::Size(226, 22);
 			this->toolStripMenuItemSaveLog->Text = L"ログの保存(&S)";
 			this->toolStripMenuItemSaveLog->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemSaveLog_Click);
-			// 
-			// toolStripSeparator1
-			// 
 			this->toolStripSeparator1->Name = L"toolStripSeparator1";
-			this->toolStripSeparator1->Size = System::Drawing::Size(185, 6);
-			// 
-			// toolStripMenuItemExit
-			// 
+			this->toolStripSeparator1->Size = System::Drawing::Size(223, 6);
 			this->toolStripMenuItemExit->Name = L"toolStripMenuItemExit";
-			this->toolStripMenuItemExit->Size = System::Drawing::Size(188, 22);
+			this->toolStripMenuItemExit->Size = System::Drawing::Size(226, 22);
 			this->toolStripMenuItemExit->Text = L"終了(&X)";
 			this->toolStripMenuItemExit->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemExit_Click);
-			// 
-			// toolStripMenuItemOption
-			// 
+			this->toolStripMenuItemBookMarkMenu->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->toolStripMenuItemAddBookMark, 
+				this->toolStripSeparator8});
+			this->toolStripMenuItemBookMarkMenu->Name = L"toolStripMenuItemBookMarkMenu";
+			this->toolStripMenuItemBookMarkMenu->Size = System::Drawing::Size(110, 22);
+			this->toolStripMenuItemBookMarkMenu->Text = L"ブックマーク(&B)";
+			this->toolStripMenuItemAddBookMark->Name = L"toolStripMenuItemAddBookMark";
+			this->toolStripMenuItemAddBookMark->Size = System::Drawing::Size(166, 22);
+			this->toolStripMenuItemAddBookMark->Text = L"サーバの追加(&A)";
+			this->toolStripMenuItemAddBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAddBookMark_Click);
+			this->toolStripSeparator8->Name = L"toolStripSeparator8";
+			this->toolStripSeparator8->Size = System::Drawing::Size(163, 6);
+			this->CommandToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {this->GameStartToolStripMenuItem, 
+				this->toolStripSeparator9, this->RestartToolStripMenuItem, this->LeaveToolStripMenuItem, this->RestToolStripMenuItem, this->toolStripSeparator10, 
+				this->ClearToolStripMenuItem});
+			this->CommandToolStripMenuItem->Name = L"CommandToolStripMenuItem";
+			this->CommandToolStripMenuItem->Size = System::Drawing::Size(86, 22);
+			this->CommandToolStripMenuItem->Text = L"コマンド(&C)";
+			this->GameStartToolStripMenuItem->BackColor = System::Drawing::SystemColors::Control;
+			this->GameStartToolStripMenuItem->Name = L"GameStartToolStripMenuItem";
+			this->GameStartToolStripMenuItem->Size = System::Drawing::Size(204, 22);
+			this->GameStartToolStripMenuItem->Text = L"ゲームの起動(&G)";
+			this->GameStartToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartToolStripMenuItem_Click);
+			this->toolStripSeparator9->Name = L"toolStripSeparator9";
+			this->toolStripSeparator9->Size = System::Drawing::Size(201, 6);
+			this->RestartToolStripMenuItem->Name = L"RestartToolStripMenuItem";
+			this->RestartToolStripMenuItem->Size = System::Drawing::Size(204, 22);
+			this->RestartToolStripMenuItem->Text = L"再起動(&R)";
+			this->RestartToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::RestartToolStripMenuItem_Click);
+			this->LeaveToolStripMenuItem->Name = L"LeaveToolStripMenuItem";
+			this->LeaveToolStripMenuItem->Size = System::Drawing::Size(204, 22);
+			this->LeaveToolStripMenuItem->Text = L"退室(&L)";
+			this->LeaveToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::LeaveToolStripMenuItem_Click);
+			this->RestToolStripMenuItem->Name = L"RestToolStripMenuItem";
+			this->RestToolStripMenuItem->Size = System::Drawing::Size(204, 22);
+			this->RestToolStripMenuItem->Text = L"休憩状態の切り替え(&M)";
+			this->RestToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::RestToolStripMenuItem_Click);
+			this->toolStripSeparator10->Name = L"toolStripSeparator10";
+			this->toolStripSeparator10->Size = System::Drawing::Size(201, 6);
+			this->ClearToolStripMenuItem->Name = L"ClearToolStripMenuItem";
+			this->ClearToolStripMenuItem->Size = System::Drawing::Size(204, 22);
+			this->ClearToolStripMenuItem->Text = L"ログの全削除(&C)";
+			this->ClearToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ClearToolStripMenuItem_Click);
 			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {this->toolStripMenuItemSetting, 
 				this->toolStripSeparator2, this->toolStripMenuItemDelay, this->toolStripSeparator3, this->toolStripMenuItemRecordReplay, this->toolStripMenuItemAllowSpectator, 
 				this->toolStripSeparator7, this->toolStripMenuItemAfterRest});
 			this->toolStripMenuItemOption->Name = L"toolStripMenuItemOption";
-			this->toolStripMenuItemOption->Size = System::Drawing::Size(76, 20);
+			this->toolStripMenuItemOption->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemOption->Text = L"オプション(&O)";
-			// 
-			// toolStripMenuItemSetting
-			// 
 			this->toolStripMenuItemSetting->Name = L"toolStripMenuItemSetting";
-			this->toolStripMenuItemSetting->Size = System::Drawing::Size(212, 22);
+			this->toolStripMenuItemSetting->Size = System::Drawing::Size(239, 22);
 			this->toolStripMenuItemSetting->Text = L"設定(&S)";
 			this->toolStripMenuItemSetting->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemSetting_Click);
-			// 
-			// toolStripSeparator2
-			// 
 			this->toolStripSeparator2->Name = L"toolStripSeparator2";
-			this->toolStripSeparator2->Size = System::Drawing::Size(209, 6);
-			// 
-			// toolStripMenuItemDelay
-			// 
+			this->toolStripSeparator2->Size = System::Drawing::Size(236, 6);
 			this->toolStripMenuItemDelay->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(13) {this->toolStripMenuItemDelayAuto, 
 				this->toolStripSeparator4, this->toolStripMenuItemDelay2, this->toolStripMenuItemDelay3, this->toolStripMenuItemDelay4, this->toolStripMenuItemDelay5, 
 				this->toolStripMenuItemDelay6, this->toolStripMenuItemDelay7, this->toolStripMenuItemDelay8, this->toolStripMenuItemDelay9, this->toolStripMenuItemDelay10, 
 				this->toolStripMenuItemDelay11, this->toolStripMenuItemDelay12});
 			this->toolStripMenuItemDelay->Name = L"toolStripMenuItemDelay";
-			this->toolStripMenuItemDelay->Size = System::Drawing::Size(212, 22);
+			this->toolStripMenuItemDelay->Size = System::Drawing::Size(239, 22);
 			this->toolStripMenuItemDelay->Text = L"ディレイ(&D)";
-			// 
-			// toolStripMenuItemDelayAuto
-			// 
 			this->toolStripMenuItemDelayAuto->Checked = true;
 			this->toolStripMenuItemDelayAuto->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemDelayAuto->Name = L"toolStripMenuItemDelayAuto";
-			this->toolStripMenuItemDelayAuto->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelayAuto->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelayAuto->Text = L"Auto";
 			this->toolStripMenuItemDelayAuto->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelayAuto_Click);
-			// 
-			// toolStripSeparator4
-			// 
 			this->toolStripSeparator4->Name = L"toolStripSeparator4";
-			this->toolStripSeparator4->Size = System::Drawing::Size(91, 6);
-			// 
-			// toolStripMenuItemDelay2
-			// 
+			this->toolStripSeparator4->Size = System::Drawing::Size(100, 6);
 			this->toolStripMenuItemDelay2->Name = L"toolStripMenuItemDelay2";
-			this->toolStripMenuItemDelay2->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay2->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay2->Text = L"2";
 			this->toolStripMenuItemDelay2->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay2_Click);
-			// 
-			// toolStripMenuItemDelay3
-			// 
 			this->toolStripMenuItemDelay3->Name = L"toolStripMenuItemDelay3";
-			this->toolStripMenuItemDelay3->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay3->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay3->Text = L"3";
 			this->toolStripMenuItemDelay3->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay3_Click);
-			// 
-			// toolStripMenuItemDelay4
-			// 
 			this->toolStripMenuItemDelay4->Name = L"toolStripMenuItemDelay4";
-			this->toolStripMenuItemDelay4->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay4->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay4->Text = L"4";
 			this->toolStripMenuItemDelay4->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay4_Click);
-			// 
-			// toolStripMenuItemDelay5
-			// 
 			this->toolStripMenuItemDelay5->Name = L"toolStripMenuItemDelay5";
-			this->toolStripMenuItemDelay5->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay5->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay5->Text = L"5";
 			this->toolStripMenuItemDelay5->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay5_Click);
-			// 
-			// toolStripMenuItemDelay6
-			// 
 			this->toolStripMenuItemDelay6->Name = L"toolStripMenuItemDelay6";
-			this->toolStripMenuItemDelay6->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay6->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay6->Text = L"6";
 			this->toolStripMenuItemDelay6->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay6_Click);
-			// 
-			// toolStripMenuItemDelay7
-			// 
 			this->toolStripMenuItemDelay7->Name = L"toolStripMenuItemDelay7";
-			this->toolStripMenuItemDelay7->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay7->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay7->Text = L"7";
 			this->toolStripMenuItemDelay7->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay7_Click);
-			// 
-			// toolStripMenuItemDelay8
-			// 
 			this->toolStripMenuItemDelay8->Name = L"toolStripMenuItemDelay8";
-			this->toolStripMenuItemDelay8->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay8->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay8->Text = L"8";
 			this->toolStripMenuItemDelay8->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay8_Click);
-			// 
-			// toolStripMenuItemDelay9
-			// 
 			this->toolStripMenuItemDelay9->Name = L"toolStripMenuItemDelay9";
-			this->toolStripMenuItemDelay9->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay9->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay9->Text = L"9";
 			this->toolStripMenuItemDelay9->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay9_Click);
-			// 
-			// toolStripMenuItemDelay10
-			// 
 			this->toolStripMenuItemDelay10->Name = L"toolStripMenuItemDelay10";
-			this->toolStripMenuItemDelay10->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay10->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay10->Text = L"10";
 			this->toolStripMenuItemDelay10->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay10_Click);
-			// 
-			// toolStripMenuItemDelay11
-			// 
 			this->toolStripMenuItemDelay11->Name = L"toolStripMenuItemDelay11";
-			this->toolStripMenuItemDelay11->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay11->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay11->Text = L"11";
 			this->toolStripMenuItemDelay11->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay11_Click);
-			// 
-			// toolStripMenuItemDelay12
-			// 
 			this->toolStripMenuItemDelay12->Name = L"toolStripMenuItemDelay12";
-			this->toolStripMenuItemDelay12->Size = System::Drawing::Size(94, 22);
+			this->toolStripMenuItemDelay12->Size = System::Drawing::Size(103, 22);
 			this->toolStripMenuItemDelay12->Text = L"12";
 			this->toolStripMenuItemDelay12->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelay12_Click);
-			// 
-			// toolStripSeparator3
-			// 
 			this->toolStripSeparator3->Name = L"toolStripSeparator3";
-			this->toolStripSeparator3->Size = System::Drawing::Size(209, 6);
-			// 
-			// toolStripMenuItemRecordReplay
-			// 
+			this->toolStripSeparator3->Size = System::Drawing::Size(236, 6);
 			this->toolStripMenuItemRecordReplay->Checked = true;
 			this->toolStripMenuItemRecordReplay->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemRecordReplay->Name = L"toolStripMenuItemRecordReplay";
-			this->toolStripMenuItemRecordReplay->Size = System::Drawing::Size(212, 22);
+			this->toolStripMenuItemRecordReplay->Size = System::Drawing::Size(239, 22);
 			this->toolStripMenuItemRecordReplay->Text = L"リプレイファイルの保存(&R)";
 			this->toolStripMenuItemRecordReplay->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemRecordReplay_Click);
-			// 
-			// toolStripMenuItemAllowSpectator
-			// 
 			this->toolStripMenuItemAllowSpectator->Checked = true;
 			this->toolStripMenuItemAllowSpectator->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemAllowSpectator->Name = L"toolStripMenuItemAllowSpectator";
-			this->toolStripMenuItemAllowSpectator->Size = System::Drawing::Size(212, 22);
+			this->toolStripMenuItemAllowSpectator->Size = System::Drawing::Size(239, 22);
 			this->toolStripMenuItemAllowSpectator->Text = L"観戦の許可(&A)";
 			this->toolStripMenuItemAllowSpectator->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAllowSpectator_Click);
-			// 
-			// toolStripSeparator7
-			// 
 			this->toolStripSeparator7->Name = L"toolStripSeparator7";
-			this->toolStripSeparator7->Size = System::Drawing::Size(209, 6);
-			// 
-			// toolStripMenuItemAfterRest
-			// 
+			this->toolStripSeparator7->Size = System::Drawing::Size(236, 6);
 			this->toolStripMenuItemAfterRest->Name = L"toolStripMenuItemAfterRest";
-			this->toolStripMenuItemAfterRest->Size = System::Drawing::Size(212, 22);
+			this->toolStripMenuItemAfterRest->Size = System::Drawing::Size(239, 22);
 			this->toolStripMenuItemAfterRest->Text = L"ネット対戦後に一息入れる(&N)";
 			this->toolStripMenuItemAfterRest->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAfterRest_Click);
-			// 
-			// toolStripMenuItemHelp
-			// 
 			this->toolStripMenuItemHelp->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->toolStripMenuItemViewCommand, 
 				this->toolStripMenuItemChangeList, this->toolStripSeparator5, this->toolStripMenuItemVersion});
 			this->toolStripMenuItemHelp->Name = L"toolStripMenuItemHelp";
 			this->toolStripMenuItemHelp->ShortcutKeyDisplayString = L"Ctrl+L";
-			this->toolStripMenuItemHelp->Size = System::Drawing::Size(62, 20);
+			this->toolStripMenuItemHelp->Size = System::Drawing::Size(75, 22);
 			this->toolStripMenuItemHelp->Text = L"ヘルプ(&H)";
-			// 
-			// toolStripMenuItemViewCommand
-			// 
 			this->toolStripMenuItemViewCommand->Name = L"toolStripMenuItemViewCommand";
-			this->toolStripMenuItemViewCommand->Size = System::Drawing::Size(177, 22);
+			this->toolStripMenuItemViewCommand->Size = System::Drawing::Size(211, 22);
 			this->toolStripMenuItemViewCommand->Text = L"コマンドの一覧(&C)";
 			this->toolStripMenuItemViewCommand->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemViewCommand_Click);
-			// 
-			// toolStripMenuItemChangeList
-			// 
 			this->toolStripMenuItemChangeList->Name = L"toolStripMenuItemChangeList";
 			this->toolStripMenuItemChangeList->ShortcutKeys = System::Windows::Forms::Keys::F2;
-			this->toolStripMenuItemChangeList->Size = System::Drawing::Size(177, 22);
+			this->toolStripMenuItemChangeList->Size = System::Drawing::Size(211, 22);
 			this->toolStripMenuItemChangeList->Text = L"リストの切り替え(&L)";
 			this->toolStripMenuItemChangeList->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemChangeList_Click);
-			// 
-			// toolStripSeparator5
-			// 
 			this->toolStripSeparator5->Name = L"toolStripSeparator5";
-			this->toolStripSeparator5->Size = System::Drawing::Size(174, 6);
-			// 
-			// toolStripMenuItemVersion
-			// 
+			this->toolStripSeparator5->Size = System::Drawing::Size(208, 6);
 			this->toolStripMenuItemVersion->Name = L"toolStripMenuItemVersion";
-			this->toolStripMenuItemVersion->Size = System::Drawing::Size(177, 22);
+			this->toolStripMenuItemVersion->Size = System::Drawing::Size(211, 22);
 			this->toolStripMenuItemVersion->Text = L"バージョン情報(&A)";
 			this->toolStripMenuItemVersion->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemVersion_Click);
-			// 
-			// splitContainer1
-			// 
 			this->splitContainer1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->splitContainer1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->splitContainer1->Location = System::Drawing::Point(0, 24);
+			this->splitContainer1->Location = System::Drawing::Point(0, 26);
 			this->splitContainer1->Name = L"splitContainer1";
-			// 
-			// splitContainer1.Panel1
-			// 
 			this->splitContainer1->Panel1->Controls->Add(this->listBoxMember);
-			// 
-			// splitContainer1.Panel2
-			// 
 			this->splitContainer1->Panel2->Controls->Add(this->richTextBoxLog);
 			this->splitContainer1->Panel2->Controls->Add(this->textBoxInput);
-			this->splitContainer1->Size = System::Drawing::Size(528, 326);
+			this->splitContainer1->Size = System::Drawing::Size(528, 324);
 			this->splitContainer1->SplitterDistance = 90;
 			this->splitContainer1->TabIndex = 2;
 			this->splitContainer1->TabStop = false;
-			// 
-			// listBoxMember
-			// 
 			this->listBoxMember->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->listBoxMember->ContextMenuStrip = this->contextMenuStripMember;
 			this->listBoxMember->Dock = System::Windows::Forms::DockStyle::Fill;
@@ -446,44 +427,28 @@ namespace MTSP {
 			this->listBoxMember->ItemHeight = 12;
 			this->listBoxMember->Location = System::Drawing::Point(0, 0);
 			this->listBoxMember->Name = L"listBoxMember";
-			this->listBoxMember->Size = System::Drawing::Size(88, 324);
+			this->listBoxMember->Size = System::Drawing::Size(88, 312);
 			this->listBoxMember->TabIndex = 2;
 			this->listBoxMember->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::listBoxMember_MouseDoubleClick);
 			this->listBoxMember->DrawItem += gcnew System::Windows::Forms::DrawItemEventHandler(this, &MainForm::listBoxMember_DrawItem);
-			this->listBoxMember->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::listBoxMember_MouseMove);
-			// 
-			// contextMenuStripMember
-			// 
 			this->contextMenuStripMember->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->toolStripMenuItemVS, 
 				this->toolStripMenuItemWatch, this->toolStripMenuItemPing});
 			this->contextMenuStripMember->Name = L"contextMenuStrip1";
 			this->contextMenuStripMember->ShowImageMargin = false;
-			this->contextMenuStripMember->Size = System::Drawing::Size(89, 70);
+			this->contextMenuStripMember->Size = System::Drawing::Size(100, 70);
 			this->contextMenuStripMember->Opening += gcnew System::ComponentModel::CancelEventHandler(this, &MainForm::contextMenuStripMember_Opening);
-			// 
-			// toolStripMenuItemVS
-			// 
 			this->toolStripMenuItemVS->Name = L"toolStripMenuItemVS";
-			this->toolStripMenuItemVS->Size = System::Drawing::Size(88, 22);
+			this->toolStripMenuItemVS->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemVS->Text = L"対戦する";
 			this->toolStripMenuItemVS->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemVS_Click);
-			// 
-			// toolStripMenuItemWatch
-			// 
 			this->toolStripMenuItemWatch->Name = L"toolStripMenuItemWatch";
-			this->toolStripMenuItemWatch->Size = System::Drawing::Size(88, 22);
+			this->toolStripMenuItemWatch->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemWatch->Text = L"観戦する";
 			this->toolStripMenuItemWatch->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemWatch_Click);
-			// 
-			// toolStripMenuItemPing
-			// 
 			this->toolStripMenuItemPing->Name = L"toolStripMenuItemPing";
-			this->toolStripMenuItemPing->Size = System::Drawing::Size(88, 22);
+			this->toolStripMenuItemPing->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemPing->Text = L"PING";
 			this->toolStripMenuItemPing->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemPing_Click);
-			// 
-			// richTextBoxLog
-			// 
 			this->richTextBoxLog->BackColor = System::Drawing::SystemColors::Window;
 			this->richTextBoxLog->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->richTextBoxLog->ContextMenuStrip = this->contextMenuStripLog;
@@ -491,60 +456,39 @@ namespace MTSP {
 			this->richTextBoxLog->Location = System::Drawing::Point(0, 0);
 			this->richTextBoxLog->Name = L"richTextBoxLog";
 			this->richTextBoxLog->ReadOnly = true;
-			this->richTextBoxLog->Size = System::Drawing::Size(432, 305);
+			this->richTextBoxLog->Size = System::Drawing::Size(432, 303);
 			this->richTextBoxLog->TabIndex = 0;
 			this->richTextBoxLog->TabStop = false;
 			this->richTextBoxLog->Text = L"";
 			this->richTextBoxLog->WordWrap = false;
 			this->richTextBoxLog->LinkClicked += gcnew System::Windows::Forms::LinkClickedEventHandler(this, &MainForm::richTextBoxLog_LinkClicked);
-			// 
-			// contextMenuStripLog
-			// 
 			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->contextMenuItemCopy, 
 				this->toolStripSeparator6, this->contxtMenuItemSaveLog});
 			this->contextMenuStripLog->Name = L"contextMenuStrip2";
 			this->contextMenuStripLog->ShowImageMargin = false;
-			this->contextMenuStripLog->Size = System::Drawing::Size(150, 54);
-			// 
-			// contextMenuItemCopy
-			// 
+			this->contextMenuStripLog->Size = System::Drawing::Size(177, 54);
 			this->contextMenuItemCopy->Name = L"contextMenuItemCopy";
 			this->contextMenuItemCopy->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
-			this->contextMenuItemCopy->Size = System::Drawing::Size(149, 22);
+			this->contextMenuItemCopy->Size = System::Drawing::Size(176, 22);
 			this->contextMenuItemCopy->Text = L"コピー(&C)";
 			this->contextMenuItemCopy->Click += gcnew System::EventHandler(this, &MainForm::contextMenuItemCopy_Click);
-			// 
-			// toolStripSeparator6
-			// 
 			this->toolStripSeparator6->Name = L"toolStripSeparator6";
-			this->toolStripSeparator6->Size = System::Drawing::Size(146, 6);
-			// 
-			// contxtMenuItemSaveLog
-			// 
+			this->toolStripSeparator6->Size = System::Drawing::Size(173, 6);
 			this->contxtMenuItemSaveLog->Name = L"contxtMenuItemSaveLog";
 			this->contxtMenuItemSaveLog->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
-			this->contxtMenuItemSaveLog->Size = System::Drawing::Size(149, 22);
+			this->contxtMenuItemSaveLog->Size = System::Drawing::Size(176, 22);
 			this->contxtMenuItemSaveLog->Text = L"ログの保存(&S)";
 			this->contxtMenuItemSaveLog->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemSaveLog_Click);
-			// 
-			// textBoxInput
-			// 
 			this->textBoxInput->BackColor = System::Drawing::SystemColors::Window;
 			this->textBoxInput->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->textBoxInput->Location = System::Drawing::Point(0, 305);
+			this->textBoxInput->Location = System::Drawing::Point(0, 303);
 			this->textBoxInput->MaxLength = 127;
 			this->textBoxInput->Name = L"textBoxInput";
 			this->textBoxInput->Size = System::Drawing::Size(432, 19);
 			this->textBoxInput->TabIndex = 0;
 			this->textBoxInput->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::textBoxInput_KeyDown);
-			// 
-			// openFileDialog1
-			// 
 			this->openFileDialog1->Filter = L"MT Replay file (*.mtr)|*.mtr";
-			this->openFileDialog1->Title = L"MTSP用のリプレイファイル";
-			// 
-			// MainForm
-			// 
+			this->openFileDialog1->Title = L"LilithPort用のリプレイファイル";
 			this->AllowDrop = true;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
@@ -553,7 +497,7 @@ namespace MTSP {
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"MainForm";
-			this->Text = L"MTSP";
+			this->Text = L"LilithPort";
 			this->Load += gcnew System::EventHandler(this, &MainForm::MainForm_Load);
 			this->Shown += gcnew System::EventHandler(this, &MainForm::MainForm_Shown);
 			this->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &MainForm::MainForm_DragDrop);
@@ -581,6 +525,11 @@ namespace MTSP {
 		static LIST_VIEW ListView;
 		static String^ ReplayFilePath;
 
+		// ブックマーク
+		Object^ tmpIP;
+		IntPtr BookMarkServerName;
+		IntPtr BookMarkConnectIP;
+
 		// チャット履歴
 		static int ChatHistoryNumber;
 		static Generic::List<String^>^ ChatHistory;
@@ -606,6 +555,7 @@ namespace MTSP {
 		static Thread^ GameThread;
 		static UdpClient^ UDP;
 		static String^ ServerName;
+		static String^ ConnectIP;
 		static bool AfterCloseUDP; // 対戦中の鯖落ちに巻き込まれないように
 
 		// 回線の生死判定
@@ -891,7 +841,7 @@ namespace MTSP {
 			MemberList->Clear();
 			listBoxMember->Items->Clear();
 
-			this->Text = gcnew String("MTSP");
+			this->Text = gcnew String("LilithPort");
 
 			StartupForm^ s = gcnew StartupForm;
 			s->ShowDialog(this);
@@ -922,7 +872,7 @@ namespace MTSP {
 			MTOPTION.CONNECTION_TYPE = CT_FREE;
 			MemberList[0]->TYPE  = CT_FREE;
 			MemberList[0]->STATE = MS_FREE;
-			this->Text = gcnew String("MTSP  [Free Play]");
+			this->Text = gcnew String("LilithPort  [Free Play]");
 			listBoxMember->Refresh();
 		}
 
@@ -1017,7 +967,7 @@ namespace MTSP {
 				}
 
 				if(i >= MemberList->Count && MTOPTION.CONNECTION_TYPE != CT_SERVER){
-					name = gcnew String("[ Unknown ] ");
+					name = gcnew String("Unknown");
 					col  = ErrorMessageColor;
 
 					// 知らない人がいたのでサーバに問い合わせ
@@ -1034,6 +984,10 @@ namespace MTSP {
 			Monitor::Enter(ChatHistory);
 			try{
 				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+
+				// 時間
+				richTextBoxLog->SelectionColor = SystemMessageColor;
+				richTextBoxLog->AppendText(String::Format("[{0}]", DateTime::Now.ToString("HH:mm")));
 
 				// 名前
 				richTextBoxLog->SelectionColor = col;
@@ -1135,6 +1089,10 @@ namespace MTSP {
 				Monitor::Enter(ChatHistory);
 				try{
 					richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+					
+					// 時間
+					richTextBoxLog->SelectionColor = SystemMessageColor;
+					richTextBoxLog->AppendText(String::Format("[{0}]", DateTime::Now.ToString("HH:mm")));
 
 					richTextBoxLog->SelectionColor = NameColor[type];
 					richTextBoxLog->SelectionBackColor = CommentBackColor;
@@ -1155,6 +1113,7 @@ namespace MTSP {
 				}
 			}
 			else{
+				WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 				WriteMessage(String::Format("{0}が入室しました。¥n", name), SystemMessageColor);
 			}
 		}
@@ -1787,6 +1746,7 @@ namespace MTSP {
 			}
 		}
 
+		/* CPU負荷が高いのでコメントアウト
 		System::Void listBoxMember_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 			int index = listBoxMember->IndexFromPoint(e->X, e->Y);
 
@@ -1815,6 +1775,8 @@ namespace MTSP {
 
 			toolTipMember->SetToolTip(listBoxMember, cap);
 		}
+		*/
+		
 
 		System::Void toolStripMenuItemSetting_Click(System::Object^  sender, System::EventArgs^  e) {
 			if(Option == nullptr || Option->IsDisposed){
@@ -1835,11 +1797,124 @@ namespace MTSP {
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("MT Special Edition¥n", SystemMessageColor);
+			WriteMessage("Lilith Port v1.00¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
 			this->Close();
+		}
+
+		// ブックマーク追加
+		System::Void toolStripMenuItemAddBookMark_Click(System::Object^  sender, System::EventArgs^  e) {
+			if((MTOPTION.BOOKMARK_COUNT - MTOPTION.BOOKMARK_DELETED_COUNT) > 9) {
+				MessageBox::Show("これ以上ブックマークを追加できません。¥nブックマークは最大10個まで登録できます。¥n¥n追加するには、ブックマークの削除を行ってください。", "ブックマークの追加", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				return;
+			}
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER || MTOPTION.CONNECTION_TYPE == CT_FREE ){
+				MessageBox::Show("SERVERモード、¥nFREEモードはブックマークに追加できません。", "ブックマークの追加", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				return;
+			}
+
+			String^ tmpName = ServerName;
+			String^ tmpIP = ConnectIP;
+			UINT tmpInt = MTOPTION.BOOKMARK_COUNT;
+
+			toolStripMenuItemBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			toolStripMenuItemBookMarkMenu->DropDownItems->Add(toolStripMenuItemBookMark);
+			toolStripMenuItemBookMark->Text = ServerName;
+			toolStripMenuItemBookMark->Name = L"toolStripMenuItemBookMark" + MTOPTION.BOOKMARK_COUNT;
+			toolStripMenuItemBookMark->Tag = MTOPTION.BOOKMARK_COUNT;
+			toolStripMenuItemBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemBookMark_Click);
+
+			// 削除メニュー
+			toolStripMenuItemDelBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			toolStripMenuItemBookMark->DropDownItems->Add(toolStripMenuItemDelBookMark);
+			toolStripMenuItemDelBookMark->Text = L"削除(&D)";
+			toolStripMenuItemDelBookMark->Tag = L"toolStripMenuItemBookMark" + MTOPTION.BOOKMARK_COUNT;
+			toolStripMenuItemDelBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelBookMark_Click);
+				
+			BookMarkServerName = Runtime::InteropServices::Marshal::StringToHGlobalAuto(tmpName);
+			_tcscpy_s(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt], static_cast<PTCHAR>(BookMarkServerName.ToPointer()));
+
+			BookMarkConnectIP = Runtime::InteropServices::Marshal::StringToHGlobalAuto(tmpIP);
+			_tcscpy_s(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt], static_cast<PTCHAR>(BookMarkConnectIP.ToPointer()));
+
+			MTOPTION.BOOKMARK_COUNT++;
+
+			SaveMTOption();
+		}
+
+		// ブックマーク接続
+		System::Void toolStripMenuItemBookMark_Click(System::Object^ sender, System::EventArgs^ e) {
+			UINT tmpInt = (UINT)((ToolStripMenuItem^)sender)->Tag;
+			_tcscpy_s(MTOPTION.SERVER_NAME, MTOPTION.BOOKMARK_SERVER_NAME[tmpInt]);
+			_tcscpy_s(MTOPTION.CONNECTION_IP, MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt]);
+
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER || MTOPTION.CONNECTION_TYPE == CT_FREE) {
+				MTOPTION.CONNECTION_TYPE = CT_HOST;
+			}
+
+			Restart();
+		}
+
+		// ブックマーク削除
+		System::Void toolStripMenuItemDelBookMark_Click(System::Object^ sender, System::EventArgs^ e) {
+			Object^ tmpTag;
+			tmpTag = ((ToolStripMenuItem^)sender)->Tag;
+			UINT tmpInt = (UINT)toolStripMenuItemBookMarkMenu->DropDownItems[(String^)tmpTag]->Tag;
+			if(MessageBox::Show((String^)toolStripMenuItemBookMarkMenu->DropDownItems[(String^)tmpTag]->Text+" をブックマークから削除します。¥nよろしいですか？", "ブックマークの削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+				toolStripMenuItemBookMarkMenu->DropDownItems->Remove(toolStripMenuItemBookMarkMenu->DropDownItems[(String^)tmpTag]);
+				MTOPTION.BOOKMARK_DELETED_COUNT++;
+
+				ZeroMemory(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt], sizeof(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt]));
+				ZeroMemory(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt], sizeof(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt]));
+
+				SaveMTOption();
+			}
+		}
+
+		// ゲームの起動
+		System::Void GameStartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			StartGame(RT_FREE);
+		}
+
+		// 再起動
+		System::Void RestartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER) {
+				if(MessageBox::Show("サーバを落とします。¥nよろしいですか？", "再起動", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+				}else{
+					return;
+				}
+			}
+			Restart();
+		}
+
+		// 退室
+		System::Void LeaveToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER) {
+				if(MessageBox::Show("サーバを落とします。¥nよろしいですか？", "退室", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+				}else{
+					return;
+				}
+			}
+			Leave(true);
+		}
+
+		// 休憩状態の切り替え
+		System::Void RestToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
+
+			if(MemberList[0]->STATE == MS_FREE){
+				ChangeState((BYTE)MS_REST);
+			}
+			else if(MemberList[0]->STATE == MS_REST){
+				ChangeState((BYTE)MS_FREE);
+			}
+		}
+
+		// ログの全削除
+		System::Void ClearToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			richTextBoxLog->Clear();
 		}
 
 		System::Void toolStripMenuItemSaveLog_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2109,5 +2184,5 @@ namespace MTSP {
 				}
 			}
 		}
-};
+	};
 }

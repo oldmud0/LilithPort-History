@@ -11,6 +11,8 @@
 #include <tchar.h>
 #include <mmsystem.h>
 #include <deque>
+#include <string>
+
 
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "winmm.lib")
@@ -173,12 +175,14 @@ const BYTE VOLUME_SET_2_95_CODE[] = {0x50,0x8B,0x08,0xCC,0x52,0x50,0xFF,0x51,0x3
 
 // 設定項目
 const UINT MAX_NAME   = 32;
+const UINT MAX_ARRAY  = 64;
 const UINT MAX_ID     = 0x3FFF;
 const UINT MAX_TITLE  = 256;
 const UINT MAX_PACKET = 512;
 
 const BYTE TYMT_VERSION = 6;
 const UINT TIME_OUT = 3000;
+
 
 typedef struct _MT_SP_INFORMATION
 {
@@ -207,8 +211,13 @@ typedef struct _MT_SP_OPTION
 {
 	TCHAR PATH[_MAX_PATH];
 	UINT  CONNECTION_TYPE;
+	TCHAR SERVER_NAME[MAX_NAME];
 	TCHAR CONNECTION_IP[MAX_NAME];
 	TCHAR WELCOME[MAX_TITLE/2];
+	UINT  BOOKMARK_COUNT;
+	UINT  BOOKMARK_DELETED_COUNT;
+	TCHAR BOOKMARK_SERVER_NAME[MAX_TITLE][MAX_ARRAY];
+	TCHAR BOOKMARK_CONNECTION_IP[MAX_NAME][MAX_ARRAY];
 	TCHAR GAME_EXE[_MAX_PATH];
 	TCHAR REPLAY_FOLDER[_MAX_PATH];
 	TCHAR VS_SOUND[_MAX_PATH];

@@ -11,7 +11,7 @@ using namespace System::Drawing;
 using namespace System::IO;
 using namespace System::Diagnostics;
 
-namespace MTSP {
+namespace LilithPort {
 
 	/// <summary>
 	/// OptionForm の概要
@@ -138,6 +138,16 @@ namespace MTSP {
 	private: System::Windows::Forms::GroupBox^  groupBoxMidi;
 	private: System::Windows::Forms::Label^  labelMidi;
 	private: System::Windows::Forms::TrackBar^  trackBarMidi;
+private: System::Windows::Forms::TabPage^  tabPageIP;
+private: System::Windows::Forms::GroupBox^  Base64groupBox;
+private: System::Windows::Forms::TextBox^  Base64textBox;
+
+private: System::Windows::Forms::GroupBox^  IPgroupBox;
+private: System::Windows::Forms::Button^  Convertbutton;
+private: System::Windows::Forms::TextBox^  IPtextBox;
+private: System::Windows::Forms::Label^  discriptionlabel;
+private: System::Windows::Forms::Button^  AddPortbutton;
+
 
 	private:
 		/// <summary>
@@ -233,6 +243,14 @@ namespace MTSP {
 			this->groupBoxBGM = (gcnew System::Windows::Forms::GroupBox());
 			this->labelBGM = (gcnew System::Windows::Forms::Label());
 			this->trackBarBGM = (gcnew System::Windows::Forms::TrackBar());
+			this->tabPageIP = (gcnew System::Windows::Forms::TabPage());
+			this->AddPortbutton = (gcnew System::Windows::Forms::Button());
+			this->discriptionlabel = (gcnew System::Windows::Forms::Label());
+			this->Convertbutton = (gcnew System::Windows::Forms::Button());
+			this->Base64groupBox = (gcnew System::Windows::Forms::GroupBox());
+			this->Base64textBox = (gcnew System::Windows::Forms::TextBox());
+			this->IPgroupBox = (gcnew System::Windows::Forms::GroupBox());
+			this->IPtextBox = (gcnew System::Windows::Forms::TextBox());
 			this->tabPageSound->SuspendLayout();
 			this->groupBoxEnterSound->SuspendLayout();
 			this->groupBoxNoticeSound->SuspendLayout();
@@ -266,6 +284,9 @@ namespace MTSP {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBarSE))->BeginInit();
 			this->groupBoxBGM->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBarBGM))->BeginInit();
+			this->tabPageIP->SuspendLayout();
+			this->Base64groupBox->SuspendLayout();
+			this->IPgroupBox->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// buttonOK
@@ -311,10 +332,10 @@ namespace MTSP {
 			this->tabPageSound->Controls->Add(this->groupBoxEnterSound);
 			this->tabPageSound->Controls->Add(this->groupBoxNoticeSound);
 			this->tabPageSound->Controls->Add(this->groupBoxVSSound);
-			this->tabPageSound->Location = System::Drawing::Point(4, 21);
+			this->tabPageSound->Location = System::Drawing::Point(4, 22);
 			this->tabPageSound->Name = L"tabPageSound";
 			this->tabPageSound->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageSound->Size = System::Drawing::Size(369, 243);
+			this->tabPageSound->Size = System::Drawing::Size(369, 242);
 			this->tabPageSound->TabIndex = 3;
 			this->tabPageSound->Text = L"音声";
 			this->tabPageSound->UseVisualStyleBackColor = true;
@@ -420,10 +441,10 @@ namespace MTSP {
 			this->tabPagePath->Controls->Add(this->groupBoxReplayFolder);
 			this->tabPagePath->Controls->Add(this->groupBoxNet);
 			this->tabPagePath->Controls->Add(this->groupBoxGameExe);
-			this->tabPagePath->Location = System::Drawing::Point(4, 21);
+			this->tabPagePath->Location = System::Drawing::Point(4, 22);
 			this->tabPagePath->Name = L"tabPagePath";
 			this->tabPagePath->Padding = System::Windows::Forms::Padding(3);
-			this->tabPagePath->Size = System::Drawing::Size(369, 243);
+			this->tabPagePath->Size = System::Drawing::Size(369, 242);
 			this->tabPagePath->TabIndex = 0;
 			this->tabPagePath->Text = L"基本";
 			this->tabPagePath->UseVisualStyleBackColor = true;
@@ -595,6 +616,7 @@ namespace MTSP {
 			this->tabControlOption->Controls->Add(this->tabPageGame);
 			this->tabControlOption->Controls->Add(this->tabPageColor);
 			this->tabControlOption->Controls->Add(this->tabPageVolume);
+			this->tabControlOption->Controls->Add(this->tabPageIP);
 			this->tabControlOption->Dock = System::Windows::Forms::DockStyle::Top;
 			this->tabControlOption->Location = System::Drawing::Point(0, 0);
 			this->tabControlOption->Name = L"tabControlOption";
@@ -609,10 +631,10 @@ namespace MTSP {
 			this->tabPageGame->Controls->Add(this->groupBoxRun);
 			this->tabPageGame->Controls->Add(this->groupBoxView);
 			this->tabPageGame->Controls->Add(this->groupBoxSetting);
-			this->tabPageGame->Location = System::Drawing::Point(4, 21);
+			this->tabPageGame->Location = System::Drawing::Point(4, 22);
 			this->tabPageGame->Name = L"tabPageGame";
 			this->tabPageGame->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageGame->Size = System::Drawing::Size(369, 243);
+			this->tabPageGame->Size = System::Drawing::Size(369, 242);
 			this->tabPageGame->TabIndex = 4;
 			this->tabPageGame->Text = L"ゲーム";
 			this->tabPageGame->UseVisualStyleBackColor = true;
@@ -832,10 +854,10 @@ namespace MTSP {
 			this->tabPageColor->Controls->Add(this->groupBoxOthersColor);
 			this->tabPageColor->Controls->Add(this->groupBoxStateColor);
 			this->tabPageColor->Controls->Add(this->groupBoxNameColor);
-			this->tabPageColor->Location = System::Drawing::Point(4, 21);
+			this->tabPageColor->Location = System::Drawing::Point(4, 22);
 			this->tabPageColor->Name = L"tabPageColor";
 			this->tabPageColor->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageColor->Size = System::Drawing::Size(369, 243);
+			this->tabPageColor->Size = System::Drawing::Size(369, 242);
 			this->tabPageColor->TabIndex = 5;
 			this->tabPageColor->Text = L"カラー";
 			this->tabPageColor->UseVisualStyleBackColor = true;
@@ -1037,10 +1059,10 @@ namespace MTSP {
 			this->tabPageVolume->Controls->Add(this->groupBoxMidi);
 			this->tabPageVolume->Controls->Add(this->groupBoxSE);
 			this->tabPageVolume->Controls->Add(this->groupBoxBGM);
-			this->tabPageVolume->Location = System::Drawing::Point(4, 21);
+			this->tabPageVolume->Location = System::Drawing::Point(4, 22);
 			this->tabPageVolume->Name = L"tabPageVolume";
 			this->tabPageVolume->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageVolume->Size = System::Drawing::Size(369, 243);
+			this->tabPageVolume->Size = System::Drawing::Size(369, 242);
 			this->tabPageVolume->TabIndex = 6;
 			this->tabPageVolume->Text = L"音量";
 			this->tabPageVolume->UseVisualStyleBackColor = true;
@@ -1144,6 +1166,89 @@ namespace MTSP {
 			this->trackBarBGM->TickStyle = System::Windows::Forms::TickStyle::TopLeft;
 			this->trackBarBGM->Scroll += gcnew System::EventHandler(this, &OptionForm::trackBarBGM_Scroll);
 			// 
+			// tabPageIP
+			// 
+			this->tabPageIP->Controls->Add(this->AddPortbutton);
+			this->tabPageIP->Controls->Add(this->discriptionlabel);
+			this->tabPageIP->Controls->Add(this->Convertbutton);
+			this->tabPageIP->Controls->Add(this->Base64groupBox);
+			this->tabPageIP->Controls->Add(this->IPgroupBox);
+			this->tabPageIP->Location = System::Drawing::Point(4, 22);
+			this->tabPageIP->Name = L"tabPageIP";
+			this->tabPageIP->Padding = System::Windows::Forms::Padding(3);
+			this->tabPageIP->Size = System::Drawing::Size(369, 242);
+			this->tabPageIP->TabIndex = 7;
+			this->tabPageIP->Text = L"IPの変換";
+			this->tabPageIP->UseVisualStyleBackColor = true;
+			// 
+			// AddPortbutton
+			// 
+			this->AddPortbutton->Location = System::Drawing::Point(168, 190);
+			this->AddPortbutton->Name = L"AddPortbutton";
+			this->AddPortbutton->Size = System::Drawing::Size(103, 24);
+			this->AddPortbutton->TabIndex = 4;
+			this->AddPortbutton->Text = L"ポート付き変換";
+			this->AddPortbutton->UseVisualStyleBackColor = true;
+			this->AddPortbutton->Click += gcnew System::EventHandler(this, &OptionForm::AddPortbutton_Click);
+			// 
+			// discriptionlabel
+			// 
+			this->discriptionlabel->AutoSize = true;
+			this->discriptionlabel->Location = System::Drawing::Point(8, 8);
+			this->discriptionlabel->Name = L"discriptionlabel";
+			this->discriptionlabel->Size = System::Drawing::Size(297, 48);
+			this->discriptionlabel->TabIndex = 3;
+			this->discriptionlabel->Text = L"IPアドレスを変換することで、¥r¥nサーバを公開する際のリスクを多少軽減できます。¥r¥n¥r¥nサーバを公開する際は、変換されたアドレスを公開してください。";
+			// 
+			// Convertbutton
+			// 
+			this->Convertbutton->Location = System::Drawing::Point(98, 190);
+			this->Convertbutton->Name = L"Convertbutton";
+			this->Convertbutton->Size = System::Drawing::Size(64, 24);
+			this->Convertbutton->TabIndex = 2;
+			this->Convertbutton->Text = L"変換";
+			this->Convertbutton->UseVisualStyleBackColor = true;
+			this->Convertbutton->Click += gcnew System::EventHandler(this, &OptionForm::Convertbutton_Click);
+			// 
+			// Base64groupBox
+			// 
+			this->Base64groupBox->Controls->Add(this->Base64textBox);
+			this->Base64groupBox->Location = System::Drawing::Point(7, 130);
+			this->Base64groupBox->Name = L"Base64groupBox";
+			this->Base64groupBox->Size = System::Drawing::Size(352, 52);
+			this->Base64groupBox->TabIndex = 1;
+			this->Base64groupBox->TabStop = false;
+			this->Base64groupBox->Text = L"変換後のアドレス(Base64)";
+			// 
+			// Base64textBox
+			// 
+			this->Base64textBox->Location = System::Drawing::Point(6, 18);
+			this->Base64textBox->MaxLength = 100;
+			this->Base64textBox->Name = L"Base64textBox";
+			this->Base64textBox->ReadOnly = true;
+			this->Base64textBox->Size = System::Drawing::Size(341, 19);
+			this->Base64textBox->TabIndex = 0;
+			// 
+			// IPgroupBox
+			// 
+			this->IPgroupBox->Controls->Add(this->IPtextBox);
+			this->IPgroupBox->Location = System::Drawing::Point(7, 70);
+			this->IPgroupBox->Name = L"IPgroupBox";
+			this->IPgroupBox->Size = System::Drawing::Size(352, 52);
+			this->IPgroupBox->TabIndex = 0;
+			this->IPgroupBox->TabStop = false;
+			this->IPgroupBox->Text = L"IPアドレス";
+			// 
+			// IPtextBox
+			// 
+			this->IPtextBox->AccessibleDescription = L"";
+			this->IPtextBox->Location = System::Drawing::Point(7, 19);
+			this->IPtextBox->MaxLength = 20;
+			this->IPtextBox->Name = L"IPtextBox";
+			this->IPtextBox->Size = System::Drawing::Size(339, 19);
+			this->IPtextBox->TabIndex = 0;
+			this->IPtextBox->TextChanged += gcnew System::EventHandler(this, &OptionForm::IPtextBox_TextChanged);
+			// 
 			// OptionForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
@@ -1208,6 +1313,12 @@ namespace MTSP {
 			this->groupBoxBGM->ResumeLayout(false);
 			this->groupBoxBGM->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBarBGM))->EndInit();
+			this->tabPageIP->ResumeLayout(false);
+			this->tabPageIP->PerformLayout();
+			this->Base64groupBox->ResumeLayout(false);
+			this->Base64groupBox->PerformLayout();
+			this->IPgroupBox->ResumeLayout(false);
+			this->IPgroupBox->PerformLayout();
 			this->ResumeLayout(false);
 
 		}
@@ -1659,5 +1770,28 @@ namespace MTSP {
 				textBoxEnterSound->Text = safe_cast<array<String^>^>(e->Data->GetData(DataFormats::FileDrop, false))[0];
 			}
 		}
-};
+
+		// IP入力チェック
+		System::Void IPtextBox_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			if(Net::IPAddress::TryParse(IPtextBox->Text, gcnew Net::IPAddress(0)) == false){
+				Convertbutton->Enabled = false;
+				AddPortbutton->Enabled = false;
+			}
+			else{
+				Convertbutton->Enabled = true;
+				AddPortbutton->Enabled = true;
+			}
+		}
+
+		// IPの変換
+		System::Void Convertbutton_Click(System::Object^  sender, System::EventArgs^  e) {
+			Base64textBox->Text = EncryptionIP(IPtextBox->Text);
+		}
+
+		// ポート付きIPの変換
+		System::Void AddPortbutton_Click(System::Object^  sender, System::EventArgs^  e) {
+			Base64textBox->Text = String::Format("{0}:{1}", EncryptionIP(IPtextBox->Text), MTOPTION.OPEN_PORT);
+		}
+
+	};
 }

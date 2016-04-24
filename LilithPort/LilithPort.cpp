@@ -1,10 +1,10 @@
-// MTSP.cpp : メイン プロジェクト ファイルです。
+// LilithPort.cpp : メイン プロジェクト ファイルです。
 
 #include "stdafx.h"
 #include "MainForm.h"
 #include <math.h>
 
-using namespace MTSP;
+using namespace LilithPort;
 
 // グローバル
 MT_SP_INFORMATION  MTINFO;
@@ -19,7 +19,7 @@ int main(array<System::String ^> ^args)
 {
 	// コントロールが作成される前に、Windows XP ビジュアル効果を有効にします
 	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false);
+	Application::SetCompatibleTextRenderingDefault(true);
 
 	// 自プログラムのパス
 	TCHAR drive[_MAX_DRIVE], dir[_MAX_DIR];

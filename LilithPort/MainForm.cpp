@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "MainForm.h"
 
-using namespace MTSP;
+using namespace LilithPort;
 
 void MainForm::Begin()
 {
-	ServerName = gcnew String(MTOPTION.CONNECTION_IP);
+	ServerName = gcnew String(MTOPTION.SERVER_NAME);
+	ConnectIP = gcnew String(MTOPTION.CONNECTION_IP);
+	
 	ServerMode = SM_NORMAL;
 
 	MemberInfo^ me = gcnew MemberInfo;
@@ -79,15 +81,15 @@ void MainForm::Begin()
 			SonarThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunSonar));
 			SonarThread->Start();
 
-			this->Text += String::Format("  [Server : {0}]", ServerName);
-			WriteMessage("サーバの準備が完了しました。¥n", SystemMessageColor);
+			this->Text += String::Format("  [{0}] [Server Port:{1}]", ServerName, MTOPTION.OPEN_PORT);
+			WriteMessage("サーバの準備が完了しました。¥n¥n[オプション -> 設定 -> IPの変換] から、¥nIPアドレスを変換することができます。¥n", SystemMessageColor);
 		}
 		else{
 			// クライアント
 			_int64 address;
 			int port = MTOPTION.PORT;
 
-			array<String^>^ host = ServerName->Split(gcnew array<wchar_t>{':'}, 2, StringSplitOptions::RemoveEmptyEntries);
+			array<String^>^ host = ConnectIP->Split(gcnew array<wchar_t>{':'}, 2, StringSplitOptions::RemoveEmptyEntries);
 
 			// ポート":"指定
 			if(host->Length > 1){
@@ -181,10 +183,10 @@ void MainForm::Begin()
 					UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), this);
 
 					if(MTOPTION.CONNECTION_TYPE == CT_HOST){
-						this->Text += String::Format("  [Host : {0}]", ServerName);
+						this->Text += String::Format("  [{0}] [Host Port:{1}]", ServerName, MTOPTION.OPEN_PORT);
 					}
 					else{
-						this->Text += String::Format("  [Client : {0}]", ServerName);
+						this->Text += String::Format("  [{0}] [Client]", ServerName);
 					}
 					WriteMessage(String::Format("{0}に接続しました。 (ID = {1})¥n", ServerName, me->ID), SystemMessageColor);
 
@@ -643,6 +645,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 					if(member > 0){
 						if(ListView != LV_BLIND){
+							form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 							form->WriteMessage(MemberList[member]->NAME + "が退室しました。¥n", SystemMessageColor);
 						}
 
@@ -658,6 +661,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 				}
 				else{
 					if(id == 0){
+						form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 						form->WriteMessage(ServerName + "がシャットダウンしました。¥n", SystemMessageColor);
 						MemberList[0]->STATE = 0xFF;
 					}
@@ -669,15 +673,18 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 						for(i = 0; i < MemberList->Count; i++){
 							if(id == MemberList[i]->ID){
 								if(i == 0){
+									form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 									form->WriteMessage("サーバとの接続が切断されました。¥n", ErrorMessageColor);
 									MemberList[0]->STATE = 0xFF;
 								}
 								else{
 									if(ListView != LV_BLIND){
 										if(rcv[0] == PH_QUIT){
+											form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 											form->WriteMessage(MemberList[i]->NAME + "が退室しました。¥n", SystemMessageColor);
 										}
 										else{
+											form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 											form->WriteMessage(MemberList[i]->NAME + "の回線が途切れました。¥n", ErrorMessageColor);
 										}
 									}
@@ -782,6 +789,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 						if(rcv[3] == 0xFF){
 							// そんな人いなかった
+							form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 							form->WriteMessage(MemberList[i]->NAME + "は既にいませんでした。¥n", SystemMessageColor);
 
 							if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
@@ -983,6 +991,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					MemberList[i]->NUM_VS++;
 
 					if(ListView != LV_BLIND){
+						form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 						form->WriteMessage(MemberList[i]->NAME, NameColor[MemberList[i]->TYPE]);
 						form->WriteMessage("から対戦の申し込みです。¥n", SystemMessageColor);
 					}
@@ -2554,7 +2563,7 @@ void MainForm::RunGame(Object^ obj)
 						p1_win = p2_win;
 						p2_win = i;
 					}
-
+					WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 					WriteMessage(String::Format("対戦成績 ： {0}戦 {1}勝 {2}敗¥n", num_vs, p1_win, p2_win), SecretColor);
 				}
 			}

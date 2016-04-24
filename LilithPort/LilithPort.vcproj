@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="MTSP"
+	Name="LilithPort"
 	ProjectGUID="{9057AFAF-D9A2-4F09-8D35-C39084BA2A87}"
 	RootNamespace="MTSP"
 	Keyword="ManagedCProj"
@@ -200,11 +200,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".¥MainForm.cpp"
+				RelativePath=".¥LilithPort.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".¥MTSP.cpp"
+				RelativePath=".¥MainForm.cpp"
 				>
 			</File>
 			<File

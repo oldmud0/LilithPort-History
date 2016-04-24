@@ -2,7 +2,7 @@
 #include "OptionForm.h"
 #include "MainForm.h"
 
-using namespace MTSP;
+using namespace LilithPort;
 
 void OptionForm::SaveOption(bool apply){
 	MainForm^ parent = safe_cast<MainForm^>(this->Owner);
