@@ -1,27 +1,56 @@
 #include "stdafx.h"
-#include "Form1.h"
+#include "MainForm.h"
 
-using namespace LunaPortMT;
+using namespace MTSP;
 
-void Form1::Begin()
+void MainForm::Begin()
 {
-	MemberInfo^ me = gcnew MemberInfo;
-	me->IP_EP   = gcnew IPEndPoint(0, 0);
-	me->ID      = 0;
-	me->NAME    = gcnew String(LPMTOPTION.NAME);
-	me->COMMENT = gcnew String(LPMTOPTION.COMMENT);
-	me->TYPE    = LPMTOPTION.CONNECTION_TYPE;
-	me->STATE   = MS_FREE;
+	ServerName = gcnew String(MTOPTION.CONNECTION_IP);
+	ServerMode = SM_NORMAL;
 
-	MemberList->Add(me);
-	listBoxMember->Items->Add(me->NAME);
+	MemberInfo^ me = gcnew MemberInfo;
+	me->IP_EP    = gcnew IPEndPoint(0, 0);
+	me->ID       = 0;
+	me->NAME     = gcnew String(MTOPTION.NAME);
+	me->COMMENT  = gcnew String(MTOPTION.COMMENT);
+	me->TYPE     = MTOPTION.CONNECTION_TYPE;
+	me->STATE    = MS_FREE;
+	me->RESPONSE = timeGetTime();
+
+	if(MTOPTION.CONNECTION_TYPE == CT_SERVER && ServerName->Length > 0){
+		// 特殊サーバモード判定
+		if(ServerName[0] == '#'){
+			ServerMode = SM_NORA;
+			ListView = LV_BLIND;
+			me->NAME = gcnew String("◆");
+			me->COMMENT = String::Empty;
+
+			MemberList->Add(me);
+			listBoxMember->Items->Add(gcnew String("野試合会場"));
+		}
+		else{
+			MemberList->Add(me);
+			listBoxMember->Items->Add(me->NAME);
+
+			if(ServerName[0] == '+'){
+				ServerMode = SM_MIX;
+			}
+			else if(ServerName[0] == '@'){
+				ServerMode = SM_MATCH;
+			}
+		}
+	}
+	else{
+		MemberList->Add(me);
+		listBoxMember->Items->Add(me->NAME);
+	}
 
 	try{
 		// 回線設定
-		if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER || LPMTOPTION.CONNECTION_TYPE == CT_HOST){
-			UDP = gcnew UdpClient(LPMTOPTION.OPEN_PORT);
+		if(MTOPTION.CONNECTION_TYPE == CT_SERVER || MTOPTION.CONNECTION_TYPE == CT_HOST){
+			UDP = gcnew UdpClient(MTOPTION.OPEN_PORT);
 		}
-		else if(LPMTOPTION.CONNECTION_TYPE == CT_CLIENT){
+		else if(MTOPTION.CONNECTION_TYPE == CT_CLIENT){
 			UDP = gcnew UdpClient;
 		}
 	}
@@ -33,21 +62,21 @@ void Form1::Begin()
 		}
 		else{
 			WriteMessage(String::Format("UDPの初期化に失敗しました。({0})¥n", e->ErrorCode), ErrorMessageColor);
-			if(LUNAPORT.DEBUG) WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+			if(MTINFO.DEBUG){
+				WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+			}
 		}
 	}
 
 	// ネットに接続
 	if(UDP != nullptr){
-		ServerName = gcnew String(LPMTOPTION.CONNECTION_IP);
-
-		if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+		if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 			// 鯖受信開始
 			UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), this);
 
 			// ソナー軌道
 			Ranging = true;
-			SonarThread = gcnew Thread(gcnew ThreadStart(this, &Form1::RunSonar));
+			SonarThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunSonar));
 			SonarThread->Start();
 
 			this->Text += String::Format("  [Server : {0}]", ServerName);
@@ -55,31 +84,60 @@ void Form1::Begin()
 		}
 		else{
 			// クライアント
-			IPEndPoint^ ep = gcnew IPEndPoint(0, 0);
+			_int64 address;
+			int port = MTOPTION.PORT;
 
-			if(IPAddress::TryParse(ServerName, ep->Address)){
-				ep = gcnew IPEndPoint(IPAddress::Parse(ServerName), LPMTOPTION.PORT);
+			array<String^>^ host = ServerName->Split(gcnew array<wchar_t>{':'}, 2, StringSplitOptions::RemoveEmptyEntries);
+
+			// ポート":"指定
+			if(host->Length > 1){
+				try{
+					port = Convert::ToInt32(host[1]);
+				}
+				catch(Exception^){
+					port = MTOPTION.PORT;
+				}
 			}
-			else{
-				WriteMessage("接続先のアドレスが不正です。¥n", ErrorMessageColor);
-				Restart();
-			}
-
-			PacketPacker^ pp = gcnew PacketPacker;
-			array<BYTE>^ name = Encoding::Unicode->GetBytes(me->NAME);
-			array<BYTE>^ cmnt = Encoding::Unicode->GetBytes(me->COMMENT);
-
-			pp->Pack(LPMTOPTION.CONNECTION_TYPE == CT_CLIENT ? (BYTE)PH_REQ_CONNECTION : (BYTE)PH_REQ_CONNECTION_H);
-			pp->Pack(PROTOCOL_VERSION);
-			pp->Pack((BYTE)name->Length);
-			pp->Pack(name);
-			pp->Pack((BYTE)cmnt->Length);
-			pp->Pack(cmnt);
-
-			// サーバに接続要求
-			UDP->Send(pp->Packet, pp->Length, ep);
 
 			try{
+				if(MTOPTION.DNS){
+					try{
+						address = Dns::GetHostEntry(host[0])->AddressList[0]->Address;
+					}
+					catch(Exception^ e){
+						address = 0;
+
+						if(MTINFO.DEBUG){
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+						}
+					}
+				}
+				else{
+					address = DecryptionIP(host[0]);
+				}
+
+				if(address == 0){
+					WriteMessage("接続先が見つかりませんでした。¥n", ErrorMessageColor);
+
+					throw gcnew SocketException;
+				}
+
+				IPEndPoint^ ep = gcnew IPEndPoint(address, port);
+
+				PacketPacker^ pp = gcnew PacketPacker;
+				array<BYTE>^ name = Encoding::Unicode->GetBytes(me->NAME);
+				array<BYTE>^ cmnt = Encoding::Unicode->GetBytes(me->COMMENT);
+
+				pp->Pack(MTOPTION.CONNECTION_TYPE == CT_CLIENT ? (BYTE)PH_REQ_CONNECTION : (BYTE)PH_REQ_CONNECTION_H);
+				pp->Pack(TYMT_VERSION);
+				pp->Pack((BYTE)name->Length);
+				pp->Pack(name);
+				pp->Pack((BYTE)cmnt->Length);
+				pp->Pack(cmnt);
+
+				// サーバに接続要求
+				UDP->Send(pp->Packet, pp->Length, ep);
+
 				// 返信待ち
 				UDP->Client->ReceiveTimeout = TIME_OUT;
 				array<BYTE>^ rcv = UDP->Receive(ep);
@@ -117,26 +175,12 @@ void Form1::Begin()
 					mi->STATE = pd->Divide();
 
 					MemberList->Add(mi);
-
-					switch(ListView){
-					case LV_NAME:
-						listBoxMember->Items->Add(mi->NAME);
-						break;
-
-					case LV_COMMENT:
-						if(mi->COMMENT->Length > 0){
-							listBoxMember->Items->Add(mi->COMMENT);
-						}
-						else{
-							listBoxMember->Items->Add(gcnew String("#"));
-						}
-						break;
-					}
+					AddListView(mi);
 
 					// 蔵受信開始
 					UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), this);
 
-					if(LPMTOPTION.CONNECTION_TYPE == CT_HOST){
+					if(MTOPTION.CONNECTION_TYPE == CT_HOST){
 						this->Text += String::Format("  [Host : {0}]", ServerName);
 					}
 					else{
@@ -144,12 +188,23 @@ void Form1::Begin()
 					}
 					WriteMessage(String::Format("{0}に接続しました。 (ID = {1})¥n", ServerName, me->ID), SystemMessageColor);
 
-					if(ServerName[0] == '@'){
-						WriteMessage("チャット禁止サーバです。¥n", SystemMessageColor);
-					}
+					if(ServerName->Length > 0){
+						if(ServerName[0] == '+'){
+							ServerMode = SM_MIX;
+							WriteMessage("混在サーバです。¥n", SystemMessageColor);
+						}
+						if(ServerName[0] == '@'){
+							ServerMode = SM_MATCH;
+							WriteMessage("チャット禁止サーバです。¥n", SystemMessageColor);
+						}
+						else if(ServerName[0] == '#'){
+							ServerMode = SM_NORA;
+							WriteMessage("おおっと！ 野良サーバ¥n", SystemMessageColor);
 
-					// 鯖主のコメント表示
-					//WriteComment(mi->NAME, mi->TYPE, mi->COMMENT);
+							ListView = LV_BLIND;
+							listBoxMember->Items[0] = gcnew String("野試合会場");
+						}
+					}
 
 					// メンバーリストを要求
 					pp->Clear();
@@ -160,7 +215,7 @@ void Form1::Begin()
 
 					// ソナー起動
 					Ranging = true;
-					SonarThread = gcnew Thread(gcnew ThreadStart(this, &Form1::RunSonar));
+					SonarThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunSonar));
 					SonarThread->Start();
 				}
 				else{
@@ -170,28 +225,39 @@ void Form1::Begin()
 			catch(SocketException^ e){
 				Leave(false);
 
-				WriteMessage("サーバに接続できませんでした。¥n", ErrorMessageColor);
+				if(e->ErrorCode == 0){
+					if(me->ID == 0xFFFF){
+						WriteMessage(String::Format("{0}は満室です。¥n", ServerName), ErrorMessageColor);
+					}
+					else if(me->ID == 0xFFFE){
+						WriteMessage("本体のバージョンが違います。¥n", ErrorMessageColor);
+					}
+					else if(me->ID > MAX_ID){
+						WriteMessage(String::Format("{0}はこれ以上IDを発行できません。¥n", ServerName), ErrorMessageColor);
+					}
+					else if(address != 0){
+						WriteMessage("サーバに接続できませんでした。¥n", ErrorMessageColor);
+					}
+				}
+				else{
+					if(e->ErrorCode == WSAECONNRESET){
+						WriteMessage("サーバのポートが開いていません。¥n", ErrorMessageColor);
+					}
+					else if(e->ErrorCode == WSAETIMEDOUT){
+						WriteMessage("サーバからの応答がありませんでした。¥n", ErrorMessageColor);
+					}
+					else if(e->ErrorCode != WSAHOST_NOT_FOUND){
+						WriteMessage(String::Format("ソケットエラー > {0}¥n", e->ErrorCode), ErrorMessageColor);
+					}
 
-				if(me->ID == 0xFFFF){
-					WriteMessage(String::Format("{0}は満室です。¥n", ServerName), ErrorMessageColor);
-				}
-				else if(me->ID == 0xFFFE){
-					WriteMessage("プロトコルのバージョンが違います。¥n", ErrorMessageColor);
-				}
-				else if(me->ID > MAX_ID){
-					WriteMessage(String::Format("{0}はこれ以上IDを発行できません。¥n", ServerName), ErrorMessageColor);
-				}
-
-				if(e->ErrorCode == WSAECONNRESET){
-					WriteMessage("サーバのポートが開いていません。¥n", ErrorMessageColor);
-				}
-				else if(e->ErrorCode != 0){
-					WriteMessage(e->ToString() + "¥n", ErrorMessageColor);
+					if(MTINFO.DEBUG){
+						WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+					}
 				}
 			}
 		}
 	}
-	else if(LPMTOPTION.CONNECTION_TYPE != CT_FREE){
+	else if(MTOPTION.CONNECTION_TYPE != CT_FREE){
 		Leave(false);
 	}
 	else{
@@ -199,13 +265,13 @@ void Form1::Begin()
 	}
 }
 
-void Form1::PacketSendAllMember(array<BYTE>^% datagram, int bytes, UINT received_id)
+void MainForm::PacketSendAllMember(array<BYTE>^% datagram, UINT received_id)
 {
 	Monitor::Enter(MemberList);
 	try{
 		for(int i = 1; i < MemberList->Count; i++){
 			if(received_id != MemberList[i]->ID){
-				UDP->BeginSend(datagram, bytes, MemberList[i]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
+				UDP->BeginSend(datagram, datagram->Length, MemberList[i]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
 			}
 		}
 	}
@@ -214,23 +280,7 @@ void Form1::PacketSendAllMember(array<BYTE>^% datagram, int bytes, UINT received
 	}
 }
 
-void Form1::PacketSendIDMember(array<BYTE>^% datagram, int bytes, UINT id)
-{
-	Monitor::Enter(MemberList);
-	try{
-		for(int i = 1; i < MemberList->Count; i++){
-			if(id == MemberList[i]->ID){
-				UDP->Send(datagram, bytes, MemberList[i]->IP_EP);
-				break;
-			}
-		}
-	}
-	finally{
-		Monitor::Exit(MemberList);
-	}
-}
-
-void Form1::SendPackets(IAsyncResult^ asyncResult)
+void MainForm::SendPackets(IAsyncResult^ asyncResult)
 {
 	UdpClient^ udp = (UdpClient^)asyncResult->AsyncState;
 
@@ -241,18 +291,25 @@ void Form1::SendPackets(IAsyncResult^ asyncResult)
 	}
 }
 
-void Form1::ReceivePackets(IAsyncResult^ asyncResult)
+void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 {
 	int i;
 	UINT16 id;
 	array<BYTE> ^send;
 
-	Form1^ form = safe_cast<Form1^>(asyncResult->AsyncState);
+	MainForm^ form = safe_cast<MainForm^>(asyncResult->AsyncState);
 	IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Any, 0);
 
 	try{
 		array<BYTE>^ rcv = UDP->EndReceive(asyncResult, ep);
 		UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), form);
+
+		if(rcv->Length > MAX_PACKET){
+			if(MTINFO.DEBUG){
+				form->WriteMessage(String::Format("Large Packet > {0} from {1}¥n", rcv[0], ep->ToString()), DebugMessageColor);
+			}
+			return;
+		}
 
 		switch(rcv[0]){
 		case PH_PING:
@@ -267,29 +324,10 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 			break;
 
-		case PH_PING_PROXY:
-			rcv[0] = PH_PINGPONG;
-			id = BitConverter::ToUInt16(rcv, 3);
-
-			form->PacketSendIDMember(rcv, rcv->Length, id);
-			break;
-
-		case PH_PINGPONG:
-			rcv[0] = PH_PONG_PROXY;
-			UDP->Send(rcv, rcv->Length, ep);
-			break;
-
-		case PH_PONG_PROXY:
-			rcv[0] = PH_PONG;
-			id = BitConverter::ToUInt16(rcv, 1);
-
-			form->PacketSendIDMember(rcv, rcv->Length, id);
-			break;
-
 		case PH_REQ_CONNECTION:
 		case PH_REQ_CONNECTION_H:
 			// 鯖じゃないのに接続要求が来た
-			if(LPMTOPTION.CONNECTION_TYPE != CT_SERVER){
+			if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
 				break;
 			}
 
@@ -312,12 +350,12 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 				pp->Pack(saba);
 
 				// IDの発行
-				if(MemberList->Count > (int)LPMTOPTION.MAX_CONNECTIONS){
+				if(MemberList->Count > (int)MTOPTION.MAX_CONNECTION){
 					// 満室
 					a_id = gcnew array<BYTE>{ 0xFF, 0xFF };
 				}
-				else if(pd->Divide() != PROTOCOL_VERSION){
-					// プロトコル違い
+				else if(pd->Divide() != TYMT_VERSION){
+					// バージョン違い
 					a_id = gcnew array<BYTE>{ 0xFE, 0xFF };
 				}
 				else{
@@ -345,31 +383,17 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 						i = pd->Divide();
 						mi->COMMENT = Encoding::Unicode->GetString(pd->Divide(i));
 
+						if(ListView == LV_BLIND){
+							mi->NAME = gcnew String("◆");
+							mi->COMMENT = String::Empty;
+						}
+
 						MemberList->Add(mi);
+						form->AddListView(mi);
 
-						switch(ListView){
-						case LV_NAME:
-							form->listBoxMember->Items->Add(mi->NAME);
-							break;
+						form->WriteComment(mi->NAME, mi->TYPE, mi->COMMENT);
 
-						case LV_COMMENT:
-							if(mi->COMMENT->Length > 0){
-								form->listBoxMember->Items->Add(mi->COMMENT);
-							}
-							else{
-								form->listBoxMember->Items->Add(gcnew String("#"));
-							}
-							break;
-						}
-
-						if(mi->COMMENT->Length > 0){
-							form->WriteComment(mi->NAME, mi->TYPE, mi->COMMENT);
-						}
-						else{
-							form->WriteMessage(String::Format("{0}が入室しました。¥n", mi->NAME), SystemMessageColor);
-						}
-
-						if(LUNAPORT.DEBUG){
+						if(MTINFO.DEBUG){
 							form->WriteMessage(String::Format("Connect from {0}:{1}¥n", ep->Address, ep->Port), DebugMessageColor);
 						}
 					}
@@ -439,7 +463,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 
 			// Welcomeメッセージ
-			i = _tcslen(LPMTOPTION.WELCOME)*2;
+			i = _tcslen(MTOPTION.WELCOME)*2;
 
 			if(i > 0){
 				Thread::Sleep(50);
@@ -448,18 +472,18 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 				pp->Pack(PH_NOTICE);
 				pp->Pack((BYTE)i);
-				pp->Pack(Encoding::Unicode->GetBytes(gcnew String(LPMTOPTION.WELCOME)));
+				pp->Pack(Encoding::Unicode->GetBytes(gcnew String(MTOPTION.WELCOME)));
 
 				UDP->Send(pp->Packet, pp->Length, ep);
 			}
 			break;
 
 		case PH_MESSAGE:
-			if(ServerName[0] == '@'){
+			if(ServerMode >= SM_MATCH){
 				break;
 			}
 
-			if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 				form->TalkMessage(BitConverter::ToUInt16(rcv, 1), rcv);
 			}
 			else{
@@ -475,7 +499,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			break;
 
 		case PH_REQ_LIST:
-			if(LPMTOPTION.CONNECTION_TYPE != CT_SERVER){
+			if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
 				return;
 			}
 			else{
@@ -527,7 +551,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					}
 
 					if(id > 0 && i >= MemberList->Count){
-						if(LUNAPORT.DEBUG){
+						if(MTINFO.DEBUG){
 							form->WriteMessage(String::Format("ERROR > 未登録者({0})の検索¥n", id), DebugMessageColor);
 						}
 					}
@@ -584,32 +608,13 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					mi->IP_EP->Port    = BitConverter::ToUInt16(pd->Divide(2), 0);
 
 					MemberList->Add(mi);
-
-					switch(ListView){
-					case LV_NAME:
-						form->listBoxMember->Items->Add(mi->NAME);
-						break;
-
-					case LV_COMMENT:
-						if(mi->COMMENT->Length > 0){
-							form->listBoxMember->Items->Add(mi->COMMENT);
-						}
-						else{
-							form->listBoxMember->Items->Add(gcnew String("#"));
-						}
-						break;
-					}
+					form->AddListView(mi);
 
 					// 挨拶代わり
 					UDP->Send(gcnew array<BYTE>{PH_PING}, 1, mi->IP_EP);
 
 					if(rcv[0] == PH_NEW_MEMBER){
-						if(mi->COMMENT->Length > 0){
-							form->WriteComment(mi->NAME, mi->TYPE, mi->COMMENT);
-						}
-						else{
-							form->WriteMessage(String::Format("{0}が入室しました。¥n", mi->NAME), SystemMessageColor);
-						}
+						form->WriteComment(mi->NAME, mi->TYPE, mi->COMMENT);
 					}
 				}
 				finally{
@@ -624,7 +629,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 			Monitor::Enter(MemberList);
 			try{
-				if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+				if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 					int member = 0;
 					// 全員に通達
 					for(i = 1; i < MemberList->Count; i++){
@@ -637,7 +642,9 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					}
 
 					if(member > 0){
-						form->WriteMessage(MemberList[member]->NAME + "が退室しました。¥n", SystemMessageColor);
+						if(ListView != LV_BLIND){
+							form->WriteMessage(MemberList[member]->NAME + "が退室しました。¥n", SystemMessageColor);
+						}
 
 						// 観戦中止
 						if(MemberList[0]->STATE == MS_WATCH || MemberList[0]->STATE == MS_COUCH){
@@ -666,11 +673,13 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 									MemberList[0]->STATE = 0xFF;
 								}
 								else{
-									if(rcv[0] == PH_QUIT){
-										form->WriteMessage(MemberList[i]->NAME + "が退室しました。¥n", SystemMessageColor);
-									}
-									else{
-										form->WriteMessage(MemberList[i]->NAME + "の回線が途切れました。¥n", ErrorMessageColor);
+									if(ListView != LV_BLIND){
+										if(rcv[0] == PH_QUIT){
+											form->WriteMessage(MemberList[i]->NAME + "が退室しました。¥n", SystemMessageColor);
+										}
+										else{
+											form->WriteMessage(MemberList[i]->NAME + "の回線が途切れました。¥n", ErrorMessageColor);
+										}
 									}
 
 									// 観戦中止
@@ -709,11 +718,11 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 						MemberList[i]->STATE = rcv[3];
 						form->listBoxMember->Refresh();
 
-						if(LPMTOPTION.CONNECTION_TYPE != CT_SERVER){
+						if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
 							break;
 						}
 					}
-					else if(i != 0 && LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+					else if(i != 0 && MTOPTION.CONNECTION_TYPE == CT_SERVER){
 						UDP->BeginSend(rcv, rcv->Length, MemberList[i]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
 					}
 				}
@@ -729,17 +738,30 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			Monitor::Enter(MemberList);
 			try{
 				send = gcnew array<BYTE>(4){ PH_RES_STATE, rcv[1], rcv[2], 0xFF };
+				BYTE state;
 
-				if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+				if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 					for(i = 0; i < MemberList->Count; i++){
 						if(id == MemberList[i]->ID){
-							send[3] = (BYTE)MemberList[i]->STATE;
+							state = (BYTE)MemberList[i]->STATE;
+
+							if(state == MS_READY){
+								state = MS_FREE;
+							}
+
+							send[3] = state;
 							break;
 						}
 					}
 				}
 				else if(id == MemberList[0]->ID){
-					send[3] = (BYTE)MemberList[0]->STATE;
+					state = (BYTE)MemberList[0]->STATE;
+
+					if(state == MS_READY){
+						state = MS_FREE;
+					}
+
+					send[3] = state;
 				}
 
 				UDP->Send(send, send->Length, ep);
@@ -762,7 +784,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 							// そんな人いなかった
 							form->WriteMessage(MemberList[i]->NAME + "は既にいませんでした。¥n", SystemMessageColor);
 
-							if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+							if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 								// 全員に通達
 								rcv[0] = PH_LOST;
 
@@ -786,7 +808,9 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 							form->listBoxMember->Items->RemoveAt(i);
 						}
 						else if(MemberList[i]->STATE != rcv[3]){
-							if(LUNAPORT.DEBUG) form->WriteMessage(String::Format(MemberList[i]->NAME + " > state:{0}¥n", rcv[3]), DebugMessageColor);
+							if(MTINFO.DEBUG){
+								form->WriteMessage(String::Format(MemberList[i]->NAME + " > state:{0}¥n", rcv[3]), DebugMessageColor);
+							}
 							form->WriteMessage(MemberList[i]->NAME + "の状態を更新しました。¥n", SystemMessageColor);
 							MemberList[i]->STATE = rcv[3];
 							form->listBoxMember->Refresh();
@@ -797,6 +821,62 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 			finally{
 				Monitor::Exit(MemberList);
+			}
+			break;
+
+		case PH_CHANGE_COMMENT:
+			if(ServerMode >= SM_MATCH){
+				break;
+			}
+
+			id = BitConverter::ToUInt16(rcv, 1);
+
+			Monitor::Enter(MemberList);
+			try{
+				for(i = 1; i < MemberList->Count; i++){
+					if(id == MemberList[i]->ID){
+						MemberList[i]->COMMENT = Encoding::Unicode->GetString(rcv, 4, rcv[3]);
+						break;
+					}
+				}
+
+				if(i < MemberList->Count && ListView == LV_COMMENT){
+					if(MemberList[i]->COMMENT->Length > 0){
+						form->listBoxMember->Items[i] = MemberList[i]->COMMENT;
+					}
+					else{
+						form->listBoxMember->Items[i] = gcnew String("◆");
+					}
+				}
+			}
+			finally{
+				Monitor::Exit(MemberList);
+			}
+
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
+				form->PacketSendAllMember(rcv, id);
+			}
+			break;
+
+		case PH_DICE:
+			if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
+				Monitor::Enter(ChatHistory);
+				try{
+					form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+
+					form->richTextBoxLog->SelectionColor = TalkMessageColor;
+					form->richTextBoxLog->SelectionBackColor = NoticeBackColor;
+					form->richTextBoxLog->AppendText(Byte(rcv[1]).ToString() + "¥n");
+
+					form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+					form->richTextBoxLog->ScrollToCaret();
+				}
+				catch(Exception ^e){
+					WriteErrorLog(e->ToString(), "RichTextBox");
+				}
+				finally{
+					Monitor::Exit(ChatHistory);
+				}
 			}
 			break;
 
@@ -816,16 +896,31 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 			// 格ツクじゃないよ
 			try{
-				FileVersionInfo^ info = FileVersionInfo::GetVersionInfo(gcnew String(LPMTOPTION.GAME_EXE));
+				String^ exe = gcnew String(MTOPTION.GAME_EXE);
+				FileVersionInfo^ info = FileVersionInfo::GetVersionInfo(exe);
 
-				if(info->FileDescription != "２Ｄ格闘ツクール2nd."){
+				if(info->FileDescription != "２Ｄ格闘ツクール2nd." && info->FileDescription != "２Ｄ格闘ツクール９５"){
 					throw gcnew Exception;
+				}
+				else if(ServerMode == SM_MIX){
+					// 混在サーバモードなので、実行ファイルのチェック
+					if((INT32)(Path::GetFileNameWithoutExtension(exe)->GetHashCode()) != BitConverter::ToInt32(rcv, 3)){
+						send[1] = 0xFE;
+					}
+				}
+				else{
+					if(info->FileDescription == "２Ｄ格闘ツクール2nd."){
+						MTINFO.KGT2K = true;
+					}
+					else{
+						MTINFO.KGT2K = false;
+					}
 				}
 			}
 			catch(Exception^){
-				form->WriteMessage("2D格闘ツクール2nd.の実行ファイルではありません。¥n", ErrorMessageColor);
-				form->WriteMessage("オプションで実行ファイルのパスを設定してください。¥n", ErrorMessageColor);
 				send[1] = 0xFF;
+				form->WriteMessage("格闘ツクールの実行ファイルではありません。¥n", ErrorMessageColor);
+				form->WriteMessage("オプションで実行ファイルのパスを設定してください。¥n", ErrorMessageColor);
 			}
 
 			UDP->BeginSend(send, send->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
@@ -845,7 +940,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 						form->WriteMessage("リストにいない人物からの対戦要求がありました。¥n", ErrorMessageColor);
 						MemberList[0]->STATE = MS_FREE;
 
-						if(LPMTOPTION.CONNECTION_TYPE != CT_SERVER){
+						if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
 							// 知らない人がいたのでサーバに問い合わせ
 							array<BYTE>^ send = gcnew array<BYTE>(3){ PH_REQ_LIST };
 							Array::Copy(BitConverter::GetBytes(id), 0, send, 1, 2);
@@ -855,7 +950,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					}
 
 					NetVS = gcnew VersusInfo;
-					NetVS->SEQUENCE = VS_DELAY;
+					NetVS->SEQUENCE = VS_SETTING;
 					NetVS->SLEEPING = false;
 					NetVS->WAITING  = false;
 					NetVS->START_UP = timeGetTime();
@@ -873,17 +968,24 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					P2ID = id;
 
 					// 名前
-					_tcscpy_s(LUNAPORT.P1_NAME, LPMTOPTION.NAME);
+					ZeroMemory(MTINFO.P1_NAME, sizeof(MTINFO.P1_NAME));
+					ZeroMemory(MTINFO.P2_NAME, sizeof(MTINFO.P2_NAME));
 
-					IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
-					_tcscpy_s(LUNAPORT.P2_NAME, static_cast<PTCHAR>(mp.ToPointer()));
-					Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+					if(ListView != LV_BLIND){
+						_tcscpy_s(MTINFO.P1_NAME, MTOPTION.NAME);
+
+						IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
+						_tcscpy_s(MTINFO.P2_NAME, static_cast<PTCHAR>(mp.ToPointer()));
+						Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+					}
 
 					// 対戦回数
 					MemberList[i]->NUM_VS++;
 
-					form->WriteMessage(MemberList[i]->NAME, NameColor[MemberList[i]->TYPE]);
-					form->WriteMessage("から対戦の申し込みです。¥n", SystemMessageColor);
+					if(ListView != LV_BLIND){
+						form->WriteMessage(MemberList[i]->NAME, NameColor[MemberList[i]->TYPE]);
+						form->WriteMessage("から対戦の申し込みです。¥n", SystemMessageColor);
+					}
 				}
 				finally{
 					Monitor::Exit(MemberList);
@@ -907,9 +1009,18 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 				case MS_READY:
 					form->WriteMessage("挑戦相手は他の人と対戦準備中です。¥n", SystemMessageColor);
 					break;
+				case 0xFE:
+					form->WriteMessage("挑戦相手とプレイするゲームが違います。¥n", ErrorMessageColor);
+					break;
 				default:
 					form->WriteMessage("挑戦相手が対戦出来る状態ではありません。¥n", SystemMessageColor);
 					break;
+				}
+
+				NetVS->SEQUENCE = VS_ERROR;
+
+				if(VersusThread != nullptr && VersusThread->IsAlive && NetVS->SLEEPING){
+					VersusThread->Interrupt();
 				}
 			}
 			else if(NetVS != nullptr){
@@ -936,7 +1047,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 						if(i == 4){
 							if(NetVS->SEQUENCE == VS_PING){
-								NetVS->SEQUENCE = VS_DELAY;
+								NetVS->SEQUENCE = VS_SETTING;
 							
 								if(VersusThread != nullptr && VersusThread->IsAlive && NetVS->SLEEPING){
 									VersusThread->Interrupt();
@@ -949,19 +1060,23 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 			break;
 
-		case PH_REQ_VS_DELAY:
-			if(NetVS != nullptr && NetVS->SEQUENCE == VS_DELAY){
-				UINT32 seed;
-				send = gcnew array<BYTE>(6){ PH_RES_VS_DELAY };
+		case PH_REQ_VS_SETTING:
+			if(NetVS != nullptr && NetVS->SEQUENCE == VS_SETTING){
+				send = gcnew array<BYTE>(10){ PH_RES_VS_SETTING };
 
-				seed = XorShift();
+				// 対戦設定
+				MTINFO.SEED         = XorShift();
+				MTINFO.MAX_STAGE    = MTOPTION.MAX_STAGE;
+				MTINFO.STAGE_SELECT = MTOPTION.STAGE_SELECT;
+				MTINFO.ROUND        = MTOPTION.ROUND;
+				MTINFO.TIMER        = MTOPTION.TIMER;
 
 				// ディレイ
-				if(LPMTOPTION.DELAY == 0 || rcv[1] > LPMTOPTION.DELAY){
+				if(MTOPTION.DELAY == 0 || rcv[1] > MTOPTION.DELAY){
 					send[1] = rcv[1];
 				}
 				else{
-					send[1] = (BYTE)LPMTOPTION.DELAY;
+					send[1] = (BYTE)MTOPTION.DELAY;
 				}
 
 				NetVS->SEQUENCE = VS_DATA;
@@ -978,30 +1093,32 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					NetVS->LOCAL[i] = 0x0000;
 				}
 
-				LUNAPORT.SEED = seed;
-
-				Array::Copy(BitConverter::GetBytes(seed), 0, send, 2, 4);
+				Array::Copy(BitConverter::GetBytes(MTINFO.SEED), 0, send, 2, 4);
+				send[6] = (BYTE)MTINFO.MAX_STAGE;
+				send[7] = (BYTE)MTINFO.STAGE_SELECT;
+				send[8] = (BYTE)MTINFO.ROUND;
+				send[9] = (BYTE)MTINFO.TIMER;
 				UDP->Send(send, send->Length, ep);
 
-				LUNAPORT.CONTROL = 0;
+				MTINFO.CONTROL = 0;
 
 				// 対戦開始
 				form->WriteMessage(String::Format("対戦を開始します。(delay:{0})¥n", NetVS->DELAY), SystemMessageColor);
 
 				// 音でお知らせ
 				try{
-					Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(LPMTOPTION.VS_SOUND));
+					Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.VS_SOUND));
 					wav->Play();
 				}
 				catch(Exception^){
 				}
 
-				GameThread = gcnew Thread(gcnew ParameterizedThreadStart(form, &Form1::RunGame));
+				GameThread = gcnew Thread(gcnew ParameterizedThreadStart(form, &MainForm::RunGame));
 				GameThread->Start((UINT)RT_VS);
 			}
 			break;
 
-		case PH_RES_VS_DELAY:
+		case PH_RES_VS_SETTING:
 			if(NetVS != nullptr){
 				NetVS->DELAY  = rcv[1];
 				NetVS->LOCAL  = gcnew array<UINT16>(NetVS->DELAY*4);
@@ -1016,9 +1133,13 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					NetVS->LOCAL[i] = 0x0000;
 				}
 
-				LUNAPORT.SEED = BitConverter::ToUInt32(rcv, 2);
+				MTINFO.SEED         = BitConverter::ToUInt32(rcv, 2);
+				MTINFO.MAX_STAGE    = rcv[6];
+				MTINFO.STAGE_SELECT = rcv[7];
+				MTINFO.ROUND        = rcv[8];
+				MTINFO.TIMER        = rcv[9];
 
-				if(VersusThread != nullptr && VersusThread->IsAlive && NetVS->SEQUENCE == VS_DELAY && NetVS->SLEEPING){
+				if(VersusThread != nullptr && VersusThread->IsAlive && NetVS->SEQUENCE == VS_SETTING && NetVS->SLEEPING){
 					NetVS->SEQUENCE = VS_STANDBY;
 					VersusThread->Interrupt();
 				}
@@ -1027,7 +1148,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 		case PH_VS_END:
 			if(NetVS != nullptr){
-				form->WriteMessage("対戦の終了通知を受け取りました。¥n", SystemMessageColor);
+				form->WriteMessage("対戦終了のお知らせです。¥n", SystemMessageColor);
 
 				NetVS->SEQUENCE = VS_END;
 				form->QuitGame();
@@ -1043,7 +1164,9 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					Monitor::Exit(NetVS->REMOTE);
 				}
 
-				if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("Frame > {0}¥n", NetVS->L_FRAME), DebugMessageColor);
+				if(MTINFO.DEBUG){
+					form->WriteMessage(String::Format("Frame > {0}¥n", NetVS->L_FRAME), DebugMessageColor);
+				}
 			}
 			break;
 
@@ -1054,12 +1177,16 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 				Monitor::Enter(NetVS->REMOTE);
 				try{
 					if(NetVS->R_FRAME > f + NetVS->DELAY){
-						if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("無効なパケット(遅延) > {0} / {1}¥n", f, NetVS->R_FRAME), DebugMessageColor);
+						if(MTINFO.DEBUG){
+							form->WriteMessage(String::Format("無効なパケット(遅延) > {0} / {1}¥n", f, NetVS->R_FRAME), DebugMessageColor);
+						}
 						break;
 					}
 					else if(f > NetVS->R_FRAME + NetVS->DELAY){
 						// まずこない
-						if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("無効なパケット(先行) > {0} / {1}¥n", f, NetVS->R_FRAME), DebugMessageColor);
+						if(MTINFO.DEBUG){
+							form->WriteMessage(String::Format("無効なパケット(先行) > {0} / {1}¥n", f, NetVS->R_FRAME), DebugMessageColor);
+						}
 						break;
 					}
 
@@ -1095,17 +1222,23 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 				Monitor::Enter(NetVS->LOCAL);
 				try{
 					if(f >= NetVS->L_FRAME + NetVS->DELAY){
-						if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("無効なパケット(先行要求) > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+						if(MTINFO.DEBUG){
+							form->WriteMessage(String::Format("無効なパケット(先行要求) > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+						}
 						UDP->BeginSend(send, send->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
 						break;
 					}
 					else if(NetVS->L_FRAME > f + NetVS->DELAY*2){
 						// 既にデータがないのでこれがくるとゲームにならない
-						if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("無効なパケット(遅延要求) > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+						if(MTINFO.DEBUG){
+							form->WriteMessage(String::Format("無効なパケット(遅延要求) > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+						}
 						break;
 					}
 
-					if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("要求パケット > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+					if(MTINFO.DEBUG){
+						form->WriteMessage(String::Format("要求パケット > {0} / {1}¥n", f, NetVS->L_FRAME), DebugMessageColor);
+					}
 
 					Array::Copy(BitConverter::GetBytes(NetVS->LOCAL[f % NetVS->LOCAL->Length]), 0, send, 5, 2);
 					UDP->BeginSend(send, send->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
@@ -1128,7 +1261,9 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 					NetVS->REMOTE[NetVS->R_READ] = w;
 
-					if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("返信パケット > {0} : {1}¥n", f, w), DebugMessageColor);
+					if(MTINFO.DEBUG){
+						form->WriteMessage(String::Format("返信パケット > {0} : {1}¥n", f, w), DebugMessageColor);
+					}
 
 					if(NetVS->WAITING == 2){
 						NetVS->WAITING = 1;
@@ -1145,19 +1280,19 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			rcv[0] = PH_RES_WATCH;
 			id = BitConverter::ToUInt16(rcv, 1);
 
-			if(LPMTOPTION.ALLOW_SPECTATORS == false){
+			if(MTOPTION.ALLOW_SPECTATOR == false){
 				// 観戦不許可
 				rcv[1] = 1;
 				UDP->Send(rcv, 2, ep);
 				break;
 			}
-			else if(SpectatorList->Count >= (int)LPMTOPTION.MAX_CONNECTIONS){
+			else if(SpectatorList->Count >= (int)MTOPTION.MAX_CONNECTION){
 				// 満席
 				rcv[1] = 2;
 				UDP->Send(rcv, 2, ep);
 				break;
 			}
-			else if(InputFrame > (UINT)InputHistory->Length - 150){
+			else if(InputFrame > (UINT)InputHistory->Length - 200){
 				// 遅刻
 				rcv[1] = 3;
 				UDP->Send(rcv, 2, ep);
@@ -1177,13 +1312,17 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 				if(SpectacleThread != nullptr && SpectacleThread->IsAlive && AllowWatch){
 					// 既にはじめてる
-					send = gcnew array<BYTE>(10);
+					send = gcnew array<BYTE>(14);
 					send[0] = PH_RES_WATCH;
 					send[1] = 0;
 					Array::Copy(BitConverter::GetBytes(P1ID), 0, send, 2, 2);
 					Array::Copy(BitConverter::GetBytes(P2ID), 0, send, 4, 2);
-					Array::Copy(BitConverter::GetBytes(LUNAPORT.SEED), 0, send, 6, 4);
-					
+					Array::Copy(BitConverter::GetBytes(MTINFO.SEED), 0, send, 6, 4);
+					send[10] = MTINFO.MAX_STAGE;
+					send[11] = MTINFO.STAGE_SELECT;
+					send[12] = MTINFO.ROUND;
+					send[13] = MTINFO.TIMER;
+
 					UDP->Send(send, send->Length, ep);
 
 					// なかなかデンジャラスなSleep
@@ -1198,24 +1337,26 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					Monitor::Exit(InputHistory);
 				}
 
-				Monitor::Enter(MemberList);
-				try{
-					for(i = 0 ; i < MemberList->Count; i++){
-						if(id == MemberList[i]->ID){
-							break;
+				if(ListView != LV_BLIND){
+					Monitor::Enter(MemberList);
+					try{
+						for(i = 0 ; i < MemberList->Count; i++){
+							if(id == MemberList[i]->ID){
+								break;
+							}
+						}
+
+						if(i >= MemberList->Count){
+							// 外来客
+							form->WriteMessage("観戦者が来ました。¥n", SystemMessageColor);
+						}
+						else{
+							form->WriteMessage(MemberList[i]->NAME + "が観戦に来ました。¥n", SystemMessageColor);
 						}
 					}
-
-					if(i >= MemberList->Count){
-						// 外来客
-						form->WriteMessage("観戦者が来ました。¥n", SystemMessageColor);
+					finally{
+						Monitor::Exit(MemberList);
 					}
-					else{
-						form->WriteMessage(MemberList[i]->NAME + "が観戦に来ました。¥n", SystemMessageColor);
-					}
-				}
-				finally{
-					Monitor::Exit(MemberList);
 				}
 			}
 			break;
@@ -1244,40 +1385,47 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 			else{
 				if(MemberList[0]->STATE == MS_WATCH || MemberList[0]->STATE == MS_COUCH){
-					ZeroMemory(LUNAPORT.P1_NAME, sizeof(LUNAPORT.P1_NAME));
-					ZeroMemory(LUNAPORT.P2_NAME, sizeof(LUNAPORT.P2_NAME));
+					ZeroMemory(MTINFO.P1_NAME, sizeof(MTINFO.P1_NAME));
+					ZeroMemory(MTINFO.P2_NAME, sizeof(MTINFO.P2_NAME));
 
 					P1ID = BitConverter::ToUInt16(rcv, 2);
 					P2ID = BitConverter::ToUInt16(rcv, 4);
-					LUNAPORT.SEED = BitConverter::ToUInt32(rcv, 6);
+					MTINFO.SEED = BitConverter::ToUInt32(rcv, 6);
+
+					MTINFO.MAX_STAGE    = rcv[10];
+					MTINFO.STAGE_SELECT = rcv[11];
+					MTINFO.ROUND        = rcv[12];
+					MTINFO.TIMER        = rcv[13];
 
 					IntPtr mp;
 					int c = 0;
 
-					Monitor::Enter(MemberList);
-					try{
-						// 名前
-						for(i = 0; i < MemberList->Count; i++){
-							if(MemberList[i]->ID == P1ID){
-								mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
-								_tcscpy_s(LUNAPORT.P1_NAME, static_cast<PTCHAR>(mp.ToPointer()));
-								Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+					if(ListView != LV_BLIND){
+						Monitor::Enter(MemberList);
+						try{
+							// 名前
+							for(i = 0; i < MemberList->Count; i++){
+								if(MemberList[i]->ID == P1ID){
+									mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
+									_tcscpy_s(MTINFO.P1_NAME, static_cast<PTCHAR>(mp.ToPointer()));
+									Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
-								c++;
+									c++;
+								}
+								else if(MemberList[i]->ID == P2ID){
+									mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
+									_tcscpy_s(MTINFO.P2_NAME, static_cast<PTCHAR>(mp.ToPointer()));
+									Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+									c++;
+								}
+
+								if(c == 2) break;
 							}
-							else if(MemberList[i]->ID == P2ID){
-								mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(MemberList[i]->NAME);
-								_tcscpy_s(LUNAPORT.P2_NAME, static_cast<PTCHAR>(mp.ToPointer()));
-								Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-								c++;
-							}
-
-							if(c == 2) break;
 						}
-					}
-					finally{
-						Monitor::Exit(MemberList);
+						finally{
+							Monitor::Exit(MemberList);
+						}
 					}
 
 					for(i = 0; i < WatchHistory->Length; i++){
@@ -1285,7 +1433,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 					}
 					WaitingWatch = 1;
 
-					GameThread = gcnew Thread(gcnew ParameterizedThreadStart(form, &Form1::RunGame));
+					GameThread = gcnew Thread(gcnew ParameterizedThreadStart(form, &MainForm::RunGame));
 					GameThread->Start((UINT)RT_WATCH);
 
 					form->WriteMessage("観戦を開始します。¥n", SystemMessageColor);
@@ -1305,7 +1453,9 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 				Monitor::Enter(WatchHistory);
 				try{
 					if(WatchFrame > f + 20){
-						if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("観戦パケット(遅延) > {0} / {1}¥n", f, WatchFrame), DebugMessageColor);
+						if(MTINFO.DEBUG){
+							form->WriteMessage(String::Format("観戦パケット(遅延) > {0} / {1}¥n", f, WatchFrame), DebugMessageColor);
+						}
 						break;
 					}
 
@@ -1333,14 +1483,16 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 			if(id == MemberList[0]->ID){
 				// 閉幕のお知らせ
-				form->WriteMessage("観戦の終了通知を受け取りました。¥n", SystemMessageColor);
+				form->WriteMessage("観戦終了のお知らせです。¥n", SystemMessageColor);
 				form->QuitWatch(false);
 			}
 			else{
 				// 観戦中止のお知らせ
 				Monitor::Enter(InputHistory);
 				try{
-					if(LUNAPORT.DEBUG) form->WriteMessage(String::Format("観戦中止 > {0}¥n", id), DebugMessageColor);
+					if(MTINFO.DEBUG){
+						form->WriteMessage(String::Format("観戦中止 > {0}¥n", id), DebugMessageColor);
+					}
 
 					for(i = 0; i < SpectatorList->Count; i++){
 						if(id == SpectatorList[i]->ID){
@@ -1356,10 +1508,55 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			break;
 
 		case PH_SECRET:
+			// 隠しコマンド
 			switch(rcv[1]){
 			case ST_PING:
 				rcv[1] = ST_PONG;
 				UDP->Send(rcv, rcv->Length, ep);
+				break;
+
+			case ST_PONG:
+				{
+					id = BitConverter::ToUInt16(rcv, 2);
+					UINT32 time = timeGetTime() - BitConverter::ToUInt32(rcv, 4);
+
+					Monitor::Enter(MemberList);
+					try{
+						for(i = 0; i < MemberList->Count; i++){
+							if(id == MemberList[i]->ID){
+								Monitor::Enter(ChatHistory);
+								try{
+									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+
+									form->richTextBoxLog->SelectionColor = NameColor[MemberList[i]->TYPE];
+									form->richTextBoxLog->AppendText(MemberList[i]->NAME);
+
+									form->richTextBoxLog->SelectionColor = SecretColor;
+									form->richTextBoxLog->AppendText("に ");
+
+									form->richTextBoxLog->SelectionColor = TalkMessageColor;
+									form->richTextBoxLog->AppendText(UInt32(time).ToString());
+
+									form->richTextBoxLog->SelectionColor = SecretColor;
+									form->richTextBoxLog->AppendText("の ダメージ！！¥n");
+
+									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+									form->richTextBoxLog->ScrollToCaret();
+								}
+								catch(Exception ^e){
+									WriteErrorLog(e->ToString(), "RichTextBox");
+								}
+								finally{
+									Monitor::Exit(ChatHistory);
+								}
+								break;
+							}
+						}
+					}
+					finally{
+						Monitor::Exit(MemberList);
+					}
+				}
 				break;
 
 			default:
@@ -1368,8 +1565,8 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 			break;
 
 		default:
-			if(LUNAPORT.DEBUG){
-				form->WriteMessage(String::Format("Unknown Socket > {0} from {1}¥n", rcv[0], ep->ToString()), DebugMessageColor);
+			if(MTINFO.DEBUG){
+				form->WriteMessage(String::Format("Unknown Packet > {0} from {1}¥n", rcv[0], ep->ToString()), DebugMessageColor);
 			}
 			break;
 		}
@@ -1386,11 +1583,15 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 
 		if(e->ErrorCode == WSAECONNRESET){
 			// パケットが弾かれた
-			if(LUNAPORT.DEBUG) form->WriteMessage("あいさつ¥n", DebugMessageColor);
+			if(MTINFO.DEBUG){
+				form->WriteMessage("あいさつ¥n", DebugMessageColor);
+			}
 		}
 		else{
 			form->WriteMessage(String::Format("ソケットエラー({0})¥n", e->ErrorCode), ErrorMessageColor);
-			if(LUNAPORT.DEBUG) form->WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+			if(MTINFO.DEBUG){
+				form->WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+			}
 		}
 	}
 	catch(Exception^ e){
@@ -1398,7 +1599,7 @@ void Form1::ReceivePackets(IAsyncResult^ asyncResult)
 	}
 }
 
-void Form1::RunSonar()
+void MainForm::RunSonar()
 {
 	int i, j;
 	bool leave = false;
@@ -1416,11 +1617,32 @@ void Form1::RunSonar()
 		}
 		SonarSleeping = false;
 
+		// ログの自動保存
+		if(MTOPTION.AUTO_SAVE > 0){
+			if(((timeGetTime() - MemberList[0]->RESPONSE) / 60000) >= MTOPTION.AUTO_SAVE){
+				String^ path = gcnew String(MTOPTION.PATH);
+				path += "auto.log";
+
+				Monitor::Enter(ChatHistory);
+				try{
+					richTextBoxLog->SaveFile(path, RichTextBoxStreamType::PlainText);
+				}
+				catch(Exception ^e){
+					WriteErrorLog(e->ToString(), "SaveLog");
+				}
+				finally{
+					Monitor::Exit(ChatHistory);
+				}
+
+				MemberList[0]->RESPONSE = timeGetTime();
+			}
+		}
+
 		if(!Ranging) return;
 
 		Monitor::Enter(MemberList);
 		try{
-			if(LPMTOPTION.CONNECTION_TYPE == CT_SERVER){
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 				listBoxMember->BeginUpdate();
 
 				for(i = 1; i < MemberList->Count; i++){
@@ -1470,19 +1692,64 @@ void Form1::RunSonar()
 	}
 }
 
-void Form1::RunGame(Object^ obj)
+void MainForm::RunGame(Object^ obj)
 {
 	UINT run_type = (UINT)obj;
-	bool record_replay    = LPMTOPTION.RECORD_REPLAY;
-	bool allow_spectators = LPMTOPTION.ALLOW_SPECTATORS;
-	UINT time_limit       = LPMTOPTION.TIME_LIMIT * 100;
+	bool record_replay   = MTOPTION.RECORD_REPLAY;
+	bool allow_spectator = MTOPTION.ALLOW_SPECTATOR;
+	UINT sim_delay       = MTOPTION.SIMULATE_DELAY;
 
-	Media::SoundPlayer^ wav;
+	// 送信間隔を計算
+	if(run_type == RT_VS){
+		NetVS->INTERVAL  = 0;
+		NetVS->INTERVAL2 = 0;
 
-	if(time_limit > 0){
-		String^ path = gcnew String(LPMTOPTION.PATH);
-		path += "time.wav";
-		wav = gcnew Media::SoundPlayer(path);
+		if(MTOPTION.INTERVAL > 0){
+			if(MTOPTION.INTERVAL == 1){
+				// Low
+				NetVS->INTERVAL = (NetVS->DELAY + 1) / 4;
+
+				if(NetVS->INTERVAL == 1){
+					switch(NetVS->DELAY){
+					case 3:
+						NetVS->INTERVAL = 0;
+						break;
+					case 4:
+						NetVS->INTERVAL2 = 5;
+						break;
+					case 5:
+					case 6:
+						NetVS->INTERVAL2 = 3;
+						break;
+					}
+				}
+			}
+			else if(MTOPTION.INTERVAL == 2){
+				// Middle
+				NetVS->INTERVAL = (NetVS->DELAY + 1) / 3;
+
+				if(NetVS->INTERVAL == 1){
+					switch(NetVS->DELAY){
+					case 2:
+						NetVS->INTERVAL = 0;
+						break;
+					case 3:
+					case 4:
+						NetVS->INTERVAL2 = 4;
+						break;
+					}
+				}
+			}
+			else if(MTOPTION.INTERVAL == 3){
+				// High
+				NetVS->INTERVAL = (NetVS->DELAY + 1) / 2;
+
+				if(NetVS->INTERVAL == 1){
+					// Delay:2 のみ
+					NetVS->INTERVAL2 = 3;
+				}
+			}
+		}
 	}
 
 	TCHAR wdir[_MAX_PATH], buf[_MAX_PATH], drive[_MAX_DRIVE];
@@ -1493,14 +1760,14 @@ void Form1::RunGame(Object^ obj)
 	HANDLE thread = NULL;
 	DWORD thread_id = 0;
 	DWORD state, e_code, e_address, mem;
-	DWORD frames = 0, now, last_sec = 0, inputs = 0;
-	int i, append_cap, def_time, last_cap = 0, num_vs = 0, p1_win = 0, p2_win = 0, timer = 0, rand_count = 0;
+	DWORD stage_loop = 0, blt_count = 0, input_count = 0, rand_count = 0, now_time, last_time = 0;
+	int i, append_cap, last_cap = 0, num_vs = 0, p1_win = 0, p2_win = 0, timer = 0;
 	bool vs_end = true, single_p = 0;
 
-	LUNAPORT.INITIALIZED = false;
-	LUNAPORT.SHOW_TOP = false;
-	ZeroMemory(LUNAPORT.ORIGINAL_TITLE, sizeof(LUNAPORT.ORIGINAL_TITLE));
-	ZeroMemory(LUNAPORT.TITLE, sizeof(LUNAPORT.TITLE));
+	MTINFO.INITIALIZED = false;
+	MTINFO.SHOW_TOP = false;
+	ZeroMemory(MTINFO.ORIGINAL_TITLE, sizeof(MTINFO.ORIGINAL_TITLE));
+	ZeroMemory(MTINFO.TITLE, sizeof(MTINFO.TITLE));
 
 	// リプレイファイル
 	BinaryWriter^ bw = nullptr;
@@ -1512,9 +1779,18 @@ void Form1::RunGame(Object^ obj)
 	ri.KEY[0] = ri.KEY[1] = 0xFFFF;
 	ri.COUNT[0] = ri.COUNT[1] = 0;
 
+	// ディレイシミュレート
+	std::deque<UINT16> sim_que;
+
+	if(run_type == RT_FREE && sim_delay > 0){
+		for(UINT i = 0; i < sim_delay; i++){
+			sim_que.push_back(0);
+		}
+	}
+
 	try{
 		String ^path, ^file;
-		array<TCHAR>^ header = gcnew array<TCHAR>{'L', 'P', 'M', 'T', 'R'};
+		array<TCHAR>^ header = gcnew array<TCHAR>{'T', 'Y', 'M', 'T', 'R'};
 		BYTE len;
 
 		if(run_type == RT_PLAYBACK){
@@ -1527,43 +1803,53 @@ void Form1::RunGame(Object^ obj)
 			// P1ネーム
 			len = br->ReadByte();
 			for(i = 0; i < len; i++){
-				LUNAPORT.P1_NAME[i] = br->ReadChar();
+				MTINFO.P1_NAME[i] = br->ReadChar();
 			}
 
 			// P2ネーム
 			len = br->ReadByte();
 			for(i = 0; i < len; i++){
-				LUNAPORT.P2_NAME[i] = br->ReadChar();
+				MTINFO.P2_NAME[i] = br->ReadChar();
 			}
 
 			// 乱数シード
-			LUNAPORT.SEED = br->ReadUInt32();
+			MTINFO.SEED = br->ReadUInt32();
+
+			if(ri.VERSION >= _T('3')){
+				MTINFO.MAX_STAGE    = br->ReadByte();
+				MTINFO.STAGE_SELECT = br->ReadByte();
+				MTINFO.ROUND        = br->ReadByte();
+				MTINFO.TIMER        = br->ReadByte();
+			}
+			else{
+				MTINFO.MAX_STAGE    = MTOPTION.MAX_STAGE;
+				MTINFO.STAGE_SELECT = MTOPTION.STAGE_SELECT;
+				MTINFO.ROUND        = MTOPTION.ROUND;
+				MTINFO.TIMER        = MTOPTION.TIMER;
+			}
 		}
 		else if(record_replay){
-			path = gcnew String(LPMTOPTION.REPLAY_FOLDER);
+			path = gcnew String(MTOPTION.REPLAY_FOLDER);
 
 			// ゲーム別にリプレイを振り分け
-			if(LPMTOPTION.REPLAY_DIVIDE){
-				path += "¥¥" + Path::GetFileNameWithoutExtension(gcnew String(LPMTOPTION.GAME_EXE));
+			if(MTOPTION.REPLAY_DIVIDE){
+				path += "¥¥" + Path::GetFileNameWithoutExtension(gcnew String(MTOPTION.GAME_EXE));
 			}
 
 			if(!Directory::Exists(path)){
 				Directory::CreateDirectory(path);
 			}
 
-			// フェイクタイマーを使用
-			if(time_limit > 0){
-				file = String::Format("{0}_", LPMTOPTION.TIME_LIMIT);
-			}
-			else{
-				file = String::Empty;
-			}
-
 			if(run_type == RT_VS){
-				file += String::Format("{0}_vs_{1}_{2}.mtr", gcnew String(LUNAPORT.P1_NAME), gcnew String(LUNAPORT.P2_NAME), DateTime::Now.ToString("yyMMdd-HHmmss"));
+				if(ListView == LV_BLIND){
+					file = String::Format("vs_{0}.mtr", DateTime::Now.ToString("yyMMdd-HHmmss"));
+				}
+				else{
+					file = String::Format("{0}_vs_{1}_{2}.mtr", gcnew String(MTINFO.P1_NAME), gcnew String(MTINFO.P2_NAME), DateTime::Now.ToString("yyMMdd-HHmmss"));
+				}
 			}
 			else{
-				file += String::Format("{0}_{1}.mtr", gcnew String(LUNAPORT.P1_NAME), DateTime::Now.ToString("yyMMdd-HHmmss"));
+				file = String::Format("{0}_{1}.mtr", gcnew String(MTINFO.P1_NAME), DateTime::Now.ToString("yyMMdd-HHmmss"));
 			}
 
 			path += "¥¥" + file;
@@ -1574,35 +1860,41 @@ void Form1::RunGame(Object^ obj)
 			// ヘッダ
 			bw->Write(header);
 
-			switch(LPMTOPTION.REPLAY_VERSION){
+			switch(MTOPTION.REPLAY_VERSION){
 			case 1:
-				ri.VERSION = _T('1');
+				ri.VERSION = _T('3');
 				break;
 
 			case 2:
 			default:
-				ri.VERSION = _T('2');
+				ri.VERSION = _T('4');
 				break;
 			}
 
 			bw->Write(ri.VERSION);
 
 			// P1ネーム
-			len = (BYTE)_tcslen(LUNAPORT.P1_NAME);
+			len = (BYTE)_tcslen(MTINFO.P1_NAME);
 			bw->Write(len);
 			for(i = 0; i < len; i++){
-				bw->Write(LUNAPORT.P1_NAME[i]);
+				bw->Write(MTINFO.P1_NAME[i]);
 			}
 
 			// P2ネーム
-			len = (BYTE)_tcslen(LUNAPORT.P2_NAME);
+			len = (BYTE)_tcslen(MTINFO.P2_NAME);
 			bw->Write(len);
 			for(i = 0; i < len; i++){
-				bw->Write(LUNAPORT.P2_NAME[i]);
+				bw->Write(MTINFO.P2_NAME[i]);
 			}
 
 			// 乱数シード
-			bw->Write(LUNAPORT.SEED);
+			bw->Write(MTINFO.SEED);
+
+			// 各種設定
+			bw->Write((BYTE)MTINFO.MAX_STAGE);
+			bw->Write((BYTE)MTINFO.STAGE_SELECT);
+			bw->Write((BYTE)MTINFO.ROUND);
+			bw->Write((BYTE)MTINFO.TIMER);
 		}
 	}
 	catch(IOException^ e){
@@ -1615,17 +1907,23 @@ void Form1::RunGame(Object^ obj)
 	}
 
 	// 名前表示用
-	int is_p2 = _tcslen(LUNAPORT.P2_NAME);
+	int is_p1 = _tcslen(MTINFO.P1_NAME);
+	int is_p2 = _tcslen(MTINFO.P2_NAME);
 
 	// ランダムステージ用
-	srand(LUNAPORT.SEED);
+	RandomStage(MTINFO.SEED);
+
+	// ステージループ用
+	if(MTINFO.STAGE_SELECT > MTINFO.MAX_STAGE){
+		stage_loop = MTINFO.MAX_STAGE;
+	}
 
 	// 観戦パケ送信準備
-	if(allow_spectators){
+	if(allow_spectator){
 		AllowWatch = false;
 		InputFrame = 0;
 
-		SpectacleThread = gcnew Thread(gcnew ThreadStart(this, &Form1::RunSpectacle));
+		SpectacleThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunSpectacle));
 		SpectacleThread->Start();
 	}
 
@@ -1639,24 +1937,24 @@ void Form1::RunGame(Object^ obj)
 		si.cb = sizeof(STARTUPINFO);
 
 		// 作業ディレクトリ
-		_tsplitpath_s(LPMTOPTION.GAME_EXE, drive, _MAX_DRIVE, buf, _MAX_DIR, NULL, 0, NULL, 0);
+		_tsplitpath_s(MTOPTION.GAME_EXE, drive, _MAX_DRIVE, buf, _MAX_DIR, NULL, 0, NULL, 0);
 		_stprintf_s(wdir, _T("%s%s"), drive, buf);
 
-		if(CreateProcess(LPMTOPTION.GAME_EXE, NULL, NULL, NULL, false, DEBUG_PROCESS, NULL, wdir, &si, &pi)){
+		if(CreateProcess(MTOPTION.GAME_EXE, NULL, NULL, NULL, false, DEBUG_PROCESS, NULL, wdir, &si, &pi)){
 			if(run_type == RT_PLAYBACK){
 				WriteMessage(String::Format("¥"{0}¥"を再生します。¥n", Path::GetFileName(ReplayFilePath)), SystemMessageColor);
 			}
 			else{
-				WriteMessage(String::Format("{0}を起動します。¥n", Path::GetFileNameWithoutExtension(gcnew String(LPMTOPTION.GAME_EXE))), SystemMessageColor);
+				WriteMessage(String::Format("¥"{0}¥"を起動します。¥n", Path::GetFileNameWithoutExtension(gcnew String(MTOPTION.GAME_EXE))), SystemMessageColor);
 			}
 		}
 		else{
-			WriteMessage(String::Format("ERROR({0}) > ¥"{1}¥"が開けませんでした。¥n", GetLastError(), gcnew String(LPMTOPTION.GAME_EXE)), ErrorMessageColor);
+			WriteMessage(String::Format("ERROR({0}) > ¥"{1}¥"が開けませんでした。¥n", GetLastError(), gcnew String(MTOPTION.GAME_EXE)), ErrorMessageColor);
 			return;
 		}
 
-		LUNAPORT.PROCESS    = pi.hProcess;
-		LUNAPORT.PROCESS_ID = pi.dwProcessId;
+		MTINFO.PROCESS    = pi.hProcess;
+		MTINFO.PROCESS_ID = pi.dwProcessId;
 
 		while(WaitForDebugEvent(&de, INFINITE)){
 			state = DBG_CONTINUE;
@@ -1666,59 +1964,45 @@ void Form1::RunGame(Object^ obj)
 				e_code    = de.u.Exception.ExceptionRecord.ExceptionCode;
 				e_address = (DWORD)de.u.Exception.ExceptionRecord.ExceptionAddress;
 
-				// ログの流れ方が尋常じゃなくなるので封印
-				//if(LUNAPORT.DEBUG){
-				//	WriteMessage(String::Format("EXCEPTION_DEBUG_EVENT > {0:X8}@{1:X8}¥n", e_code, e_address), DebugMessageColor);
-				//}
-
 				if(e_code == EXCEPTION_ACCESS_VIOLATION){
 					ULONG_PTR info0 = de.u.Exception.ExceptionRecord.ExceptionInformation[0];
 					ULONG_PTR info1 = de.u.Exception.ExceptionRecord.ExceptionInformation[1];
 
-					if(LUNAPORT.DEBUG){
+					if(MTINFO.DEBUG){
 						WriteMessage(String::Format("EXCEPTION_ACCESS_VIOLATION > {0:X8}@{1:X8} : {2}@{3:X8}¥n", e_code, e_address, info0 ? "read" : "write", info1), DebugMessageColor);
 					}
 
 					state = DBG_EXCEPTION_NOT_HANDLED;
-					Thread::Sleep(3000);
 				}
 
 				if(e_code == EXCEPTION_BREAKPOINT){
-
-					if(de.dwThreadId != thread_id) break;
+					if(de.dwThreadId != thread_id){
+						break;
+					}
 
 					switch(e_address){
-					case CONTROL_CHANGE:
-						// 常に1P入力
-						ReadProcessMemory(pi.hProcess, (LPVOID)P1_KBD_CONTROLS, LUNAPORT.KBD_BUFFER, sizeof(LUNAPORT.KBD_BUFFER), NULL);
-						WriteProcessMemory(pi.hProcess, (LPVOID)P2_KBD_CONTROLS, LUNAPORT.KBD_BUFFER, sizeof(LUNAPORT.KBD_BUFFER), NULL);
-						ReadProcessMemory(pi.hProcess, (LPVOID)P1_JOY_CONTROLS, LUNAPORT.JOY_BUFFER, sizeof(LUNAPORT.JOY_BUFFER), NULL);
-						WriteProcessMemory(pi.hProcess, (LPVOID)P2_JOY_CONTROLS, LUNAPORT.JOY_BUFFER, sizeof(LUNAPORT.JOY_BUFFER), NULL);
-						WriteProcessMemory(pi.hProcess, (LPVOID)STICK_SELECTION, STICK_SELECTION_CODE, sizeof(STICK_SELECTION_CODE), NULL);
-
-						// キーコンフィグ無効
-						WriteProcessMemory(pi.hProcess, (LPVOID)KBD_WRITEBACK, KBD_WRITEBACK_CODE, sizeof(KBD_WRITEBACK_CODE), NULL);
-						WriteProcessMemory(pi.hProcess, (LPVOID)JOY_WRITEBACK, JOY_WRITEBACK_CODE, sizeof(JOY_WRITEBACK_CODE), NULL);
-
-						// JoyStickボタン無効
-						WriteProcessMemory(pi.hProcess, (LPVOID)CONTROL_CHANGE, &NOP, 1, NULL);
-
-						FlushInstructionCache(pi.hProcess, NULL, 0);
-						break;
-
 					case VS_ROUND:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+						c.Eax++;
+						SetThreadContext(thread, &c);
+
 						if(vs_end){
 							num_vs++;
 							vs_end = false;
 						}
+						break;
 
+					case VS_ROUND_95:
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
-
-						c.Eax++;
-
+						c.Edx = 0;
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
+
+						if(vs_end){
+							num_vs++;
+							vs_end = false;
+						}
 						break;
 
 					case ROUND_END:
@@ -1726,7 +2010,6 @@ void Form1::RunGame(Object^ obj)
 
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
-
 						c.Esi = mem;
 
 						if(vs_end == false){
@@ -1746,104 +2029,25 @@ void Form1::RunGame(Object^ obj)
 						}
 
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
 						break;
 
-					case MODE_SELECT:
-						if(wav->IsLoadCompleted == false){
-							try{
-								wav->Play();
-							}
-							catch(Exception^){
-							}
-						}
-
+					case ROUND_END_95:
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
-
-						c.Esi = 1;
-
+						c.Ebx = 0;
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
-						break;
 
-					case TIMER_RESET1:
-					case TIMER_RESET2:
-						timer = time_limit;
-						ReadProcessMemory(pi.hProcess, (LPVOID)DEFAULT_TIME, &def_time, 4, NULL);
-
-						if(def_time == 0){
-							mem = 0xFFFFFFFF;
-							WriteProcessMemory(pi.hProcess, (LPVOID)TIME_LIMIT, &mem, 4, NULL);
-						}
-						else{
-							WriteProcessMemory(pi.hProcess, (LPVOID)TIME_LIMIT, &timer, 4, NULL);
-						}
-						break;
-
-					case TIMER_DECREASE:
-						c.ContextFlags = CONTEXT_INTEGER;
-						GetThreadContext(thread, &c);
-
-						// 偽タイマー使用かつ格ツク本体のタイマーを使用するようにしていたらこっちで制御
-						if(timer > 0 && def_time > 0){
-							c.Eax = timer + 98;
-						}
-						else{
-							ReadProcessMemory(pi.hProcess, (LPVOID)TIME_LIMIT, &mem, 4, NULL);
-							c.Eax = mem;
-						}
-
-						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
-
-						if(timer > 1){
-							timer--;
-
-							if(timer == 3001 || timer == 1001 || timer == 501 || timer == 401 || timer == 301 || timer == 201 || timer == 101){
-								try{
-									wav->Play();
-								}
-								catch(Exception^){
-								}
+						if(vs_end == false){
+							// 対戦終了時は３回飛んでくる
+							ReadProcessMemory(pi.hProcess, (LPVOID)P1_WIN_95, &mem, 4, NULL);
+							if(mem == 2){
+								p1_win++;
+								vs_end = true;
 							}
-
-							if(timer == 1){
-								DWORD s1, s2;
-
-								ReadProcessMemory(pi.hProcess, (LPVOID)P1_STATE, &s1, 4, NULL);
-								ReadProcessMemory(pi.hProcess, (LPVOID)P2_STATE, &s2, 4, NULL);
-
-								if(s1 & 0x0C || s2 & 0x0C){
-									timer++;
-									break;
-								}
-
-								DWORD hp1, max1, hp2, max2;
-								ReadProcessMemory(pi.hProcess, (LPVOID)P1_HP, &hp1, 4, NULL);
-								ReadProcessMemory(pi.hProcess, (LPVOID)P1_MAX_HP, &max1, 4, NULL);
-								ReadProcessMemory(pi.hProcess, (LPVOID)P2_HP, &hp2, 4, NULL);
-								ReadProcessMemory(pi.hProcess, (LPVOID)P2_MAX_HP, &max2, 4, NULL);
-
-								hp1 = hp1 * 1000 / max1;
-								hp2 = hp2 * 1000 / max2;
-
-								if(hp1 == hp2){
-									hp1 = hp2 = 0;
-								}
-								else if(hp1 > hp2){
-									hp2 = 0;
-								}
-								else{
-									hp1 = 0;
-								}
-
-								if(hp1 == 0){
-									WriteProcessMemory(pi.hProcess, (LPVOID)P1_HP, &hp1, 4, NULL);
-								}
-								if(hp2 == 0){
-									WriteProcessMemory(pi.hProcess, (LPVOID)P2_HP, &hp2, 4, NULL);
-								}
+							ReadProcessMemory(pi.hProcess, (LPVOID)P2_WIN_95, &mem, 4, NULL);
+							if(mem == 2){
+								p2_win++;
+								vs_end = true;
 							}
 						}
 						break;
@@ -1854,67 +2058,84 @@ void Form1::RunGame(Object^ obj)
 
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
-
 						c.Eax = mem;
-
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
 						break;
 
-					case STAGE_SELECT_BREAK:
-						c.ContextFlags = CONTEXT_INTEGER;
-						GetThreadContext(thread, &c);
-
-						if(LPMTOPTION.STAGE_SELECT == 0){
-							c.Eax = rand() % LPMTOPTION.MAX_STAGES;
-						}
-						else{
-							c.Eax = LPMTOPTION.STAGE_SELECT - 1;
-						}
-
-						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
-						break;
-
-					case LOCAL_P_BREAK:
-					case REMOTE_P_BREAK:
-						inputs++;
+					case RAND_FUNC_95:
+						rand_count++;
+						ReadProcessMemory(pi.hProcess, (LPVOID)RANDOM_SEED_95, &mem, 4, NULL);
 
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
+						c.Eax = mem;
+						SetThreadContext(thread, &c);
+						break;
 
-						if(e_address == LOCAL_P_BREAK){
-							c.Eax = LocalInput((UINT16)c.Eax);
+					case STAGE_SELECT:
+					case STAGE_SELECT_95:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+
+						if(MTINFO.RAND_SEARCH){
+							stage_loop = 0;
+
+							MTINFO.MAX_STAGE    = MTOPTION.MAX_STAGE;
+							MTINFO.STAGE_SELECT = MTOPTION.STAGE_SELECT;
+						}
+
+						if(stage_loop > 0){
+							i = stage_loop - 1;
+
+							stage_loop++;
+
+							if(stage_loop > MTINFO.STAGE_SELECT){
+								stage_loop = MTINFO.MAX_STAGE;
+							}
 						}
 						else{
-							c.Eax = RemoteInput();
+							if(MTINFO.STAGE_SELECT == 0){
+								i = RandomStage() % MTINFO.MAX_STAGE;
+							}
+							else{
+								i = MTINFO.STAGE_SELECT - 1;
+							}
 						}
 
-						if(record_replay || allow_spectators){
-							RecordInput((UINT16)c.Eax, bw, ri, allow_spectators);
+						if(e_address == STAGE_SELECT){
+							c.Eax = i;
+						}
+						else{
+							c.Ecx = i;
 						}
 
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
 						break;
 
-					case SINGLE_BREAK_INPUT:
-						inputs++;
+					case SINGLE_CONTROL_HOOK:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+						c.Ecx = 0;
+						SetThreadContext(thread, &c);
+						break;
 
-					case PLAY_P1_BREAK:
-					case PLAY_P2_BREAK:
-						inputs++;
+					case STORY_KEY:
+					case VS_P2_KEY:
+						input_count++;
 
+					case VS_P1_KEY:
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
 
 						if(run_type == RT_VS){
-							if(LUNAPORT.CONTROL == single_p){
-								RemoteInput();
+							if(e_address == STORY_KEY){
+								c.Eax = LocalInput((UINT16)c.Eax);
+								c.Eax |= RemoteInput();
+							}
+							else if((e_address == VS_P1_KEY && MTINFO.CONTROL == 0) || (e_address == VS_P2_KEY && MTINFO.CONTROL == 1)){
 								c.Eax = LocalInput((UINT16)c.Eax);
 							}
 							else{
-								LocalInput(0);
 								c.Eax = RemoteInput();
 							}
 						}
@@ -1952,62 +2173,164 @@ void Form1::RunGame(Object^ obj)
 						else if(run_type == RT_PLAYBACK){
 							c.Eax = ReadReplayData(br, ri);
 						}
+						else if(run_type == RT_FREE && sim_delay > 0){
+							// 2P入力のシミュレートはしない
+							if(e_address != VS_P2_KEY){
+								sim_que.push_back((UINT16)c.Eax);
+								c.Eax = sim_que.front();
+								sim_que.pop_front();
+							}
+						}
 
-						if(record_replay || allow_spectators){
-							RecordInput((UINT16)c.Eax, bw, ri, allow_spectators);
+						if(record_replay || allow_spectator){
+							RecordInput((UINT16)c.Eax, bw, ri, allow_spectator);
+						}
+
+						// メモリに書き込み
+						if(e_address == VS_P2_KEY){
+							WriteProcessMemory(pi.hProcess, (LPVOID)P2_INPUT, &c.Eax, 4, NULL);
+						}
+						else{
+							WriteProcessMemory(pi.hProcess, (LPVOID)P1_INPUT, &c.Eax, 4, NULL);
 						}
 
 						SetThreadContext(thread, &c);
-						FlushInstructionCache(pi.hProcess, NULL, 0);
 						break;
 
-					case SINGLE_BREAK_CONTROL:
+					case UNCHECK_JOYSTICK_95:
 						c.ContextFlags = CONTEXT_INTEGER;
 						GetThreadContext(thread, &c);
-						single_p = c.Ecx & 1;
+						c.Eax = 0;
+						SetThreadContext(thread, &c);
 						break;
 
-					case FRAME_BREAK:
-						frames++;
-						now = timeGetTime();
+					case STORY_P2_KEY_95:
+					case VS_P2_KEY_95:
+						input_count++;
 
-						if(now - last_sec >= 1000){
-							append_cap = 0;
+					case STORY_P1_KEY_95:
+					case VS_P1_KEY_95:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
 
-							_tcscpy_s(LUNAPORT.TITLE, LUNAPORT.ORIGINAL_TITLE);
+						if(e_address == STORY_P1_KEY_95){
+							ReadProcessMemory(pi.hProcess, (LPVOID)INPUT_COUNTER_95, &mem, 4, NULL);
+							c.Ecx = mem;
+						}
+						else if(e_address == STORY_P2_KEY_95){
+							ReadProcessMemory(pi.hProcess, (LPVOID)INPUT_COUNTER_95, &mem, 4, NULL);
+							c.Edx = mem;
+						}
 
-							if(time_limit > 0){
-								append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s < %02d >"), LUNAPORT.TITLE, timer/100);
+						// キー入力あれこれ 95Ver
+						if(run_type == RT_VS){
+							if((e_address == STORY_P1_KEY_95 && MTINFO.CONTROL == 0) || (e_address == STORY_P2_KEY_95 && MTINFO.CONTROL == 1) ||
+								(e_address == VS_P1_KEY_95 && MTINFO.CONTROL == 0) || (e_address == VS_P2_KEY_95 && MTINFO.CONTROL == 1)){
+								c.Eax = LocalInput((UINT16)c.Eax);
 							}
-							if(LPMTOPTION.DISPLAY_NAMES){
-								if(is_p2 == 0){
-									append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s [Player:%s]"), LUNAPORT.TITLE, LUNAPORT.P1_NAME);
+							else{
+								c.Eax = RemoteInput();
+							}
+						}
+						else if(run_type == RT_WATCH && WaitingWatch > 0){
+							// 観戦バッファから読み込み
+							c.Eax = WatchHistory[WatchFrame % WatchHistory->Length];
+
+							if(c.Eax == 0xFFFF){
+								Monitor::Enter(WatchHistory);
+								try{
+									WaitingWatch = 2;
+									Monitor::Wait(WatchHistory, TIME_OUT*2);
+								}
+								finally{
+									Monitor::Exit(WatchHistory);
+								}
+
+								c.Eax = WatchHistory[WatchFrame % WatchHistory->Length];
+
+								if(c.Eax == 0xFFFF && WaitingWatch == 2){
+									WriteMessage("タイムアウトしたため観戦を終了します。¥n", ErrorMessageColor);
+									QuitWatch(true);
+								}
+							}
+
+							Monitor::Enter(WatchHistory);
+							try{
+								WatchHistory[WatchFrame % WatchHistory->Length] = 0xFFFF;
+								WatchFrame++;
+							}
+							finally{
+								Monitor::Exit(WatchHistory);
+							}
+						}
+						else if(run_type == RT_PLAYBACK){
+							c.Eax = ReadReplayData(br, ri);
+						}
+						else if(run_type == RT_FREE && sim_delay > 0){
+							// 2P入力のシミュレートはしない
+							if(e_address != STORY_P2_KEY_95 && e_address != VS_P2_KEY_95){
+								sim_que.push_back((UINT16)c.Eax);
+								c.Eax = sim_que.front();
+								sim_que.pop_front();
+							}
+						}
+
+						if(record_replay || allow_spectator){
+							RecordInput((UINT16)c.Eax, bw, ri, allow_spectator);
+						}
+
+						if(e_address == VS_P1_KEY_95){
+							WriteProcessMemory(pi.hProcess, (LPVOID)P1_INPUT_95, &c.Eax, 4, NULL);
+						}
+						else if(e_address == VS_P2_KEY_95){
+							WriteProcessMemory(pi.hProcess, (LPVOID)P2_INPUT_95, &c.Eax, 4, NULL);
+						}
+
+						SetThreadContext(thread, &c);
+						break;
+
+					case FRAME_RATE:
+					case FRAME_RATE_95:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+						c.Esi = c.Eax;
+						SetThreadContext(thread, &c);
+
+						blt_count++;
+						now_time = timeGetTime();
+
+						if(now_time - last_time >= 1000){
+							last_time = now_time;
+
+							append_cap = 0;
+							_tcscpy_s(MTINFO.TITLE, MTINFO.ORIGINAL_TITLE);
+
+							if(MTOPTION.DISPLAY_NAME){
+								if(is_p1 == 0 && is_p2 == 0){
+									append_cap = _stprintf_s(MTINFO.TITLE, _T("%s [野試合中]"), MTINFO.TITLE);
+								}
+								else if(is_p2 == 0){
+									append_cap = _stprintf_s(MTINFO.TITLE, _T("%s [%s]"), MTINFO.TITLE, MTINFO.P1_NAME);
 								}
 								else{
-									append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s [%s vs %s]"), LUNAPORT.TITLE, LUNAPORT.P1_NAME, LUNAPORT.P2_NAME);
+									append_cap = _stprintf_s(MTINFO.TITLE, _T("%s [%s vs %s]"), MTINFO.TITLE, MTINFO.P1_NAME, MTINFO.P2_NAME);
 								}
 							}
-							if(LPMTOPTION.DISPLAY_VERSUS){
-								append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s 対戦数:%d (%d - %d)"), LUNAPORT.TITLE, num_vs, p1_win, p2_win);
+							if(MTOPTION.DISPLAY_VERSUS){
+								append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  対戦数:%d (%d - %d)"), MTINFO.TITLE, num_vs, p1_win, p2_win);
 							}
-							if(LPMTOPTION.DISPLAY_FRAMERATE){
-								append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s fps:%3d"), LUNAPORT.TITLE, frames);
+							if(MTOPTION.DISPLAY_FRAMERATE){
+								append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  fps:%3d(%d％)"), MTINFO.TITLE, blt_count, input_count);
 							}
-							if(LPMTOPTION.DISPLAY_INPUTRATE){
-								append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s input:%3d"), LUNAPORT.TITLE, inputs/2);
-							}
-
-							if(rand_count > 0){
-								append_cap = _stprintf_s(LUNAPORT.TITLE, _T("%s rand:%d"), LUNAPORT.TITLE, rand_count - 1);
-
-								rand_count = 1;
+							if(MTOPTION.DISPLAY_RAND){
+								append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  乱数:%d"), MTINFO.TITLE, rand_count);
 							}
 
-							frames = 0;
-							inputs = 0;
-							last_sec = now;
+							blt_count   = 0;
+							input_count = 0;
+							rand_count  = 0;
 
-							if(append_cap > 0 || last_cap > 0 || LUNAPORT.HWND == NULL){
+							if(append_cap > 0 || last_cap > 0 || MTINFO.HWND == NULL){
 								last_cap = append_cap;
 
 								Thread^ cap = gcnew Thread(gcnew ThreadStart(&SetCaption));
@@ -2015,18 +2338,34 @@ void Form1::RunGame(Object^ obj)
 							}
 						}
 						break;
+
+					case BGM_VOLUME:
+					case BGM_VOLUME_95:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+						c.Edx = MTINFO.VOLUME[MTOPTION.BGM_VOLUME/5];
+						SetThreadContext(thread, &c);
+						break;
+
+					case SE_VOLUME:
+					case SE_VOLUME_95:
+						c.ContextFlags = CONTEXT_INTEGER;
+						GetThreadContext(thread, &c);
+						c.Edx = MTINFO.VOLUME[MTOPTION.SE_VOLUME/5];
+						SetThreadContext(thread, &c);
+						break;
 					}
 				}
 				break;
 
 			case CREATE_THREAD_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("CREATE_THREAD_DEBUG_EVENT¥n", DebugMessageColor);
 				}
 				break;
 
 			case CREATE_PROCESS_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("CREATE_PROCESS_DEBUG_EVENT¥n", DebugMessageColor);
 				}
 
@@ -2034,84 +2373,108 @@ void Form1::RunGame(Object^ obj)
 				thread_id = de.dwThreadId;
 
 				// ここから書き換えゾーン
-				mem = LPMTOPTION.HIT_JUDGE;
-				WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE, &mem, 4, NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE_SET, HIT_JUDGE_SET_CODE, sizeof(HIT_JUDGE_SET_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)VS_ROUND, VS_ROUND_CODE, sizeof(VS_ROUND_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)ROUND_END, ROUND_END_CODE, sizeof(ROUND_END_CODE), NULL);
+				if(MTINFO.KGT2K){
+					// 2nd.用
+					mem = MTOPTION.HIT_JUDGE;
+					WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE, &mem, 4, NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE_SET, HIT_JUDGE_SET_CODE, sizeof(HIT_JUDGE_SET_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)RANDOM_SEED, &MTINFO.SEED, 4, NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)STAGE_SELECT, STAGE_SELECT_CODE, sizeof(STAGE_SELECT_CODE), NULL);
 
-				if(time_limit > 0){
-					WriteProcessMemory(pi.hProcess, (LPVOID)MODE_SELECT, MODE_SELECT_CODE, sizeof(MODE_SELECT_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)TIMER_RESET1, TIMER_RESET1_CODE, sizeof(TIMER_RESET1_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)TIMER_RESET2, TIMER_RESET2_CODE, sizeof(TIMER_RESET2_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)TIMER_DECREASE, TIMER_DECREASE_CODE, sizeof(TIMER_DECREASE_CODE), NULL);
-				}
+					WriteProcessMemory(pi.hProcess, (LPVOID)ROUND_SET, ROUND_SET_CODE, sizeof(ROUND_SET_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)TIMER_SET, TIMER_SET_CODE, sizeof(TIMER_SET_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)DEFAULT_ROUND, &MTINFO.ROUND, 4, NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)DEFAULT_TIMER, &MTINFO.TIMER, 4, NULL);
 
-				WriteProcessMemory(pi.hProcess, (LPVOID)RANDOM_SEED, &LUNAPORT.SEED, 4, NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)STAGE_SELECT, STAGE_SELECT_CODE, sizeof(STAGE_SELECT_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)LOCAL_P_FUNC, LOCAL_P_FUNC_CODE, sizeof(LOCAL_P_FUNC_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)LOCAL_P_JUMPBACK, LOCAL_P_JUMPBACK_CODE[LUNAPORT.CONTROL], 5, NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)REMOTE_P_FUNC, REMOTE_P_FUNC_CODE, sizeof(REMOTE_P_FUNC_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)REMOTE_P_JUMPBACK, REMOTE_P_JUMPBACK_CODE[!LUNAPORT.CONTROL], 5, NULL);
-
-				if(LUNAPORT.CHECK_RAND){
-					rand_count = 1;
-
+					// タイトルバー表示用
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_ROUND, VS_ROUND_CODE, sizeof(VS_ROUND_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)ROUND_END, ROUND_END_CODE, sizeof(ROUND_END_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)FRAME_RATE, FRAME_RATE_CODE, sizeof(FRAME_RATE_CODE), NULL);
 					WriteProcessMemory(pi.hProcess, (LPVOID)RAND_FUNC, RAND_FUNC_CODE, sizeof(RAND_FUNC_CODE), NULL);
-				}
 
-				// タイトルバー
-				WriteProcessMemory(pi.hProcess, (LPVOID)FRAME_FUNC, FRAME_FUNC_CODE, sizeof(FRAME_FUNC_CODE), NULL);
-				WriteProcessMemory(pi.hProcess, (LPVOID)FRAME_JUMP, FRAME_JUMP_CODE, sizeof(FRAME_JUMP_CODE), NULL);
+					// 音量
+					WriteProcessMemory(pi.hProcess, (LPVOID)VOLUME_SET_1, VOLUME_SET_1_CODE, sizeof(VOLUME_SET_1_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VOLUME_SET_2, VOLUME_SET_2_CODE, sizeof(VOLUME_SET_2_CODE), NULL);
 
-				if(run_type == RT_VS || record_replay || allow_spectators){
-					WriteProcessMemory(pi.hProcess, (LPVOID)SINGLE_FUNC, SINGLE_FUNC_CODE, sizeof(SINGLE_FUNC_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)SINGLE_JUMP, SINGLE_JUMP_CODE, sizeof(SINGLE_JUMP_CODE), NULL);
-				}
+					// 熱帯中は常に1P入力
+					if(run_type == RT_VS){
+						WriteProcessMemory(pi.hProcess, (LPVOID)SINGLE_CONTROL_HOOK, SINGLE_CONTROL_HOOK_CODE, sizeof(SINGLE_CONTROL_HOOK_CODE), NULL);
+						WriteProcessMemory(pi.hProcess, (LPVOID)VS_CONTROL_HOOK, VS_CONTROL_HOOK_CODE, sizeof(VS_CONTROL_HOOK_CODE), NULL);
+					}
 
-				if(run_type == RT_VS){
-					WriteProcessMemory(pi.hProcess, (LPVOID)P1_JUMP, P1_JUMP_CODE[LUNAPORT.CONTROL], 5, NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)P2_JUMP, P2_JUMP_CODE[!LUNAPORT.CONTROL], 5, NULL);
+					// キー情報を取得
+					WriteProcessMemory(pi.hProcess, (LPVOID)STORY_KEY, STORY_KEY_CODE, sizeof(STORY_KEY_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_P1_KEY, VS_P1_KEY_CODE, sizeof(VS_P1_KEY_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_P2_KEY, VS_P2_KEY_CODE, sizeof(VS_P2_KEY_CODE), NULL);
+
+					// ウィンドウサイズを640x480に
+					if(MTOPTION.CHANGE_WINDOW_SIZE){
+						TCHAR val[32];
+
+						_stprintf_s(buf, _T("%sgame.ini"), wdir);
+
+						if(File::Exists(gcnew String(buf))){
+							_itot_s(640, val, 10);
+							WritePrivateProfileString(_T("GamePlay"), _T("GameWindowSize_x"), val, buf);
+							_itot_s(480, val, 10);
+							WritePrivateProfileString(_T("GamePlay"), _T("GameWindowSize_y"), val, buf);
+						}
+					}
 				}
 				else{
-					WriteProcessMemory(pi.hProcess, (LPVOID)PLAY_HOOKS, PLAY_HOOKS_CODE, sizeof(PLAY_HOOKS_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)PLAY_P1_JUMP, PLAY_P1_JUMP_CODE, sizeof(PLAY_P1_JUMP_CODE), NULL);
-					WriteProcessMemory(pi.hProcess, (LPVOID)PLAY_P2_JUMP, PLAY_P2_JUMP_CODE, sizeof(PLAY_P2_JUMP_CODE), NULL);
+					// 95用
+					mem = MTOPTION.HIT_JUDGE;
+					WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE_95, &mem, 4, NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)HIT_JUDGE_SET_95, HIT_JUDGE_SET_95_CODE, sizeof(HIT_JUDGE_SET_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)RANDOM_SEED_95, &MTINFO.SEED, 4, NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)STAGE_SELECT_95, STAGE_SELECT_95_CODE, sizeof(STAGE_SELECT_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)TIMER_SET_95, TIMER_SET_95_CODE, sizeof(TIMER_SET_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)DEFAULT_TIMER_95, &MTINFO.TIMER, 4, NULL);
+
+					// タイトルバー表示用
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_ROUND_95, VS_ROUND_95_CODE, sizeof(VS_ROUND_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)ROUND_END_95, ROUND_END_95_CODE, sizeof(ROUND_END_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)FRAME_RATE_95, FRAME_RATE_95_CODE, sizeof(FRAME_RATE_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)RAND_FUNC_95, RAND_FUNC_95_CODE, sizeof(RAND_FUNC_95_CODE), NULL);
+
+					// 音量
+					WriteProcessMemory(pi.hProcess, (LPVOID)VOLUME_SET_1_95, VOLUME_SET_1_95_CODE, sizeof(VOLUME_SET_1_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VOLUME_SET_2_95, VOLUME_SET_2_95_CODE, sizeof(VOLUME_SET_2_95_CODE), NULL);
+
+					// JoyStickはエラー起こすのでオフにする
+					WriteProcessMemory(pi.hProcess, (LPVOID)UNCHECK_JOYSTICK_95, UNCHECK_JOYSTICK_95_CODE, sizeof(UNCHECK_JOYSTICK_95_CODE), NULL);
+
+					// 熱帯中は常に1P入力
+					if(run_type == RT_VS){
+						WriteProcessMemory(pi.hProcess, (LPVOID)CONTROL_HOOK1_95, CONTROL_HOOK1_95_CODE, sizeof(CONTROL_HOOK1_95_CODE), NULL);
+						WriteProcessMemory(pi.hProcess, (LPVOID)CONTROL_HOOK2_95, CONTROL_HOOK2_95_CODE, sizeof(CONTROL_HOOK2_95_CODE), NULL);
+					}
+
+					// キー情報を取得
+					WriteProcessMemory(pi.hProcess, (LPVOID)STORY_P1_KEY_95, STORY_P1_KEY_95_CODE, sizeof(STORY_P1_KEY_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)STORY_P2_KEY_95, STORY_P2_KEY_95_CODE, sizeof(STORY_P2_KEY_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_P1_KEY_95, VS_P1_KEY_95_CODE, sizeof(VS_P1_KEY_95_CODE), NULL);
+					WriteProcessMemory(pi.hProcess, (LPVOID)VS_P2_KEY_95, VS_P2_KEY_95_CODE, sizeof(VS_P2_KEY_95_CODE), NULL);
 				}
 
 				FlushInstructionCache(pi.hProcess, NULL, 0);
-
-				// ウィンドウサイズを640x480に
-				if(LPMTOPTION.CHANGE_WINDOW_SIZE){
-					TCHAR val[32];
-
-					_stprintf_s(buf, _T("%sgame.ini"), wdir);
-
-					if(File::Exists(gcnew String(buf))){
-						_itot_s(640, val, 10);
-						WritePrivateProfileString(_T("GamePlay"), _T("GameWindowSize_x"), val, buf);
-						_itot_s(480, val, 10);
-						WritePrivateProfileString(_T("GamePlay"), _T("GameWindowSize_y"), val, buf);
-					}
-				}
-
-				LUNAPORT.INITIALIZED = true;
+				MTINFO.INITIALIZED = true;
 				break;
 
 			case EXIT_THREAD_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("EXIT_THREAD_DEBUG_EVENT¥n", DebugMessageColor);
 				}
 				break;
 
 			case EXIT_PROCESS_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("EXIT_PROCESS_DEBUG_EVENT¥n", DebugMessageColor);
 				}
 				break;
 
 			case LOAD_DLL_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					TCHAR buf[MAX_PATH];
 					LONG_PTR data;
 
@@ -2123,13 +2486,13 @@ void Form1::RunGame(Object^ obj)
 				break;
 
 			case UNLOAD_DLL_DEBUG_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("UNLOAD_DLL_DEBUG_EVENT¥n", DebugMessageColor);
 				}
 				break;
 
 			case OUTPUT_DEBUG_STRING_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					int size = de.u.DebugString.nDebugStringLength;
 					char *str = (char *)malloc(size);
 					ReadProcessMemory(pi.hProcess, de.u.DebugString.lpDebugStringData, str, size, NULL);
@@ -2144,7 +2507,7 @@ void Form1::RunGame(Object^ obj)
 				break;
 
 			case RIP_EVENT:
-				if(LUNAPORT.DEBUG){
+				if(MTINFO.DEBUG){
 					WriteMessage("RIP_EVENT¥n", DebugMessageColor);
 				}
 				break;
@@ -2177,16 +2540,26 @@ void Form1::RunGame(Object^ obj)
 			bw->Close();
 		}
 
-		if(LUNAPORT.INITIALIZED){
+		if(MTINFO.INITIALIZED){
 			if(WaitingWatch > 0){
 				WaitingWatch = 0;
 				WriteMessage("観戦を中止します。¥n", SystemMessageColor);
 			}
-			else if(_tcslen(LUNAPORT.ORIGINAL_TITLE) > 0){
-				WriteMessage(String::Format("{0}を終了します。¥n", gcnew String(LUNAPORT.ORIGINAL_TITLE)), SystemMessageColor);
+			else if(_tcslen(MTINFO.ORIGINAL_TITLE) > 0){
+				WriteMessage(String::Format("¥"{0}¥"を終了しました。¥n", gcnew String(MTINFO.ORIGINAL_TITLE)), SystemMessageColor);
+
+				if(run_type == RT_VS){
+					if(MTINFO.CONTROL == 1){
+						i = p1_win;
+						p1_win = p2_win;
+						p2_win = i;
+					}
+
+					WriteMessage(String::Format("対戦成績 ： {0}戦 {1}勝 {2}敗¥n", num_vs, p1_win, p2_win), SecretColor);
+				}
 			}
 			else{
-				WriteMessage("ゲームを終了します。¥n", SystemMessageColor);
+				WriteMessage("ゲームを終了しました。¥n", SystemMessageColor);
 			}
 		}
 
@@ -2204,7 +2577,7 @@ void Form1::RunGame(Object^ obj)
 			NetVS = nullptr;
 		}
 
-		if(allow_spectators){
+		if(allow_spectator){
 			AllowWatch = false;
 			SpectacleThread->Join();
 		}
@@ -2218,7 +2591,7 @@ void Form1::RunGame(Object^ obj)
 		}
 		else{
 			// 対戦終了を通知
-			if(LPMTOPTION.AFTER_REST && run_type == RT_VS){
+			if(MTOPTION.AFTER_REST && run_type == RT_VS){
 				ChangeState((BYTE)MS_REST);
 			}
 			else{
@@ -2226,13 +2599,13 @@ void Form1::RunGame(Object^ obj)
 			}
 		}
 
-		LUNAPORT.INITIALIZED = false;
-		LUNAPORT.SHOW_TOP    = false;
-		LUNAPORT.PROCESS     = NULL;
-		LUNAPORT.PROCESS_ID  = 0;
-		LUNAPORT.HWND        = NULL;
-		ZeroMemory(LUNAPORT.ORIGINAL_TITLE, sizeof(LUNAPORT.ORIGINAL_TITLE));
-		ZeroMemory(LUNAPORT.TITLE, sizeof(LUNAPORT.TITLE));
+		MTINFO.INITIALIZED = false;
+		MTINFO.SHOW_TOP    = false;
+		MTINFO.PROCESS     = NULL;
+		MTINFO.PROCESS_ID  = 0;
+		MTINFO.HWND        = NULL;
+		ZeroMemory(MTINFO.ORIGINAL_TITLE, sizeof(MTINFO.ORIGINAL_TITLE));
+		ZeroMemory(MTINFO.TITLE, sizeof(MTINFO.TITLE));
 
 		if(IsFormClosing){
 			this->Close();
@@ -2240,15 +2613,16 @@ void Form1::RunGame(Object^ obj)
 	}
 }
 
-void Form1::RunVersus()
+void MainForm::RunVersus()
 {
-	array<BYTE>^ send = gcnew array<BYTE>(3);
+	array<BYTE>^ send = gcnew array<BYTE>(7);
 
 	try{
 		// 対戦要求
 		send[0] = PH_REQ_VS;
 		Array::Copy(BitConverter::GetBytes(MemberList[0]->ID), 0, send, 1, 2);
-		UDP->Send(send, 3, NetVS->IP_EP);
+		Array::Copy(BitConverter::GetBytes((INT32)(Path::GetFileNameWithoutExtension(gcnew String(MTOPTION.GAME_EXE))->GetHashCode())), 0, send, 3, 4);
+		UDP->Send(send, 7, NetVS->IP_EP);
 
 		NetVS->SLEEPING = true;
 		try{
@@ -2259,7 +2633,9 @@ void Form1::RunVersus()
 		NetVS->SLEEPING = false;
 
 		if(NetVS->SEQUENCE != VS_PING){
-			WriteMessage("対戦相手からの応答がありませんでした。¥n", ErrorMessageColor);
+			if(NetVS->SEQUENCE != VS_ERROR){
+				WriteMessage("挑戦相手からの応答がありませんでした。¥n", ErrorMessageColor);
+			}
 			return;
 		}
 
@@ -2285,15 +2661,15 @@ void Form1::RunVersus()
 			NetVS->SLEEPING = false;
 		}
 
-		if(NetVS->SEQUENCE != VS_DELAY){
-			WriteMessage("回線が不安定です。¥n", ErrorMessageColor);
+		if(NetVS->SEQUENCE != VS_SETTING){
+			WriteMessage("挑戦相手との回線が不安定です。¥n", ErrorMessageColor);
 			return;
 		}
 
 		// DELAYの設定
-		send[0] = PH_REQ_VS_DELAY;
+		send[0] = PH_REQ_VS_SETTING;
 
-		if(LPMTOPTION.DELAY == 0){
+		if(MTOPTION.DELAY == 0){
 			// オート設定
 			int d = 0, c = 0;
 
@@ -2313,12 +2689,12 @@ void Form1::RunVersus()
 
 			c = d/40 + 2;  // Delay = PING/10 + 2
 
-			if(c > 9) c = 9;
+			if(c > 12) c = 12;
 
 			NetVS->DELAY = c;
 		}
 		else{
-			NetVS->DELAY = LPMTOPTION.DELAY;
+			NetVS->DELAY = MTOPTION.DELAY;
 		}
 
 		send[1] = (BYTE)NetVS->DELAY;
@@ -2342,11 +2718,11 @@ void Form1::RunVersus()
 		// 対戦開始
 		WriteMessage(String::Format("対戦を開始します。(delay:{0})¥n", NetVS->DELAY), SystemMessageColor);
 
-		GameThread = gcnew Thread(gcnew ParameterizedThreadStart(this, &Form1::RunGame));
+		GameThread = gcnew Thread(gcnew ParameterizedThreadStart(this, &MainForm::RunGame));
 		GameThread->Start((UINT)RT_VS);
 	}
 	finally{
-		if(NetVS->SEQUENCE < VS_DATA){
+		if(NetVS->SEQUENCE < VS_DATA || NetVS->SEQUENCE == VS_ERROR){
 			MemberList[0]->STATE = MS_FREE;
 
 			delete NetVS;
@@ -2355,18 +2731,22 @@ void Form1::RunVersus()
 	}
 }
 
-void Form1::RunSpectacle()
+void MainForm::RunSpectacle()
 {
 	int i, d;
 	UINT32 frame = 0, s_frame;
 
 	// 開始合図
-	array<BYTE>^ send = gcnew array<BYTE>(10);
+	array<BYTE>^ send = gcnew array<BYTE>(14);
 	send[0] = PH_RES_WATCH;
 	send[1] = 0;
 	Array::Copy(BitConverter::GetBytes(P1ID), 0, send, 2, 2);
 	Array::Copy(BitConverter::GetBytes(P2ID), 0, send, 4, 2);
-	Array::Copy(BitConverter::GetBytes(LUNAPORT.SEED), 0, send, 6, 4);
+	Array::Copy(BitConverter::GetBytes(MTINFO.SEED), 0, send, 6, 4);
+	send[10] = MTINFO.MAX_STAGE;
+	send[11] = MTINFO.STAGE_SELECT;
+	send[12] = MTINFO.ROUND;
+	send[13] = MTINFO.TIMER;
 
 	Monitor::Enter(InputHistory);
 	try{
@@ -2397,7 +2777,7 @@ void Form1::RunSpectacle()
 /*
 				// データは既にバッファからなくなってる
 				if(frame > s_frame && (frame - s_frame) >= (UINT)InputHistory->Length - 20){
-					if(LUNAPORT.DEBUG) WriteMessage(String::Format("観戦者の追い出し > {0} / {1}¥n", SpectatorList[i]->ID, SpectatorList->Count), DebugMessageColor);
+					if(MTINFO.DEBUG) WriteMessage(String::Format("観戦者の追い出し > {0} / {1}¥n", SpectatorList[i]->ID, SpectatorList->Count), DebugMessageColor);
 
 					send[0] = PH_WATCH_END;
 					Array::Copy(BitConverter::GetBytes(SpectatorList[i]->ID), 0, send, 1, 2);
@@ -2454,7 +2834,7 @@ void Form1::RunSpectacle()
 	}
 }
 
-UINT16 Form1::LocalInput(UINT16 eax)
+UINT16 MainForm::LocalInput(UINT16 eax)
 {
 	// 左右同時押し禁止 if((eax & 3) == 3) eax ^= 2
 	if((eax & 0x0003) == 0x0003){
@@ -2466,16 +2846,35 @@ UINT16 Form1::LocalInput(UINT16 eax)
 		NetVS->LOCAL[(NetVS->L_READ + NetVS->DELAY) % NetVS->LOCAL->Length] = eax;
 		eax = NetVS->LOCAL[NetVS->L_READ];
 
-		// 送信開始
-		Array::Copy(BitConverter::GetBytes(NetVS->L_FRAME), 0, NetVS->SEND, 1, 4);
+		bool send = true;
 
-		UINT i;
-
-		for(i = 0; i <= NetVS->DELAY; i++){
-			Array::Copy(BitConverter::GetBytes(NetVS->LOCAL[(NetVS->L_READ + i) % NetVS->LOCAL->Length]), 0, NetVS->SEND, 5 + i*2, 2);
+		if(NetVS->INTERVAL > 0){
+			if(NetVS->INTERVAL == 1){
+				// 間隔１(定期休憩モード)
+				if((NetVS->L_FRAME % NetVS->INTERVAL2) == (NetVS->INTERVAL2 - 1)){
+					send = false;
+				}
+			}
+			else{
+				// 間隔２以上
+				if((NetVS->L_FRAME % NetVS->INTERVAL) != 0){
+					send = false;
+				}
+			}
 		}
 
-		UDP->BeginSend(NetVS->SEND, 5 + i*2, NetVS->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
+		if(send){
+			// 送信開始
+			Array::Copy(BitConverter::GetBytes(NetVS->L_FRAME), 0, NetVS->SEND, 1, 4);
+
+			UINT i;
+
+			for(i = 0; i <= NetVS->DELAY; i++){
+				Array::Copy(BitConverter::GetBytes(NetVS->LOCAL[(NetVS->L_READ + i) % NetVS->LOCAL->Length]), 0, NetVS->SEND, 5 + i*2, 2);
+			}
+
+			UDP->BeginSend(NetVS->SEND, 5 + i*2, NetVS->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
+		}
 
 		NetVS->L_FRAME++;
 		NetVS->L_READ++;
@@ -2488,7 +2887,7 @@ UINT16 Form1::LocalInput(UINT16 eax)
 	return eax;
 }
 
-UINT16 Form1::RemoteInput()
+UINT16 MainForm::RemoteInput()
 {
 	if(NetVS->SEQUENCE != VS_DATA) return 0;
 
@@ -2554,7 +2953,9 @@ UINT16 Form1::RemoteInput()
 
 		if(eax == 0xFFFF && NetVS->SEQUENCE == VS_TIMEOUT){
 			WriteMessage("タイムアウトしたため対戦を終了します。¥n", ErrorMessageColor);
-			if(LUNAPORT.DEBUG) WriteMessage(String::Format("Frame > L:{0} / R:{1} (delay:{2})¥n", NetVS->L_FRAME, NetVS->R_FRAME, NetVS->DELAY), DebugMessageColor);
+			if(MTINFO.DEBUG){
+				WriteMessage(String::Format("Frame > L:{0} / R:{1} (delay:{2})¥n", NetVS->L_FRAME, NetVS->R_FRAME, NetVS->DELAY), DebugMessageColor);
+			}
 
 			QuitGame();
 			return 0;
@@ -2567,7 +2968,9 @@ UINT16 Form1::RemoteInput()
 
 	if((eax & 0x0003) == 0x0003){
 		WriteMessage("不正パケットの受信 > 左右同時押し¥n", ErrorMessageColor);
-		if(LUNAPORT.DEBUG) WriteMessage(String::Format("IP = {0}¥n", NetVS->IP_EP->Address), DebugMessageColor);
+		if(MTINFO.DEBUG){
+			WriteMessage(String::Format("IP = {0}¥n", NetVS->IP_EP->Address), DebugMessageColor);
+		}
 
 		QuitGame();
 		return 0xFFFF;
@@ -2588,7 +2991,7 @@ UINT16 Form1::RemoteInput()
 	return eax;
 }
 
-UINT16 Form1::ReadReplayData(BinaryReader^ br, REPLAY_INFO& ri)
+UINT16 MainForm::ReadReplayData(BinaryReader^ br, REPLAY_INFO& ri)
 {
 	if(br == nullptr){
 		return 0;
@@ -2597,7 +3000,7 @@ UINT16 Form1::ReadReplayData(BinaryReader^ br, REPLAY_INFO& ri)
 	UINT16 eax;
 
 	try{
-		if(ri.VERSION == _T('1')){
+		if(ri.VERSION == _T('1') || ri.VERSION == _T('3')){
 			eax = br->ReadUInt16();
 		}
 		else{
@@ -2657,11 +3060,11 @@ UINT16 Form1::ReadReplayData(BinaryReader^ br, REPLAY_INFO& ri)
 	return eax;
 }
 
-void Form1::RecordInput(UINT16 eax, BinaryWriter^ bw, REPLAY_INFO& ri, bool watch)
+void MainForm::RecordInput(UINT16 eax, BinaryWriter^ bw, REPLAY_INFO& ri, bool watch)
 {
 	// リプレイファイルの記録
 	if(bw != nullptr){
-		if(ri.VERSION == _T('1')){
+		if(ri.VERSION == _T('3')){
 			bw->Write(eax);
 		}
 		else{

@@ -11,12 +11,12 @@ using namespace System::Security::Permissions;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 //
-[assembly:AssemblyTitleAttribute("LunaPortMT")];
+[assembly:AssemblyTitleAttribute("MTSP")];
 [assembly:AssemblyDescriptionAttribute("")];
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
-[assembly:AssemblyProductAttribute("LunaPortMT")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2009")];
+[assembly:AssemblyProductAttribute("MTSP")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c)  2010")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

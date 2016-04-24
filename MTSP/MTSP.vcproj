@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="LunaPortMT"
-	ProjectGUID="{9D471177-B512-4D1F-BF23-49CB4CD4B5DC}"
-	RootNamespace="LunaPortMT"
+	Name="MTSP"
+	ProjectGUID="{9057AFAF-D9A2-4F09-8D35-C39084BA2A87}"
+	RootNamespace="MTSP"
 	Keyword="ManagedCProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -45,7 +45,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				WarningLevel="4"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -115,11 +115,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
-				WarningLevel="4"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -135,7 +134,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(NoInherit)"
 				LinkIncremental="1"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				EntryPointSymbol="main"
 				TargetMachine="1"
@@ -201,15 +200,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".¥Form1.cpp"
+				RelativePath=".¥MainForm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".¥LunaPortMT.cpp"
+				RelativePath=".¥MTSP.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".¥option.cpp"
+				RelativePath=".¥OptionForm.cpp"
 				>
 			</File>
 			<File
@@ -239,34 +238,30 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".¥Form1.h"
+				RelativePath=".¥MainForm.h"
 				FileType="3"
 				>
 				<File
-					RelativePath=".¥Form1.resX"
+					RelativePath=".¥MainForm.resX"
 					SubType="Designer"
 					>
 				</File>
 			</File>
 			<File
-				RelativePath=".¥option.h"
+				RelativePath=".¥OptionForm.h"
 				FileType="3"
 				>
 				<File
-					RelativePath=".¥option.resx"
+					RelativePath=".¥OptionForm.resx"
 					>
 				</File>
 			</File>
 			<File
-				RelativePath=".¥resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".¥startup.h"
+				RelativePath=".¥StartupForm.h"
 				FileType="3"
 				>
 				<File
-					RelativePath=".¥startup.resx"
+					RelativePath=".¥StartupForm.resx"
 					>
 				</File>
 			</File>
@@ -286,6 +281,10 @@
 			</File>
 			<File
 				RelativePath=".¥app.rc"
+				>
+			</File>
+			<File
+				RelativePath=".¥resource.h"
 				>
 			</File>
 		</Filter>

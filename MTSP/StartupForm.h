@@ -10,10 +10,10 @@ using namespace System::Data;
 using namespace System::Drawing;
 
 
-namespace LunaPortMT {
+namespace MTSP {
 
 	/// <summary>
-	/// startup の概要
+	/// StartupForm の概要
 	///
 	/// 警告: このクラスの名前を変更する場合、このクラスが依存するすべての .resx ファイルに関連付けられた
 	///          マネージ リソース コンパイラ ツールに対して 'Resource File Name' プロパティを
@@ -21,10 +21,10 @@ namespace LunaPortMT {
 	///          デザイナと、このフォームに関連付けられたローカライズ済みリソースとが、
 	///          正しく相互に利用できなくなります。
 	/// </summary>
-	public ref class startup : public System::Windows::Forms::Form
+	public ref class StartupForm : public System::Windows::Forms::Form
 	{
 	public:
-		startup(void)
+		StartupForm(void)
 		{
 			InitializeComponent();
 			//
@@ -36,7 +36,7 @@ namespace LunaPortMT {
 		/// <summary>
 		/// 使用中のリソースをすべてクリーンアップします。
 		/// </summary>
-		‾startup()
+		‾StartupForm()
 		{
 			if (components)
 			{
@@ -62,11 +62,19 @@ namespace LunaPortMT {
 	private: System::Windows::Forms::TextBox^  textBoxName;
 	private: System::Windows::Forms::Label^  labelPort;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDownPort;
-	private: System::Windows::Forms::Label^  labelMaxConnections;
-	private: System::Windows::Forms::NumericUpDown^  numericUpDownMaxConnections;
+	private: System::Windows::Forms::Label^  labelMaxConnection;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDownMaxConnection;
+
 	private: System::Windows::Forms::RichTextBox^  richTextBoxWelcome;
 	private: System::Windows::Forms::Label^  labelComment;
 	private: System::Windows::Forms::TextBox^  textBoxComment;
+	private: System::Windows::Forms::TabPage^  tabPageCipher;
+	private: System::Windows::Forms::Button^  buttonEncryption;
+	private: System::Windows::Forms::TextBox^  textBoxAfterIP;
+	private: System::Windows::Forms::TextBox^  textBoxBeforeIP;
+	private: System::Windows::Forms::Label^  labelAfterIP;
+	private: System::Windows::Forms::Label^  labelBeforeIP;
+	private: System::Windows::Forms::CheckBox^  checkBoxDNS;
 
 	private:
 		/// <summary>
@@ -92,24 +100,32 @@ namespace LunaPortMT {
 			this->buttonCancel = (gcnew System::Windows::Forms::Button());
 			this->tabControlStartUp = (gcnew System::Windows::Forms::TabControl());
 			this->tabPageMode = (gcnew System::Windows::Forms::TabPage());
+			this->checkBoxDNS = (gcnew System::Windows::Forms::CheckBox());
 			this->tabPageOption = (gcnew System::Windows::Forms::TabPage());
 			this->textBoxComment = (gcnew System::Windows::Forms::TextBox());
 			this->labelComment = (gcnew System::Windows::Forms::Label());
 			this->labelPort = (gcnew System::Windows::Forms::Label());
-			this->numericUpDownMaxConnections = (gcnew System::Windows::Forms::NumericUpDown());
-			this->labelMaxConnections = (gcnew System::Windows::Forms::Label());
+			this->numericUpDownMaxConnection = (gcnew System::Windows::Forms::NumericUpDown());
+			this->labelMaxConnection = (gcnew System::Windows::Forms::Label());
 			this->textBoxName = (gcnew System::Windows::Forms::TextBox());
 			this->labelName = (gcnew System::Windows::Forms::Label());
 			this->numericUpDownPort = (gcnew System::Windows::Forms::NumericUpDown());
 			this->tabPageWelcome = (gcnew System::Windows::Forms::TabPage());
 			this->richTextBoxWelcome = (gcnew System::Windows::Forms::RichTextBox());
+			this->tabPageCipher = (gcnew System::Windows::Forms::TabPage());
+			this->buttonEncryption = (gcnew System::Windows::Forms::Button());
+			this->textBoxAfterIP = (gcnew System::Windows::Forms::TextBox());
+			this->textBoxBeforeIP = (gcnew System::Windows::Forms::TextBox());
+			this->labelAfterIP = (gcnew System::Windows::Forms::Label());
+			this->labelBeforeIP = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownOpenPort))->BeginInit();
 			this->tabControlStartUp->SuspendLayout();
 			this->tabPageMode->SuspendLayout();
 			this->tabPageOption->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnections))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownPort))->BeginInit();
 			this->tabPageWelcome->SuspendLayout();
+			this->tabPageCipher->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// radioButtonServer
@@ -121,7 +137,7 @@ namespace LunaPortMT {
 			this->radioButtonServer->TabIndex = 1;
 			this->radioButtonServer->Text = L"Server";
 			this->radioButtonServer->UseVisualStyleBackColor = true;
-			this->radioButtonServer->CheckedChanged += gcnew System::EventHandler(this, &startup::radioButtonServer_CheckedChanged);
+			this->radioButtonServer->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonServer_CheckedChanged);
 			// 
 			// radioButtonHost
 			// 
@@ -129,10 +145,10 @@ namespace LunaPortMT {
 			this->radioButtonHost->Location = System::Drawing::Point(4, 34);
 			this->radioButtonHost->Name = L"radioButtonHost";
 			this->radioButtonHost->Size = System::Drawing::Size(47, 16);
-			this->radioButtonHost->TabIndex = 2;
+			this->radioButtonHost->TabIndex = 1;
 			this->radioButtonHost->Text = L"Host";
 			this->radioButtonHost->UseVisualStyleBackColor = true;
-			this->radioButtonHost->CheckedChanged += gcnew System::EventHandler(this, &startup::radioButtonHost_CheckedChanged);
+			this->radioButtonHost->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonHost_CheckedChanged);
 			// 
 			// radioButtonClient
 			// 
@@ -140,27 +156,26 @@ namespace LunaPortMT {
 			this->radioButtonClient->Location = System::Drawing::Point(4, 58);
 			this->radioButtonClient->Name = L"radioButtonClient";
 			this->radioButtonClient->Size = System::Drawing::Size(53, 16);
-			this->radioButtonClient->TabIndex = 3;
+			this->radioButtonClient->TabIndex = 1;
 			this->radioButtonClient->Text = L"Client";
 			this->radioButtonClient->UseVisualStyleBackColor = true;
-			this->radioButtonClient->CheckedChanged += gcnew System::EventHandler(this, &startup::radioButtonClient_CheckedChanged);
+			this->radioButtonClient->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonClient_CheckedChanged);
 			// 
 			// labelIP
 			// 
 			this->labelIP->AutoSize = true;
 			this->labelIP->Location = System::Drawing::Point(72, 16);
 			this->labelIP->Name = L"labelIP";
-			this->labelIP->Size = System::Drawing::Size(114, 12);
+			this->labelIP->Size = System::Drawing::Size(104, 12);
 			this->labelIP->TabIndex = 0;
-			this->labelIP->Text = L"Server名 or 接続先IP";
+			this->labelIP->Text = L"Server名 or 接続先";
 			// 
 			// textBoxIP
 			// 
 			this->textBoxIP->Location = System::Drawing::Point(72, 32);
 			this->textBoxIP->Name = L"textBoxIP";
 			this->textBoxIP->Size = System::Drawing::Size(204, 19);
-			this->textBoxIP->TabIndex = 4;
-			this->textBoxIP->TextChanged += gcnew System::EventHandler(this, &startup::textBoxIP_TextChanged);
+			this->textBoxIP->TabIndex = 2;
 			// 
 			// labelOpenPort
 			// 
@@ -178,7 +193,7 @@ namespace LunaPortMT {
 			this->numericUpDownOpenPort->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1024, 0, 0, 0});
 			this->numericUpDownOpenPort->Name = L"numericUpDownOpenPort";
 			this->numericUpDownOpenPort->Size = System::Drawing::Size(64, 19);
-			this->numericUpDownOpenPort->TabIndex = 5;
+			this->numericUpDownOpenPort->TabIndex = 4;
 			this->numericUpDownOpenPort->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {7500, 0, 0, 0});
 			// 
 			// buttonOK
@@ -189,7 +204,7 @@ namespace LunaPortMT {
 			this->buttonOK->TabIndex = 6;
 			this->buttonOK->Text = L"OK";
 			this->buttonOK->UseVisualStyleBackColor = true;
-			this->buttonOK->Click += gcnew System::EventHandler(this, &startup::buttonOK_Click);
+			this->buttonOK->Click += gcnew System::EventHandler(this, &StartupForm::buttonOK_Click);
 			// 
 			// buttonCancel
 			// 
@@ -200,13 +215,14 @@ namespace LunaPortMT {
 			this->buttonCancel->TabIndex = 7;
 			this->buttonCancel->Text = L"フリープレイ";
 			this->buttonCancel->UseVisualStyleBackColor = true;
-			this->buttonCancel->Click += gcnew System::EventHandler(this, &startup::buttonCancel_Click);
+			this->buttonCancel->Click += gcnew System::EventHandler(this, &StartupForm::buttonCancel_Click);
 			// 
 			// tabControlStartUp
 			// 
 			this->tabControlStartUp->Controls->Add(this->tabPageMode);
 			this->tabControlStartUp->Controls->Add(this->tabPageOption);
 			this->tabControlStartUp->Controls->Add(this->tabPageWelcome);
+			this->tabControlStartUp->Controls->Add(this->tabPageCipher);
 			this->tabControlStartUp->Dock = System::Windows::Forms::DockStyle::Top;
 			this->tabControlStartUp->Location = System::Drawing::Point(0, 0);
 			this->tabControlStartUp->Name = L"tabControlStartUp";
@@ -216,6 +232,7 @@ namespace LunaPortMT {
 			// 
 			// tabPageMode
 			// 
+			this->tabPageMode->Controls->Add(this->checkBoxDNS);
 			this->tabPageMode->Controls->Add(this->labelIP);
 			this->tabPageMode->Controls->Add(this->labelOpenPort);
 			this->tabPageMode->Controls->Add(this->radioButtonServer);
@@ -231,13 +248,23 @@ namespace LunaPortMT {
 			this->tabPageMode->Text = L"モード選択";
 			this->tabPageMode->UseVisualStyleBackColor = true;
 			// 
+			// checkBoxDNS
+			// 
+			this->checkBoxDNS->AutoSize = true;
+			this->checkBoxDNS->Location = System::Drawing::Point(72, 58);
+			this->checkBoxDNS->Name = L"checkBoxDNS";
+			this->checkBoxDNS->Size = System::Drawing::Size(47, 16);
+			this->checkBoxDNS->TabIndex = 3;
+			this->checkBoxDNS->Text = L"DNS";
+			this->checkBoxDNS->UseVisualStyleBackColor = true;
+			// 
 			// tabPageOption
 			// 
 			this->tabPageOption->Controls->Add(this->textBoxComment);
 			this->tabPageOption->Controls->Add(this->labelComment);
 			this->tabPageOption->Controls->Add(this->labelPort);
-			this->tabPageOption->Controls->Add(this->numericUpDownMaxConnections);
-			this->tabPageOption->Controls->Add(this->labelMaxConnections);
+			this->tabPageOption->Controls->Add(this->numericUpDownMaxConnection);
+			this->tabPageOption->Controls->Add(this->labelMaxConnection);
 			this->tabPageOption->Controls->Add(this->textBoxName);
 			this->tabPageOption->Controls->Add(this->labelName);
 			this->tabPageOption->Controls->Add(this->numericUpDownPort);
@@ -274,23 +301,23 @@ namespace LunaPortMT {
 			this->labelPort->TabIndex = 0;
 			this->labelPort->Text = L"接続ポート";
 			// 
-			// numericUpDownMaxConnections
+			// numericUpDownMaxConnection
 			// 
-			this->numericUpDownMaxConnections->Location = System::Drawing::Point(72, 56);
-			this->numericUpDownMaxConnections->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-			this->numericUpDownMaxConnections->Name = L"numericUpDownMaxConnections";
-			this->numericUpDownMaxConnections->Size = System::Drawing::Size(40, 19);
-			this->numericUpDownMaxConnections->TabIndex = 3;
-			this->numericUpDownMaxConnections->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+			this->numericUpDownMaxConnection->Location = System::Drawing::Point(72, 56);
+			this->numericUpDownMaxConnection->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+			this->numericUpDownMaxConnection->Name = L"numericUpDownMaxConnection";
+			this->numericUpDownMaxConnection->Size = System::Drawing::Size(40, 19);
+			this->numericUpDownMaxConnection->TabIndex = 3;
+			this->numericUpDownMaxConnection->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 			// 
-			// labelMaxConnections
+			// labelMaxConnection
 			// 
-			this->labelMaxConnections->AutoSize = true;
-			this->labelMaxConnections->Location = System::Drawing::Point(4, 60);
-			this->labelMaxConnections->Name = L"labelMaxConnections";
-			this->labelMaxConnections->Size = System::Drawing::Size(65, 12);
-			this->labelMaxConnections->TabIndex = 0;
-			this->labelMaxConnections->Text = L"最大接続数";
+			this->labelMaxConnection->AutoSize = true;
+			this->labelMaxConnection->Location = System::Drawing::Point(4, 60);
+			this->labelMaxConnection->Name = L"labelMaxConnection";
+			this->labelMaxConnection->Size = System::Drawing::Size(65, 12);
+			this->labelMaxConnection->TabIndex = 0;
+			this->labelMaxConnection->Text = L"最大接続数";
 			// 
 			// textBoxName
 			// 
@@ -341,7 +368,66 @@ namespace LunaPortMT {
 			this->richTextBoxWelcome->TabIndex = 1;
 			this->richTextBoxWelcome->Text = L"";
 			// 
-			// startup
+			// tabPageCipher
+			// 
+			this->tabPageCipher->Controls->Add(this->buttonEncryption);
+			this->tabPageCipher->Controls->Add(this->textBoxAfterIP);
+			this->tabPageCipher->Controls->Add(this->textBoxBeforeIP);
+			this->tabPageCipher->Controls->Add(this->labelAfterIP);
+			this->tabPageCipher->Controls->Add(this->labelBeforeIP);
+			this->tabPageCipher->Location = System::Drawing::Point(4, 21);
+			this->tabPageCipher->Name = L"tabPageCipher";
+			this->tabPageCipher->Padding = System::Windows::Forms::Padding(3);
+			this->tabPageCipher->Size = System::Drawing::Size(281, 79);
+			this->tabPageCipher->TabIndex = 3;
+			this->tabPageCipher->Text = L"IPの変換";
+			this->tabPageCipher->UseVisualStyleBackColor = true;
+			// 
+			// buttonEncryption
+			// 
+			this->buttonEncryption->Location = System::Drawing::Point(132, 32);
+			this->buttonEncryption->Name = L"buttonEncryption";
+			this->buttonEncryption->Size = System::Drawing::Size(84, 20);
+			this->buttonEncryption->TabIndex = 2;
+			this->buttonEncryption->Text = L"変換する";
+			this->buttonEncryption->UseVisualStyleBackColor = true;
+			this->buttonEncryption->Click += gcnew System::EventHandler(this, &StartupForm::buttonEncryption_Click);
+			// 
+			// textBoxAfterIP
+			// 
+			this->textBoxAfterIP->Location = System::Drawing::Point(72, 56);
+			this->textBoxAfterIP->Name = L"textBoxAfterIP";
+			this->textBoxAfterIP->ReadOnly = true;
+			this->textBoxAfterIP->Size = System::Drawing::Size(204, 19);
+			this->textBoxAfterIP->TabIndex = 3;
+			// 
+			// textBoxBeforeIP
+			// 
+			this->textBoxBeforeIP->Location = System::Drawing::Point(72, 8);
+			this->textBoxBeforeIP->Name = L"textBoxBeforeIP";
+			this->textBoxBeforeIP->Size = System::Drawing::Size(204, 19);
+			this->textBoxBeforeIP->TabIndex = 1;
+			this->textBoxBeforeIP->TextChanged += gcnew System::EventHandler(this, &StartupForm::textBoxBeforeIP_TextChanged);
+			// 
+			// labelAfterIP
+			// 
+			this->labelAfterIP->AutoSize = true;
+			this->labelAfterIP->Location = System::Drawing::Point(4, 60);
+			this->labelAfterIP->Name = L"labelAfterIP";
+			this->labelAfterIP->Size = System::Drawing::Size(61, 12);
+			this->labelAfterIP->TabIndex = 0;
+			this->labelAfterIP->Text = L"変換後のIP";
+			// 
+			// labelBeforeIP
+			// 
+			this->labelBeforeIP->AutoSize = true;
+			this->labelBeforeIP->Location = System::Drawing::Point(4, 12);
+			this->labelBeforeIP->Name = L"labelBeforeIP";
+			this->labelBeforeIP->Size = System::Drawing::Size(61, 12);
+			this->labelBeforeIP->TabIndex = 0;
+			this->labelBeforeIP->Text = L"変換前のIP";
+			// 
+			// StartupForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
@@ -353,33 +439,34 @@ namespace LunaPortMT {
 			this->Controls->Add(this->buttonCancel);
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
-			this->Name = L"startup";
+			this->Name = L"StartupForm";
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"スタートアップ";
-			this->Load += gcnew System::EventHandler(this, &startup::startup_Load);
-			this->Shown += gcnew System::EventHandler(this, &startup::startup_Shown);
+			this->Load += gcnew System::EventHandler(this, &StartupForm::StartupForm_Load);
+			this->Shown += gcnew System::EventHandler(this, &StartupForm::StartupForm_Shown);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownOpenPort))->EndInit();
 			this->tabControlStartUp->ResumeLayout(false);
 			this->tabPageMode->ResumeLayout(false);
 			this->tabPageMode->PerformLayout();
 			this->tabPageOption->ResumeLayout(false);
 			this->tabPageOption->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnections))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownPort))->EndInit();
 			this->tabPageWelcome->ResumeLayout(false);
+			this->tabPageCipher->ResumeLayout(false);
+			this->tabPageCipher->PerformLayout();
 			this->ResumeLayout(false);
 
 		}
 #pragma endregion
 	private:
-		System::Void startup_Load(System::Object^  sender, System::EventArgs^  e) {
-			this->StartPosition = FormStartPosition::CenterParent;
+		System::Void StartupForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			textBoxIP->MaxLength      = MAX_NAME;
 			textBoxName->MaxLength    = MAX_NAME;
 			textBoxComment->MaxLength = MAX_NAME;
 
-			switch(LPMTOPTION.CONNECTION_TYPE){
+			switch(MTOPTION.CONNECTION_TYPE){
 			case CT_SERVER:
 			default:
 				radioButtonServer->Checked = true;
@@ -402,18 +489,19 @@ namespace LunaPortMT {
 				break;
 			}
 
-			textBoxIP->Text = gcnew String(LPMTOPTION.CONNECTION_IP);
-			numericUpDownOpenPort->Value = LPMTOPTION.OPEN_PORT;
+			textBoxIP->Text = gcnew String(MTOPTION.CONNECTION_IP);
+			numericUpDownOpenPort->Value = MTOPTION.OPEN_PORT;
+			checkBoxDNS->Checked = MTOPTION.DNS;
 
-			textBoxName->Text = gcnew String(LPMTOPTION.NAME);
-			numericUpDownPort->Value = LPMTOPTION.PORT;
-			numericUpDownMaxConnections->Value = LPMTOPTION.MAX_CONNECTIONS;
+			textBoxName->Text = gcnew String(MTOPTION.NAME);
+			numericUpDownPort->Value = MTOPTION.PORT;
+			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 
-			textBoxComment->Text = gcnew String(LPMTOPTION.COMMENT);
-			richTextBoxWelcome->Text = gcnew String(LPMTOPTION.WELCOME);
+			textBoxComment->Text = gcnew String(MTOPTION.COMMENT);
+			richTextBoxWelcome->Text = gcnew String(MTOPTION.WELCOME);
 		}
 
-		System::Void startup_Shown(System::Object^  sender, System::EventArgs^  e) {
+		System::Void StartupForm_Shown(System::Object^  sender, System::EventArgs^  e) {
 			buttonOK->Focus();
 		}
 
@@ -421,25 +509,25 @@ namespace LunaPortMT {
 			IntPtr mp;
 
 			if(radioButtonServer->Checked){
-				LPMTOPTION.CONNECTION_TYPE = CT_SERVER;
+				MTOPTION.CONNECTION_TYPE = CT_SERVER;
 			}
 			else if(radioButtonHost->Checked){
-				LPMTOPTION.CONNECTION_TYPE = CT_HOST;
+				MTOPTION.CONNECTION_TYPE = CT_HOST;
 			}
 			else if(radioButtonClient->Checked){
-				LPMTOPTION.CONNECTION_TYPE = CT_CLIENT;
+				MTOPTION.CONNECTION_TYPE = CT_CLIENT;
 			}
 			else{
-				LPMTOPTION.CONNECTION_TYPE = CT_FREE;
+				MTOPTION.CONNECTION_TYPE = CT_FREE;
 			}
 
 			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxIP->Text);
-			_tcscpy_s(LPMTOPTION.CONNECTION_IP, static_cast<PTCHAR>(mp.ToPointer()));
+			_tcscpy_s(MTOPTION.CONNECTION_IP, static_cast<PTCHAR>(mp.ToPointer()));
 			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
 			// 名前チェック
 			if(textBoxName->Text->Length == 0){
-				textBoxName->Text = gcnew String(LPMTOPTION.NAME);
+				textBoxName->Text = gcnew String(MTOPTION.NAME);
 
 				if(textBoxName->Text->Length == 0){
 					textBoxName->Text = gcnew String("名無しさん");
@@ -447,26 +535,28 @@ namespace LunaPortMT {
 			}
 
 			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxName->Text);
-			_tcscpy_s(LPMTOPTION.NAME, static_cast<PTCHAR>(mp.ToPointer()));
+			_tcscpy_s(MTOPTION.NAME, static_cast<PTCHAR>(mp.ToPointer()));
 			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
-			LPMTOPTION.OPEN_PORT       = (UINT)numericUpDownOpenPort->Value;
-			LPMTOPTION.PORT            = (UINT)numericUpDownPort->Value;
-			LPMTOPTION.MAX_CONNECTIONS = (UINT)numericUpDownMaxConnections->Value;
+			MTOPTION.OPEN_PORT      = (UINT)numericUpDownOpenPort->Value;
+			MTOPTION.PORT           = (UINT)numericUpDownPort->Value;
+			MTOPTION.MAX_CONNECTION = (UINT)numericUpDownMaxConnection->Value;
+
+			MTOPTION.DNS = checkBoxDNS->Checked;
 
 			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxComment->Text);
-			_tcscpy_s(LPMTOPTION.COMMENT, static_cast<PTCHAR>(mp.ToPointer()));
+			_tcscpy_s(MTOPTION.COMMENT, static_cast<PTCHAR>(mp.ToPointer()));
 			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
 			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(richTextBoxWelcome->Text);
-			_tcscpy_s(LPMTOPTION.WELCOME, static_cast<PTCHAR>(mp.ToPointer()));
+			_tcscpy_s(MTOPTION.WELCOME, static_cast<PTCHAR>(mp.ToPointer()));
 			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
 			this->Close();
 		}
 
 		System::Void buttonCancel_Click(System::Object^  sender, System::EventArgs^  e) {
-			LPMTOPTION.CONNECTION_TYPE = CT_FREE;
+			MTOPTION.CONNECTION_TYPE = CT_FREE;
 
 			this->Close();
 		}
@@ -475,48 +565,40 @@ namespace LunaPortMT {
 			labelIP->Text = gcnew String("Server名を入力してください");
 			numericUpDownOpenPort->Enabled = true;
 			numericUpDownPort->Enabled     = false;
+			checkBoxDNS->Enabled           = false;
 			richTextBoxWelcome->Enabled    = true;
 
 			buttonOK->Enabled = true;
 		}
 
 		System::Void radioButtonHost_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			labelIP->Text = gcnew String("接続先IPを入力してください");
+			labelIP->Text = gcnew String("接続先を入力してください");
 			numericUpDownOpenPort->Enabled = true;
 			numericUpDownPort->Enabled     = true;
+			checkBoxDNS->Enabled           = true;
 			richTextBoxWelcome->Enabled    = false;
-
-			if(Net::IPAddress::TryParse(textBoxIP->Text, gcnew Net::IPAddress(0)) == false){
-				buttonOK->Enabled = false;
-			}
-			else{
-				buttonOK->Enabled = true;
-			}
 		}
 
 		System::Void radioButtonClient_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			labelIP->Text = gcnew String("接続先IPを入力してください");
+			labelIP->Text = gcnew String("接続先を入力してください");
 			numericUpDownOpenPort->Enabled = false;
 			numericUpDownPort->Enabled     = true;
+			checkBoxDNS->Enabled           = true;
 			richTextBoxWelcome->Enabled    = false;
+		}
 
-			if(Net::IPAddress::TryParse(textBoxIP->Text, gcnew Net::IPAddress(0)) == false){
-				buttonOK->Enabled = false;
+		System::Void textBoxBeforeIP_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			if(Net::IPAddress::TryParse(textBoxBeforeIP->Text, gcnew Net::IPAddress(0)) == false){
+				buttonEncryption->Enabled = false;
 			}
 			else{
-				buttonOK->Enabled = true;
+				buttonEncryption->Enabled = true;
 			}
 		}
 
-		System::Void textBoxIP_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-			if(radioButtonHost->Checked || radioButtonClient->Checked){
-				if(Net::IPAddress::TryParse(textBoxIP->Text, gcnew Net::IPAddress(0)) == false){
-					buttonOK->Enabled = false;
-				}
-				else{
-					buttonOK->Enabled = true;
-				}
-			}
+		System::Void buttonEncryption_Click(System::Object^  sender, System::EventArgs^  e) {
+			textBoxAfterIP->Text = EncryptionIP(textBoxBeforeIP->Text);
+			textBoxBeforeIP->Text = Net::IPAddress(DecryptionIP(textBoxAfterIP->Text)).ToString();
 		}
 };
 }
