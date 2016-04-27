@@ -80,6 +80,15 @@ void MainForm::Begin()
 
 	// ネットに接続
 	if(UDP != nullptr){
+
+		// 設定を保存
+		SaveMTOption();
+
+		if(MTOPTION.AUTO_REST && MemberList[0]->STATE == MS_FREE){
+			AutoRestThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunAutoRest));
+			AutoRestThread->Start();
+		}
+
 		if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 
 			// 鯖受信開始
@@ -91,6 +100,7 @@ void MainForm::Begin()
 			SonarThread->Start();
 
 			this->Text += String::Format("  [{0}] [Server Port:{1}]", ServerName, MTOPTION.OPEN_PORT);
+			WriteTime(0, SystemMessageColor);
 			WriteMessage("サーバの準備が完了しました。¥n[サーバー告知]-------------------¥n", SystemMessageColor);
 
 			// Welcomeメッセージの表示
@@ -127,16 +137,11 @@ void MainForm::Begin()
 				// ローカル接続
 				/*
 				if(MTINFO.DEBUG){
-					if(host[0] == "localhost"){
-						host[0] = IPAddress::Loopback->ToString();
-					}
-					if((host[0] == IPAddress::Loopback->ToString())||(host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
+					if((host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
 						try{
 							address = IPAddress::Parse(host[0])->Address;
 						}
 						catch(Exception^ e){
-							address = 0;
-	
 							if(MTINFO.DEBUG){
 								WriteMessage("ローカル接続失敗¥n", ErrorMessageColor);
 								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
@@ -146,6 +151,23 @@ void MainForm::Begin()
 					}
 				}
 				*/
+				
+
+				// MTSPアドレス接続
+				if(host[0]->Length == 5){
+					try{
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレスを変換します(MTSP)¥n", DebugMessageColor);
+						}
+						address = MTDecryptionIP(host[0]);
+					}
+					catch(Exception^ e){
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレス変換(MTSP)失敗¥n", ErrorMessageColor);
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+						}
+					}
+				}
 
 				// 変換アドレス接続(ASCII)
 				if(address == 0){
@@ -981,7 +1003,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 							if(MTINFO.DEBUG){
 								form->WriteMessage(String::Format(MemberList[i]->NAME + " > state:{0}¥n", rcv[3]), DebugMessageColor);
 							}
+							form->WriteTime(0, SystemMessageColor);
 							form->WriteMessage(MemberList[i]->NAME + "の状態を更新しました。¥n", SystemMessageColor);
+							form->WriteMessage("サーバーとの通信が途切れた可能性があります。再接続をしてみてください。¥n", ErrorMessageColor);
 							MemberList[i]->STATE = rcv[3];
 							form->listBoxMember->Refresh();
 						}
@@ -1053,6 +1077,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 			break;
 
 		case PH_REQ_VS:
+
 			// 準備時間が長すぎた場合は新規接続受付
 			if(NetVS != nullptr && MemberList[0]->STATE == MS_READY){
 				if((timeGetTime() - NetVS->START_UP) > TIME_OUT*2 + 1000){
@@ -1060,6 +1085,12 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					delete NetVS;
 					NetVS = nullptr;
 				}
+			}
+
+			if(MemberList[0]->STATE == MS_SEEK && GameThread != nullptr){
+				form->QuitGame();
+				GameThread = nullptr;
+				Thread::Sleep(500);
 			}
 
 			send = gcnew array<BYTE>(2);
@@ -1297,6 +1328,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					catch(Exception^){
 					}
 				}
+
+				// 待ち受け用ちょっとスリープ
+				Thread::Sleep(1000);
 
 				GameThread = gcnew Thread(gcnew ParameterizedThreadStart(form, &MainForm::RunGame));
 				GameThread->Start((UINT)RT_VS);
@@ -2023,10 +2057,12 @@ void MainForm::RunGame(Object^ obj)
 
 	// ディレイシミュレート
 	std::deque<UINT16> sim_que;
+	std::deque<UINT16> sim_que_p2;
 
 	if(run_type == RT_FREE && sim_delay > 0){
 		for(UINT i = 0; i < sim_delay; i++){
 			sim_que.push_back(0);
+			sim_que_p2.push_back(0);
 		}
 	}
 
@@ -2172,7 +2208,11 @@ void MainForm::RunGame(Object^ obj)
 
 	// 対戦中通知
 	if(run_type != RT_WATCH){
-		ChangeState((BYTE)MS_VS);
+		if(MemberList[0]->STATE == MS_SEEK && run_type == RT_FREE){
+			//WriteMessage("aiueo¥n", ErrorMessageColor);
+		}else{
+			ChangeState((BYTE)MS_VS);
+		}
 	}
 
 	try{
@@ -2197,10 +2237,10 @@ void MainForm::RunGame(Object^ obj)
 		}
 
 		if(MTOPTION.SHOW_GAME_OPTION){
-			WriteMessage(String::Format("[対戦設定]-------------------¥n"
-				"最大ステージ数: {0}¥n"
-				"ランダムステージ: {1}¥n"
-				"ラウンド数: {2}¥n"
+			WriteMessage(String::Format("[対戦設定]----------------------¥n"
+				"最大ステージ数: {0} / "
+				"ランダムステージ: {1} / "
+				"ラウンド数: {2} / "
 				"ゲームタイマー: {3}¥n"
 				"ラウンドHP持ち越し: {4}¥n"
 				"-------------------------------¥n"
@@ -2208,7 +2248,7 @@ void MainForm::RunGame(Object^ obj)
 		}
 
 		// 起動待ち
-		Thread::Sleep(100);
+		Thread::Sleep(300);
 
 		MTINFO.PROCESS    = pi.hProcess;
 		MTINFO.PROCESS_ID = pi.dwProcessId;
@@ -2220,6 +2260,13 @@ void MainForm::RunGame(Object^ obj)
 			case EXCEPTION_DEBUG_EVENT:
 				e_code    = de.u.Exception.ExceptionRecord.ExceptionCode;
 				e_address = (DWORD)de.u.Exception.ExceptionRecord.ExceptionAddress;
+
+				if (e_code == ERROR_NOACCESS) {
+					if(MTINFO.DEBUG){
+						WriteMessage(String::Format("ERROR_NOACCESS > {0} : {1}¥n", e_code, e_address), DebugMessageColor);
+					}
+					state = DBG_EXCEPTION_NOT_HANDLED;
+				}
 
 				if(e_code == EXCEPTION_ACCESS_VIOLATION){
 					ULONG_PTR info0 = de.u.Exception.ExceptionRecord.ExceptionInformation[0];
@@ -2243,6 +2290,9 @@ void MainForm::RunGame(Object^ obj)
 						GetThreadContext(thread, &c);
 						c.Eax++;
 						SetThreadContext(thread, &c);
+
+						// やや試験的：ちょっとスリープ(FPS低下現象対策)
+						//Thread::Sleep(500);
 
 						if(vs_end){
 							num_vs++;
@@ -2460,16 +2510,16 @@ void MainForm::RunGame(Object^ obj)
 							c.Eax = ReadReplayData(br, ri);
 						}
 						else if(run_type == RT_FREE && sim_delay > 0){
-							// 2P入力のシミュレートはしない
-							
+							// ディレイシミュレート
 							if(e_address != VS_P2_KEY){
-
 								sim_que.push_back((UINT16)c.Eax);
 								c.Eax = sim_que.front();
 								sim_que.pop_front();
-								
+							}else{
+								sim_que_p2.push_back((UINT16)c.Eax);
+								c.Eax = sim_que_p2.front();
+								sim_que_p2.pop_front();
 							}
-							
 						}
 
 						if(record_replay || allow_spectator){
@@ -2609,7 +2659,11 @@ void MainForm::RunGame(Object^ obj)
 								}
 							}
 							if(MTOPTION.DISPLAY_VERSUS){
-								append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  対戦数:%d (%d - %d)"), MTINFO.TITLE, num_vs, p1_win, p2_win);
+								if(MTOPTION.SHOW_RESULT){
+									append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  対戦数:%d (%d - %d)"), MTINFO.TITLE, num_vs, p1_win, p2_win);
+								}else{
+									append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  対戦数:%d"), MTINFO.TITLE, num_vs);
+								}
 							}
 							if(MTOPTION.DISPLAY_FRAMERATE){
 								append_cap = _stprintf_s(MTINFO.TITLE, _T("%s  fps:%3d(%d％)"), MTINFO.TITLE, blt_count, input_count);
@@ -2827,9 +2881,8 @@ void MainForm::RunGame(Object^ obj)
 				break;
 			}
 
-			if(de.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT) break;
-
 			ContinueDebugEvent(de.dwProcessId, de.dwThreadId, state);
+			if(de.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT) break;
 		}
 	}
 	catch(Exception^ e){
@@ -3426,5 +3479,62 @@ void MainForm::RecordInput(UINT16 eax, BinaryWriter^ bw, REPLAY_INFO& ri, bool w
 		finally{
 			Monitor::Exit(InputHistory);
 		}
+	}
+}
+void MainForm::RunAutoRest() {
+	// 自動休憩
+	LASTINPUTINFO li;
+	li.cbSize = sizeof(LASTINPUTINFO);
+	DWORD te;
+	int to = MTOPTION.AUTO_REST_TIME;  // タイムアウト指定時間
+	AutoRestRanging = true;
+	if(MTINFO.DEBUG){
+		WriteMessage(String::Format("自動休憩スレッド開始 {0}分¥n", to), DebugMessageColor);
+	}
+	while(AutoRestRanging){
+		AutoRestSleeping = true;
+		try{
+			Thread::Sleep(1000*1);
+		}
+		catch(ThreadInterruptedException^){
+		}
+		finally{
+			AutoRestSleeping = false;
+		}
+		if(!AutoRestRanging) return;
+		GetLastInputInfo(&li);
+		te = GetTickCount();
+		to = MTOPTION.AUTO_REST_TIME;
+		//WriteMessage(String::Format("{0}秒経過¥n", ((te-li.dwTime)/1000) ), DebugMessageColor);
+		if(((te-li.dwTime)/1000) >= to*60){
+			// フリー状態なら休憩状態にする
+			if(UDP != nullptr && MemberList[0]->STATE == MS_FREE){
+				ChangeState((BYTE)MS_REST);
+				WriteMessage("休憩状態を変更しました。 > オン¥n", SystemMessageColor);
+			}
+			AutoRestRanging = false;
+			AutoRestThread = nullptr;
+		}
+	}
+}
+void MainForm::ChangeSeek() {
+	if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
+
+	if(MemberList[0]->STATE == MS_FREE){
+		ChangeState((BYTE)MS_SEEK);
+		WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
+		WriteTime(0, SystemMessageColor);
+		WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
+	}
+	else if(MemberList[0]->STATE == MS_SEEK){
+		if(GameThread != nullptr && GameThread->IsAlive){
+			ChangeState((BYTE)MS_VS);
+		}else{
+			ChangeState((BYTE)MS_FREE);
+		}
+		
+		WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
+		WriteTime(0, SystemMessageColor);
+		WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
 	}
 }

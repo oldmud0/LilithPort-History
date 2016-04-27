@@ -71,7 +71,7 @@ void OptionForm::SaveOption(bool apply){
 
 	MTOPTION.GET_IP_ENABLE        = checkBoxGetIP->Checked;
 	MTOPTION.SHOW_GAME_OPTION     = checkBoxShowGameOption->Checked;
-
+	MTOPTION.SHOW_RESULT          = checkBoxShowResult->Checked;
 
 	// コメント
 	if(textBoxComment->Text != gcnew String(MTOPTION.COMMENT)){

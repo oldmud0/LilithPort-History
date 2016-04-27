@@ -202,6 +202,13 @@ private: System::Windows::Forms::TextBox^  textBoxProfileName;
 private: System::Windows::Forms::Button^  buttonAddProfile;
 private: System::Windows::Forms::Label^  labelProfileName;
 private: System::Windows::Forms::Button^  buttonSaveProfile;
+private: System::Windows::Forms::TextBox^  textBoxMTAddr;
+
+private: System::Windows::Forms::Label^  labelAddrBase64;
+private: System::Windows::Forms::Label^  labelAddrMT;
+private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
+
+
 
 
 	private:
@@ -344,6 +351,9 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			this->discriptionlabel = (gcnew System::Windows::Forms::Label());
 			this->Convertbutton = (gcnew System::Windows::Forms::Button());
 			this->Base64groupBox = (gcnew System::Windows::Forms::GroupBox());
+			this->labelAddrMT = (gcnew System::Windows::Forms::Label());
+			this->textBoxMTAddr = (gcnew System::Windows::Forms::TextBox());
+			this->labelAddrBase64 = (gcnew System::Windows::Forms::Label());
 			this->Base64textBox = (gcnew System::Windows::Forms::TextBox());
 			this->IPgroupBox = (gcnew System::Windows::Forms::GroupBox());
 			this->IPtextBox = (gcnew System::Windows::Forms::TextBox());
@@ -353,6 +363,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			this->checkBoxNameFlash = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxGetIP = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxTalkFlash = (gcnew System::Windows::Forms::CheckBox());
+			this->checkBoxShowResult = (gcnew System::Windows::Forms::CheckBox());
 			this->tabPageSound->SuspendLayout();
 			this->groupBoxKeywordSound->SuspendLayout();
 			this->groupBoxSeekSound->SuspendLayout();
@@ -1091,7 +1102,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			this->groupBoxSave->Controls->Add(this->radioButtonReplayVersion1);
 			this->groupBoxSave->Controls->Add(this->radioButtonReplayVersion2);
-			this->groupBoxSave->Location = System::Drawing::Point(195, 184);
+			this->groupBoxSave->Location = System::Drawing::Point(195, 199);
 			this->groupBoxSave->Name = L"groupBoxSave";
 			this->groupBoxSave->Size = System::Drawing::Size(154, 42);
 			this->groupBoxSave->TabIndex = 4;
@@ -1190,7 +1201,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			this->groupBoxSimulate->Controls->Add(this->numericUpDownSimDelay);
 			this->groupBoxSimulate->Controls->Add(this->labelSimDelay);
-			this->groupBoxSimulate->Location = System::Drawing::Point(195, 132);
+			this->groupBoxSimulate->Location = System::Drawing::Point(195, 149);
 			this->groupBoxSimulate->Name = L"groupBoxSimulate";
 			this->groupBoxSimulate->Size = System::Drawing::Size(154, 44);
 			this->groupBoxSimulate->TabIndex = 5;
@@ -1249,13 +1260,14 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			// groupBoxView
 			// 
+			this->groupBoxView->Controls->Add(this->checkBoxShowResult);
 			this->groupBoxView->Controls->Add(this->checkBoxVersus);
 			this->groupBoxView->Controls->Add(this->checkBoxName);
 			this->groupBoxView->Controls->Add(this->checkBoxFramerate);
 			this->groupBoxView->Controls->Add(this->checkBoxRand);
 			this->groupBoxView->Location = System::Drawing::Point(195, 8);
 			this->groupBoxView->Name = L"groupBoxView";
-			this->groupBoxView->Size = System::Drawing::Size(154, 116);
+			this->groupBoxView->Size = System::Drawing::Size(154, 134);
 			this->groupBoxView->TabIndex = 4;
 			this->groupBoxView->TabStop = false;
 			this->groupBoxView->Text = L"タイトルバー";
@@ -1263,7 +1275,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// checkBoxVersus
 			// 
 			this->checkBoxVersus->AutoSize = true;
-			this->checkBoxVersus->Location = System::Drawing::Point(16, 44);
+			this->checkBoxVersus->Location = System::Drawing::Point(16, 42);
 			this->checkBoxVersus->Name = L"checkBoxVersus";
 			this->checkBoxVersus->Size = System::Drawing::Size(60, 16);
 			this->checkBoxVersus->TabIndex = 2;
@@ -1285,7 +1297,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// checkBoxFramerate
 			// 
 			this->checkBoxFramerate->AutoSize = true;
-			this->checkBoxFramerate->Location = System::Drawing::Point(16, 68);
+			this->checkBoxFramerate->Location = System::Drawing::Point(16, 86);
 			this->checkBoxFramerate->Name = L"checkBoxFramerate";
 			this->checkBoxFramerate->Size = System::Drawing::Size(88, 16);
 			this->checkBoxFramerate->TabIndex = 3;
@@ -1296,7 +1308,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// checkBoxRand
 			// 
 			this->checkBoxRand->AutoSize = true;
-			this->checkBoxRand->Location = System::Drawing::Point(16, 92);
+			this->checkBoxRand->Location = System::Drawing::Point(16, 108);
 			this->checkBoxRand->Name = L"checkBoxRand";
 			this->checkBoxRand->Size = System::Drawing::Size(106, 16);
 			this->checkBoxRand->TabIndex = 4;
@@ -1742,7 +1754,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			// AddPortbutton
 			// 
-			this->AddPortbutton->Location = System::Drawing::Point(168, 190);
+			this->AddPortbutton->Location = System::Drawing::Point(169, 233);
 			this->AddPortbutton->Name = L"AddPortbutton";
 			this->AddPortbutton->Size = System::Drawing::Size(103, 24);
 			this->AddPortbutton->TabIndex = 4;
@@ -1761,7 +1773,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			// Convertbutton
 			// 
-			this->Convertbutton->Location = System::Drawing::Point(98, 190);
+			this->Convertbutton->Location = System::Drawing::Point(99, 233);
 			this->Convertbutton->Name = L"Convertbutton";
 			this->Convertbutton->Size = System::Drawing::Size(64, 24);
 			this->Convertbutton->TabIndex = 2;
@@ -1771,21 +1783,50 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			// 
 			// Base64groupBox
 			// 
+			this->Base64groupBox->Controls->Add(this->labelAddrMT);
+			this->Base64groupBox->Controls->Add(this->textBoxMTAddr);
+			this->Base64groupBox->Controls->Add(this->labelAddrBase64);
 			this->Base64groupBox->Controls->Add(this->Base64textBox);
 			this->Base64groupBox->Location = System::Drawing::Point(7, 130);
 			this->Base64groupBox->Name = L"Base64groupBox";
-			this->Base64groupBox->Size = System::Drawing::Size(352, 52);
+			this->Base64groupBox->Size = System::Drawing::Size(352, 84);
 			this->Base64groupBox->TabIndex = 1;
 			this->Base64groupBox->TabStop = false;
-			this->Base64groupBox->Text = L"変換後のアドレス(Base64)";
+			this->Base64groupBox->Text = L"変換後のアドレス";
+			// 
+			// labelAddrMT
+			// 
+			this->labelAddrMT->AutoSize = true;
+			this->labelAddrMT->Location = System::Drawing::Point(22, 53);
+			this->labelAddrMT->Name = L"labelAddrMT";
+			this->labelAddrMT->Size = System::Drawing::Size(47, 12);
+			this->labelAddrMT->TabIndex = 3;
+			this->labelAddrMT->Text = L"MTSP用";
+			// 
+			// textBoxMTAddr
+			// 
+			this->textBoxMTAddr->Location = System::Drawing::Point(75, 50);
+			this->textBoxMTAddr->Name = L"textBoxMTAddr";
+			this->textBoxMTAddr->ReadOnly = true;
+			this->textBoxMTAddr->Size = System::Drawing::Size(271, 19);
+			this->textBoxMTAddr->TabIndex = 2;
+			// 
+			// labelAddrBase64
+			// 
+			this->labelAddrBase64->AutoSize = true;
+			this->labelAddrBase64->Location = System::Drawing::Point(6, 21);
+			this->labelAddrBase64->Name = L"labelAddrBase64";
+			this->labelAddrBase64->Size = System::Drawing::Size(63, 12);
+			this->labelAddrBase64->TabIndex = 1;
+			this->labelAddrBase64->Text = L"LilithPort用";
 			// 
 			// Base64textBox
 			// 
-			this->Base64textBox->Location = System::Drawing::Point(6, 18);
+			this->Base64textBox->Location = System::Drawing::Point(75, 18);
 			this->Base64textBox->MaxLength = 100;
 			this->Base64textBox->Name = L"Base64textBox";
 			this->Base64textBox->ReadOnly = true;
-			this->Base64textBox->Size = System::Drawing::Size(341, 19);
+			this->Base64textBox->Size = System::Drawing::Size(271, 19);
 			this->Base64textBox->TabIndex = 0;
 			// 
 			// IPgroupBox
@@ -1875,6 +1916,17 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 			this->checkBoxTalkFlash->Text = L"発言でウィンドウを点滅する";
 			this->checkBoxTalkFlash->UseVisualStyleBackColor = true;
 			this->checkBoxTalkFlash->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			// 
+			// checkBoxShowResult
+			// 
+			this->checkBoxShowResult->AutoSize = true;
+			this->checkBoxShowResult->Location = System::Drawing::Point(16, 64);
+			this->checkBoxShowResult->Name = L"checkBoxShowResult";
+			this->checkBoxShowResult->Size = System::Drawing::Size(72, 16);
+			this->checkBoxShowResult->TabIndex = 5;
+			this->checkBoxShowResult->Text = L"対戦勝敗";
+			this->checkBoxShowResult->UseVisualStyleBackColor = true;
+			this->checkBoxShowResult->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			// 
 			// OptionForm
 			// 
@@ -2062,6 +2114,7 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 
 			checkBoxGetIP->Checked            = MTOPTION.GET_IP_ENABLE;
 			checkBoxShowGameOption->Checked   = MTOPTION.SHOW_GAME_OPTION;
+			checkBoxShowResult->Checked       = MTOPTION.SHOW_RESULT;
 
 			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 			trackBarBGM->Value                = MTOPTION.BGM_VOLUME / 5;
@@ -2605,10 +2658,12 @@ private: System::Windows::Forms::Button^  buttonSaveProfile;
 		// IPの変換
 		System::Void Convertbutton_Click(System::Object^  sender, System::EventArgs^  e) {
 			Base64textBox->Text = EncryptionIP(IPtextBox->Text);
+			textBoxMTAddr->Text = MTEncryptionIP(IPtextBox->Text);
 		}
 		// ポート付きIPの変換
 		System::Void AddPortbutton_Click(System::Object^  sender, System::EventArgs^  e) {
 			Base64textBox->Text = String::Format("{0}:{1}", EncryptionIP(IPtextBox->Text), MTOPTION.OPEN_PORT);
+			textBoxMTAddr->Text = String::Format("{0}:{1}", MTEncryptionIP(IPtextBox->Text), MTOPTION.OPEN_PORT);
 		}
 		// プロファイルコンボボックス変更
 		System::Void comboBoxProfile_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {

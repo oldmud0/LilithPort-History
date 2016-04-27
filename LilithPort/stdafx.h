@@ -36,7 +36,9 @@ void ChangeStageValue();
 void SetCaption();
 
 String^ EncryptionIP(String^ ip);
+String^ MTEncryptionIP(String^ ip);
 _int64 DecryptionIP(String^ cipher_ip, bool enc);
+_int64 MTDecryptionIP(String^ cipher_ip);
 
 UINT CipherRand(UINT32 seed = 0);
 UINT XorShift(UINT32 seed = 0);
@@ -195,7 +197,7 @@ const BYTE VOLUME_SET_2_95_CODE[] = {0x50,0x8B,0x08,0xCC,0x52,0x50,0xFF,0x51,0x3
 
 // バージョン情報
 // LilithPort 1.03以上互換, それ以前はなし
-const UINT LP_VERSION = 105;
+const UINT LP_VERSION = 106;
 
 // 設定項目
 const UINT MAX_NAME   = 32;
@@ -239,6 +241,9 @@ typedef struct _MT_SP_INFORMATION
 	UINT P_HP;
 	bool WINNER; // 0:P1 1:P2
 	bool TEAM_ROUND_HP;
+	bool SERVER_MODE;
+	UINT SERVER_MODE_PORT;
+	bool ERRORED;
 } MT_SP_INFORMATION;
 
 typedef struct _MT_SP_OPTION
@@ -302,8 +307,11 @@ typedef struct _MT_SP_OPTION
 	bool  NAME_FLASH;
 	bool  TALK_FLASH;
 	bool  AFTER_REST;
+	bool  AUTO_REST;
+	UINT  AUTO_REST_TIME;
 	bool  GET_IP_ENABLE;
 	bool  SHOW_GAME_OPTION;
+	bool  SHOW_RESULT;
 	TCHAR PROFILE[MAX_ARRAY];
 	TCHAR PROFILE_LIST[MAX_PROFILE];
 	UINT  PROFILE_INDEX;

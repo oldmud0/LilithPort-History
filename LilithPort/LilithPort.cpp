@@ -28,6 +28,24 @@ int main(array<System::String ^> ^args)
 	_tsplitpath_s(MTOPTION.PATH, drive, _MAX_DRIVE, dir, _MAX_DIR, NULL, 0, NULL, 0);
 	_stprintf_s(MTOPTION.PATH, _T("%s%s"), drive, dir);
 
+	// コマンドライン引数
+	if(args->Length > 0){
+		if(args[0] == "-s"){
+			MTINFO.SERVER_MODE = true;
+			if(args->Length > 1){
+				try{
+					MTINFO.SERVER_MODE_PORT = (UINT)Convert::ToInt32(args[1]);
+				}
+				catch(Exception^){
+					MTINFO.SERVER_MODE_PORT = 0;
+				}
+			}else{
+				MTINFO.SERVER_MODE_PORT = 0;
+			}
+		}
+		
+	}
+
 #ifdef _DEBUG
 	MTINFO.DEBUG = true;
 #endif

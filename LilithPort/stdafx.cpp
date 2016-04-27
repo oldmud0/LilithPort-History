@@ -32,8 +32,11 @@ void WriteErrorLog(String^ text, String^ caption)
 void ApplicationThreadException(Object^ sender, Threading::ThreadExceptionEventArgs^ e)
 {
 	WriteErrorLog(e->Exception->ToString(), "ThreadException");
+	MTINFO.ERRORED = true;
 
-	MessageBox::Show("突然ですがLilithPort終了のお知らせです。", "緊急事態発生");
+	if(!MTINFO.SERVER_MODE){
+		MessageBox::Show("突然ですがLilithPort終了のお知らせです。", "緊急事態発生");
+	}
 
 	Application::Exit();
 }
@@ -42,8 +45,11 @@ void ApplicationThreadException(Object^ sender, Threading::ThreadExceptionEventA
 void ApplicationUnhandledException(Object^ sender, UnhandledExceptionEventArgs^ e)
 {
 	WriteErrorLog(safe_cast<Exception^>(e->ExceptionObject)->ToString(), "UnhandledException");
+	MTINFO.ERRORED = true;
 
-	MessageBox::Show("突然ですがLilithPort終了のお知らせです。", "例外が飛んできました");
+	if(!MTINFO.SERVER_MODE){
+		MessageBox::Show("突然ですがLilithPort終了のお知らせです。", "例外が飛んできました");
+	}
 
 	Application::Exit();
 }
@@ -105,6 +111,8 @@ void LoadMTOption()
 	MTOPTION.NAME_FLASH           = GetPrivateProfileInt(iniSystem, _T("NameFlash"),            1, ini) == 1 ? true : false;
 	MTOPTION.TALK_FLASH           = GetPrivateProfileInt(iniSystem, _T("TalkFlash"),            0, ini) == 1 ? true : false;
 	MTOPTION.AFTER_REST           = GetPrivateProfileInt(iniSystem, _T("AfterRest"),            0, ini) == 1 ? true : false;
+	MTOPTION.AUTO_REST            = GetPrivateProfileInt(iniSystem, _T("AutoRest"),             0, ini) == 1 ? true : false;
+	MTOPTION.AUTO_REST_TIME       = GetPrivateProfileInt(iniSystem, _T("AutoRestTime"),        30, ini);
 	MTOPTION.ENTER_SOUND_ENABLE   = GetPrivateProfileInt(iniSystem, _T("EnterSoundEnable"),     0, ini) == 1 ? true : false;
 	MTOPTION.VS_SOUND_ENABLE      = GetPrivateProfileInt(iniSystem, _T("VSSoundEnable"),        0, ini) == 1 ? true : false;
 	MTOPTION.NOTICE_SOUND_ENABLE  = GetPrivateProfileInt(iniSystem, _T("NoticeSoundEnable"),    0, ini) == 1 ? true : false;
@@ -114,6 +122,7 @@ void LoadMTOption()
 	MTOPTION.KEYWORD_SOUND_ENABLE = GetPrivateProfileInt(iniSystem, _T("KeywordSoundEnable"),   1, ini) == 1 ? true : false;
 	MTOPTION.GET_IP_ENABLE        = GetPrivateProfileInt(iniSystem, _T("GetIPEnable"),          1, ini) == 1 ? true : false;
 	MTOPTION.SHOW_GAME_OPTION     = GetPrivateProfileInt(iniSystem, _T("ShowGameOption"),       1, ini) == 1 ? true : false;
+	MTOPTION.SHOW_RESULT          = GetPrivateProfileInt(iniSystem, _T("ShowResult"),           1, ini) == 1 ? true : false;
 	
 	// ブックマーク読み込み
 	MTOPTION.BOOKMARK_COUNT = 0;
@@ -322,6 +331,10 @@ void SaveMTOption()
 	WritePrivateProfileString(iniSystem, _T("TalkFlash"), buf, ini);
 	_itot_s(MTOPTION.AFTER_REST, buf, 10);
 	WritePrivateProfileString(iniSystem, _T("AfterRest"), buf, ini);
+	_itot_s(MTOPTION.AUTO_REST, buf, 10);
+	WritePrivateProfileString(iniSystem, _T("AutoRest"), buf, ini);
+	_itot_s(MTOPTION.AUTO_REST_TIME, buf, 10);
+	WritePrivateProfileString(iniSystem, _T("AutoRestTime"), buf, ini);
 	_itot_s(MTOPTION.ENTER_SOUND_ENABLE, buf, 10);
 	WritePrivateProfileString(iniSystem, _T("EnterSoundEnable"), buf, ini);
 	_itot_s(MTOPTION.VS_SOUND_ENABLE, buf, 10);
@@ -340,6 +353,8 @@ void SaveMTOption()
 	WritePrivateProfileString(iniSystem, _T("GetIPEnable"), buf, ini);
 	_itot_s(MTOPTION.SHOW_GAME_OPTION, buf, 10);
 	WritePrivateProfileString(iniSystem, _T("ShowGameOption"), buf, ini);
+	_itot_s(MTOPTION.SHOW_RESULT, buf, 10);
+	WritePrivateProfileString(iniSystem, _T("ShowResult"), buf, ini);
 
 	// ブックマーク書き込み
 	if(MTOPTION.BOOKMARK_COUNT > 0) {
@@ -650,7 +665,6 @@ UINT RandomStage(UINT32 seed)
 
 
 // IPのエンコード
-// (元は謎の暗号化処理だったがBase64で代替)
 String^ EncryptionIP(String^ ip)
 {
 	String ^ipString;
@@ -677,8 +691,33 @@ String^ EncryptionIP(String^ ip)
 	catch (FormatException^) {
 		return "変換失敗。Base64形式エラー";
 	}
-
 	return ipBase64;
+}
+// IPの変換(MTSPアドレス)
+String^ MTEncryptionIP(String^ ip)
+{
+	String^ result, ^buf, ^part;
+	String^ dic = "そぞただちぢっつづてでとどなにぬねのはばabcdefghijklmnopqrstuvwxyz"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYGぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜ";
+
+	try{
+		// 10桁+シード
+		Int64^ num = ((IPAddress::Parse(ip)->Address + 0xa68c8b5) ^ 0xe5c06811);
+		ip = num->ToString();
+		if((ip->Length % 2) == 1){
+			ip = String::Concat("0", ip);
+		}
+		// 5桁にしよう
+		for(int i=0; i < ip->Length; i+=2){
+			part = String::Concat(ip->default[i], ip->default[i+1]);
+			buf = String::Concat(dic->default[Convert::ToInt32(part)]);
+			result = String::Concat(result, buf);
+		}
+		return result;
+	}
+	catch(Exception^){
+		return "IPアドレスのMTSP変換に失敗しました。";
+	}
 }
 
 // IPのデコード
@@ -703,5 +742,29 @@ _int64 DecryptionIP(String^ cipher_ip, bool enc)
 	}else{
 		// 1.02, 1.03互換用
 		return Convert::ToInt64(Encoding::Unicode->GetString(binaryData));
+	}
+}
+_int64 MTDecryptionIP(String^ cipher_ip)
+{
+	String^ buf;
+	TCHAR part;
+	int index;
+	String^ dic = "そぞただちぢっつづてでとどなにぬねのはばabcdefghijklmnopqrstuvwxyz"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYGぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜ";
+
+	try{
+		for(int i=0; i < cipher_ip->Length; i++){
+			part = cipher_ip->default[i];
+			index = dic->IndexOf(part);
+			if(index < 10){
+				buf = String::Format("{0}0{1}", buf, index);
+			}else{
+				buf = String::Format("{0}{1}", buf, index);
+			}
+		}
+		return ((Convert::ToInt64(buf) ^ 0xe5c06811) - 0xa68c8b5);
+	}
+	catch(Exception^){
+		return 0;
 	}
 }

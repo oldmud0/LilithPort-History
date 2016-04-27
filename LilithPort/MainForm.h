@@ -162,6 +162,19 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusLabel;
 
 private: System::Windows::Forms::ToolStripDropDownButton^  toolStripDropDownButtonProfile;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRest;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestEnable;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator13;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime5;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime10;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime15;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime20;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime30;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime60;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime120;
+
+
+
 
 
 
@@ -226,6 +239,16 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			this->LogLockToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator7 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemAfterRest = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRest = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestEnable = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripSeparator13 = (gcnew System::Windows::Forms::ToolStripSeparator());
+			this->toolStripMenuItemAutoRestTime5 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime10 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime15 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime20 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime30 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime60 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoRestTime120 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemHelp = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemViewCommand = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemChangeList = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -426,9 +449,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			// 
 			// toolStripMenuItemOption
 			// 
-			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {this->toolStripMenuItemSetting, 
+			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->toolStripMenuItemSetting, 
 				this->toolStripSeparator2, this->toolStripMenuItemDelay, this->toolStripSeparator3, this->toolStripMenuItemRecordReplay, this->toolStripMenuItemAllowSpectator, 
-				this->LogLockToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest});
+				this->LogLockToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest, this->toolStripMenuItemAutoRest});
 			this->toolStripMenuItemOption->Name = L"toolStripMenuItemOption";
 			this->toolStripMenuItemOption->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemOption->Text = L"オプション(&O)";
@@ -590,6 +613,76 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			this->toolStripMenuItemAfterRest->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemAfterRest->Text = L"ネット対戦後に一息入れる(&N)";
 			this->toolStripMenuItemAfterRest->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAfterRest_Click);
+			// 
+			// toolStripMenuItemAutoRest
+			// 
+			this->toolStripMenuItemAutoRest->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {this->toolStripMenuItemAutoRestEnable, 
+				this->toolStripSeparator13, this->toolStripMenuItemAutoRestTime5, this->toolStripMenuItemAutoRestTime10, this->toolStripMenuItemAutoRestTime15, 
+				this->toolStripMenuItemAutoRestTime20, this->toolStripMenuItemAutoRestTime30, this->toolStripMenuItemAutoRestTime60, this->toolStripMenuItemAutoRestTime120});
+			this->toolStripMenuItemAutoRest->Name = L"toolStripMenuItemAutoRest";
+			this->toolStripMenuItemAutoRest->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemAutoRest->Text = L"自動で休憩状態にする(&I)";
+			// 
+			// toolStripMenuItemAutoRestEnable
+			// 
+			this->toolStripMenuItemAutoRestEnable->Name = L"toolStripMenuItemAutoRestEnable";
+			this->toolStripMenuItemAutoRestEnable->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestEnable->Text = L"有効";
+			this->toolStripMenuItemAutoRestEnable->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestEnable_Click);
+			// 
+			// toolStripSeparator13
+			// 
+			this->toolStripSeparator13->Name = L"toolStripSeparator13";
+			this->toolStripSeparator13->Size = System::Drawing::Size(106, 6);
+			// 
+			// toolStripMenuItemAutoRestTime5
+			// 
+			this->toolStripMenuItemAutoRestTime5->Name = L"toolStripMenuItemAutoRestTime5";
+			this->toolStripMenuItemAutoRestTime5->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime5->Text = L"5分";
+			this->toolStripMenuItemAutoRestTime5->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime5_Click);
+			// 
+			// toolStripMenuItemAutoRestTime10
+			// 
+			this->toolStripMenuItemAutoRestTime10->Name = L"toolStripMenuItemAutoRestTime10";
+			this->toolStripMenuItemAutoRestTime10->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime10->Text = L"10分";
+			this->toolStripMenuItemAutoRestTime10->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime10_Click);
+			// 
+			// toolStripMenuItemAutoRestTime15
+			// 
+			this->toolStripMenuItemAutoRestTime15->Name = L"toolStripMenuItemAutoRestTime15";
+			this->toolStripMenuItemAutoRestTime15->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime15->Text = L"15分";
+			this->toolStripMenuItemAutoRestTime15->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime15_Click);
+			// 
+			// toolStripMenuItemAutoRestTime20
+			// 
+			this->toolStripMenuItemAutoRestTime20->Name = L"toolStripMenuItemAutoRestTime20";
+			this->toolStripMenuItemAutoRestTime20->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime20->Text = L"20分";
+			this->toolStripMenuItemAutoRestTime20->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime20_Click);
+			// 
+			// toolStripMenuItemAutoRestTime30
+			// 
+			this->toolStripMenuItemAutoRestTime30->Name = L"toolStripMenuItemAutoRestTime30";
+			this->toolStripMenuItemAutoRestTime30->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime30->Text = L"30分";
+			this->toolStripMenuItemAutoRestTime30->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime30_Click);
+			// 
+			// toolStripMenuItemAutoRestTime60
+			// 
+			this->toolStripMenuItemAutoRestTime60->Name = L"toolStripMenuItemAutoRestTime60";
+			this->toolStripMenuItemAutoRestTime60->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime60->Text = L"60分";
+			this->toolStripMenuItemAutoRestTime60->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime60_Click);
+			// 
+			// toolStripMenuItemAutoRestTime120
+			// 
+			this->toolStripMenuItemAutoRestTime120->Name = L"toolStripMenuItemAutoRestTime120";
+			this->toolStripMenuItemAutoRestTime120->Size = System::Drawing::Size(109, 22);
+			this->toolStripMenuItemAutoRestTime120->Text = L"120分";
+			this->toolStripMenuItemAutoRestTime120->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAutoRestTime120_Click);
 			// 
 			// toolStripMenuItemHelp
 			// 
@@ -943,6 +1036,11 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 		static UINT32         InputFrame;      // 書き込み位置
 		static array<UINT16>^ InputHistory;    // バッファ
 
+		// 自動休憩
+		static Thread^ AutoRestThread;
+		static bool AutoRestRanging;
+		static bool AutoRestSleeping;
+
 		// MainForm.cppに記述
 		void Begin();
 		void TimerGetIP();
@@ -955,6 +1053,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 		UINT16 RemoteInput();
 		UINT16 ReadReplayData(BinaryReader^ br, REPLAY_INFO& ri);
 		void RecordInput(UINT16 eax, BinaryWriter^ bw, REPLAY_INFO& ri, bool as);
+		void RunAutoRest();
+		void ChangeSeek();
 
 		void PacketSendAllMember(array<BYTE>^% datagram, UINT received_id);
 		static void SendPackets(IAsyncResult^ asyncResult);
@@ -984,22 +1084,11 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 				return;
 			}
 
-			/*
-			if(MemberList[0]->STATE != MS_FREE){
-				return;
+			if(MemberList[0]->STATE == MS_SEEK){
+				QuitGame();
+				GameThread = nullptr;
+				//Thread::Sleep(1000);
 			}
-			*/
-
-			switch(MemberList[0]->STATE) {
-				case MS_FREE:
-				break;
-				case MS_SEEK:
-				break;
-				default:
-					return;
-				break;
-			}
-
 
 			if(GameThread != nullptr && GameThread->IsAlive == false){
 				GameThread = nullptr;
@@ -1137,14 +1226,45 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 
 		void QuitGame(){
 			if(GameThread != nullptr && GameThread->IsAlive){
+				if(MTINFO.DEBUG){
+					WriteMessage("ゲームプロセスを停止します。¥n", DebugMessageColor);
+				}
 				try{
 					Process::GetProcessById(MTINFO.PROCESS_ID)->CloseMainWindow();
-					
 				}
 				catch(ArgumentException^){
+					if(MTINFO.DEBUG){
+						WriteMessage("例外 > ArgumentException¥n", DebugMessageColor);
+					}
+					GameThread->Abort();
 					GameThread = nullptr;
 				}
 			}
+			/*
+			if(GameThread == nullptr){
+				try{
+					String^ game = Path::GetFileNameWithoutExtension(gcnew String(MTOPTION.GAME_EXE));
+					array<Process^>^ ps = Process::GetProcessesByName(game);
+					if(ps->Length > 0){
+						for(int i=0; i < ps->Length; i++){
+							if(ps[0]->MainWindowTitle == game){
+								WriteMessage(String::Format("{0}を終了します。¥n", ps[0]->MainWindowTitle), SystemMessageColor);
+								ps[0]->CloseMainWindow();
+							}
+						}
+					}else{
+						WriteMessage(String::Format("終了するゲーム¥"{0}¥"が見つかりませんでした。¥nオプションの実行ファイルのパス、またはプロファイルが合っているか確認してください。¥n", game), ErrorMessageColor);
+						return;
+					}
+				}
+				catch(Exception^ e){
+					WriteMessage("ゲームを終了できませんでした。¥n", ErrorMessageColor);
+					if(MTINFO.DEBUG){
+						WriteMessage(String::Format("{0}¥n", e->ToString()), DebugMessageColor);
+					}
+				}
+			}
+			*/
 		}
 
 		void QuitWatch(bool send_packet){
@@ -1247,6 +1367,20 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			array<BYTE>^ send = gcnew array<BYTE>(4){ PH_CHANGE_STATE, 0, 0, state };
 			MemberList[0]->STATE = state;
 			listBoxMember->Refresh();
+			if(MemberList[0]->STATE == MS_FREE){
+				if(MTOPTION.AUTO_REST){
+					AutoRestThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunAutoRest));
+					AutoRestThread->Start();
+				}
+			}
+			if(MemberList[0]->STATE == MS_REST){
+				if(AutoRestThread != nullptr){
+					AutoRestRanging = false;
+					AutoRestThread->Abort();
+					AutoRestThread = nullptr;
+				}
+			}
+			
 
 			if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
 				PacketSendAllMember(send, 0);
@@ -1270,6 +1404,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 					}
 
 					SonarThread->Join();
+				}
+				// 自動休憩スレッド停止
+				if(AutoRestThread != nullptr && AutoRestThread->IsAlive && AutoRestRanging){
+					AutoRestRanging = false;
+					AutoRestThread->Abort();
+					AutoRestThread = nullptr;
 				}
 
 				if(send_packet){
@@ -1681,24 +1821,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 					ChangeState((BYTE)MS_FREE);
 					WriteMessage("休憩状態を変更しました。 > オフ¥n", SystemMessageColor);
 				}
-
 			}
 			else if(textBoxInput->Text->StartsWith("/seek", StringComparison::OrdinalIgnoreCase)){
-				if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
-
-				if(MemberList[0]->STATE == MS_FREE){
-					ChangeState((BYTE)MS_SEEK);
-					WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
-					WriteTime(0, SystemMessageColor);
-					WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
-				}
-				else if(MemberList[0]->STATE == MS_SEEK){
-					ChangeState((BYTE)MS_FREE);
-					WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
-					WriteTime(0, SystemMessageColor);
-					WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
-				}
-
+				ChangeSeek();
 			}
 			else if(textBoxInput->Text->StartsWith("/list", StringComparison::OrdinalIgnoreCase)){
 				ChangeListView(true);	
@@ -1771,9 +1896,51 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			else if(textBoxInput->Text->StartsWith("/test", StringComparison::OrdinalIgnoreCase)){
 				// デバッグ用コマンド
 
-				//メンバーリスト手動削除
-				//MemberList->RemoveAt(listBoxMember->SelectedIndex);
-				//listBoxMember->Items->RemoveAt(listBoxMember->SelectedIndex);
+				//Thread::Sleep(100 * 1000);
+
+				//ChangeState((BYTE)MS_FREE);
+
+				
+				// 強制キック
+				//array<BYTE>^ send = gcnew array<BYTE>(3){ PH_LOST, 0xFF, 0xFF };
+				//IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Parse("221.79.20.188")->Address, 7500);
+				//UDP->BeginSend(send, send->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
+
+				// ping
+				//IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Parse("220.147.87.48")->Address, 4040);
+				//array<BYTE>^ ping = gcnew array<BYTE>(1){ PH_PING };
+				//Ping = timeGetTime();
+				//UDP->BeginSend(ping, 1, ep, gcnew AsyncCallback(SendPackets), UDP);
+
+				// なりきり
+				/*
+				IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Parse("220.147.87.48")->Address, 4040);
+				BYTE len = (BYTE)(16);
+				array<BYTE>^ msg = gcnew array<BYTE>(4 + len);
+
+				msg[0] = PH_MESSAGE;
+				Array::Copy(BitConverter::GetBytes(207), 0, msg, 1, 2);
+				msg[3] = len;
+				Array::Copy(Encoding::Unicode->GetBytes("それほどでもない"), 0, msg, 4, len);
+
+				UDP->BeginSend(msg, msg->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
+				*/
+				
+				
+				/*// MTSPアドレスデコード
+				IPEndPoint^ ep = gcnew IPEndPoint(MTDecryptionIP(""), 7500);
+				WriteMessage(String::Format("{0}", ep), DebugMessageColor);
+				//*/
+
+				/*// LilithPortアドレスデコード
+				IPEndPoint^ ep = gcnew IPEndPoint(DecryptionIP("", true), 7500);
+				WriteMessage(String::Format("{0}", ep), DebugMessageColor);
+				//*/
+
+				/*// メンバーリスト手動削除
+				MemberList->RemoveAt(listBoxMember->SelectedIndex);
+				listBoxMember->Items->RemoveAt(listBoxMember->SelectedIndex);
+				//*/
 			}
 		}
 
@@ -1988,11 +2155,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			}
 			if(Global_address > 0) {
 				WriteMessage(String::Format("IPアドレスを取得しました。 > {0}¥n", s3[1]), SystemMessageColor);
-				WriteMessage("変換アドレス:ポート > ", SystemMessageColor);
+				WriteMessage("[変換アドレス:ポート]¥nLilithPort用 > ", SystemMessageColor);
 
 				richTextBoxLog->SelectionColor = TalkMessageColor;
 				richTextBoxLog->SelectionBackColor = NoticeBackColor;
 				richTextBoxLog->AppendText(String::Format("{0}:{1}¥n", EncryptionIP(s3[1]), MTOPTION.OPEN_PORT));
+				
+				WriteMessage("MTSP用 > ", SystemMessageColor);
+				richTextBoxLog->SelectionColor = TalkMessageColor;
+				richTextBoxLog->SelectionBackColor = NoticeBackColor;
+				richTextBoxLog->AppendText(String::Format("{0}:{1}¥n", MTEncryptionIP(s3[1]), MTOPTION.OPEN_PORT));
+
+
 				WriteMessage("-------------------------------¥n", SystemMessageColor);
 			}
 			GetIPClient = nullptr;
@@ -2088,6 +2262,16 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			}
 			toolStripDropDownButtonProfile->Enabled = true;
 		}
+		void SetAutoRestTime(UINT time){
+			MTOPTION.AUTO_REST_TIME = time;
+			toolStripMenuItemAutoRestTime5->Checked = 0;
+			toolStripMenuItemAutoRestTime10->Checked = 0;
+			toolStripMenuItemAutoRestTime15->Checked = 0;
+			toolStripMenuItemAutoRestTime20->Checked = 0;
+			toolStripMenuItemAutoRestTime30->Checked = 0;
+			toolStripMenuItemAutoRestTime60->Checked = 0;
+			toolStripMenuItemAutoRestTime120->Checked = 0;
+		}
 	private:
 		System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			// 行間を詰める
@@ -2116,6 +2300,30 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			toolStripMenuItemAllowSpectator->Checked = MTOPTION.ALLOW_SPECTATOR;
 			LogLockToolStripMenuItem->Checked        = MTOPTION.LOG_LOCK;
 			toolStripMenuItemAfterRest->Checked      = MTOPTION.AFTER_REST;
+			toolStripMenuItemAutoRestEnable->Checked = MTOPTION.AUTO_REST;
+			switch(MTOPTION.AUTO_REST_TIME){
+				case 5:
+					toolStripMenuItemAutoRestTime5->Checked = 1;
+					break;
+				case 10:
+					toolStripMenuItemAutoRestTime10->Checked = 1;
+					break;
+				case 15:
+					toolStripMenuItemAutoRestTime15->Checked = 1;
+					break;
+				case 20:
+					toolStripMenuItemAutoRestTime20->Checked = 1;
+					break;
+				case 30:
+					toolStripMenuItemAutoRestTime30->Checked = 1;
+					break;
+				case 60:
+					toolStripMenuItemAutoRestTime60->Checked = 1;
+					break;
+				case 120:
+					toolStripMenuItemAutoRestTime120->Checked = 1;
+					break;
+			}
 
 			IsFormClosing = false;
 			ListView = LV_NAME;
@@ -2143,15 +2351,23 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 
 			this->toolStripMenuItemVersion_Click(nullptr, nullptr);
 
-			StartupForm^ s = gcnew StartupForm;
-			s->ShowDialog(this);
+			if(MTINFO.SERVER_MODE){
+				// サーバモード起動
+				MTOPTION.CONNECTION_TYPE = CT_SERVER;
+				if(MTINFO.SERVER_MODE_PORT > 0){
+					MTOPTION.OPEN_PORT = MTINFO.SERVER_MODE_PORT;
+				}
+			}else{
+				StartupForm^ s = gcnew StartupForm;
+				s->ShowDialog(this);
 
-			if(!File::Exists(gcnew String(MTOPTION.GAME_EXE))){
-				MessageBox::Show("実行ファイルのパスを設定してください。", "ゲームがありません");
+				if(!File::Exists(gcnew String(MTOPTION.GAME_EXE))){
+					MessageBox::Show("実行ファイルのパスを設定してください。", "ゲームがありません");
 
-				OptionForm^ o = gcnew OptionForm;
-				o->GameExePathError = true;
-				o->ShowDialog(this);
+					OptionForm^ o = gcnew OptionForm;
+					o->GameExePathError = true;
+					o->ShowDialog(this);
+				}
 			}
 
 			Begin();
@@ -2167,7 +2383,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 				return;
 			}
 
-			if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
+			if(MTOPTION.CONNECTION_TYPE == CT_SERVER && MTINFO.ERRORED == false){
 				if(MessageBox::Show("サーバを落としますか？", "終了の確認", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::No){
 					IsFormClosing = false;
 					e->Cancel = true;
@@ -2436,7 +2652,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("LilithPort v1.05¥n", SystemMessageColor);
+			WriteMessage("LilithPort v1.06¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2595,20 +2811,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 
 		// 対戦募集状態の切り替え
 		System::Void SeekToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
-
-			if(MemberList[0]->STATE == MS_FREE){
-				ChangeState((BYTE)MS_SEEK);
-				WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
-				WriteTime(0, SystemMessageColor);
-				WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
-			}
-			else if(MemberList[0]->STATE == MS_SEEK){
-				ChangeState((BYTE)MS_FREE);
-				WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
-				WriteTime(0, SystemMessageColor);
-				WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
-			}
+			ChangeSeek();
 		}
 
 		// ログの全削除
@@ -2910,7 +3113,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 			toolStripMenuItemWatch->Enabled    = true;
 			toolStripMenuItemPing->Enabled     = true;
 
-			if(( ( state == MS_FREE || state == MS_SEEK) && ( MemberList[0]->STATE == MS_FREE || state == MS_SEEK )) || ListView == LV_BLIND){
+			if(( ( state == MS_FREE || state == MS_SEEK) && ( MemberList[0]->STATE == MS_FREE || MemberList[0]->STATE == MS_SEEK )) || ListView == LV_BLIND){
 				toolStripMenuItemVS->Enabled       = true;
 			}
 			if(listBoxMember->SelectedIndex == 0){
@@ -3014,6 +3217,51 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 		}
 		System::Void toolStripMenuItemSeek_Click(System::Object^ sender, System::EventArgs^ e) {
 			this->SeekToolStripMenuItem_Click(nullptr, nullptr);
+		}
+		// 自動休憩有効
+		System::Void toolStripMenuItemAutoRestEnable_Click(System::Object^  sender, System::EventArgs^  e) {
+			toolStripMenuItemAutoRestEnable->Checked ^= 1;
+			MTOPTION.AUTO_REST = toolStripMenuItemAutoRestEnable->Checked;
+			if(MTOPTION.AUTO_REST){
+				if(UDP != nullptr && AutoRestThread == nullptr && MemberList[0]->STATE == MS_FREE){
+					AutoRestThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunAutoRest));
+					AutoRestThread->Start();
+				}
+			}else{
+				if(AutoRestThread != nullptr && AutoRestThread->IsAlive){
+					AutoRestRanging = false;
+					AutoRestThread->Abort();
+					AutoRestThread = nullptr;
+				}
+			}
+		}
+		System::Void toolStripMenuItemAutoRestTime5_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(5);
+			toolStripMenuItemAutoRestTime5->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime10_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(10);
+			toolStripMenuItemAutoRestTime10->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime15_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(15);
+			toolStripMenuItemAutoRestTime15->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime20_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(20);
+			toolStripMenuItemAutoRestTime20->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime30_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(30);
+			toolStripMenuItemAutoRestTime30->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime60_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(60);
+			toolStripMenuItemAutoRestTime60->Checked = 1;
+		}
+		System::Void toolStripMenuItemAutoRestTime120_Click(System::Object^  sender, System::EventArgs^  e) {
+			SetAutoRestTime(120);
+			toolStripMenuItemAutoRestTime120->Checked = 1;
 		}
 	};
 }

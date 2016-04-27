@@ -446,6 +446,7 @@ namespace LilithPort {
 				}
 				mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxServerName->Text);
 				_tcscpy_s(p1, static_cast<PTCHAR>(mp.ToPointer()));
+				Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 				p2 = _tcschr(p1, _T(','));
 				if (p2 != NULL){
 					MessageBox::Show("サーバ名に使用できない文字(,)があります。¥nサーバ名を確認してください。", "SERVERモードエラー", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
