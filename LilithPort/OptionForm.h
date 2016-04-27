@@ -147,6 +147,11 @@ private: System::Windows::Forms::Button^  Convertbutton;
 private: System::Windows::Forms::TextBox^  IPtextBox;
 private: System::Windows::Forms::Label^  discriptionlabel;
 private: System::Windows::Forms::Button^  AddPortbutton;
+private: System::Windows::Forms::GroupBox^  KeywordgroupBox;
+private: System::Windows::Forms::Button^  KeywordSoundbutton;
+
+private: System::Windows::Forms::TextBox^  KeywordSoundtextBox;
+
 
 
 	private:
@@ -169,6 +174,9 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->folderBrowserDialog1 = (gcnew System::Windows::Forms::FolderBrowserDialog());
 			this->colorDialog1 = (gcnew System::Windows::Forms::ColorDialog());
 			this->tabPageSound = (gcnew System::Windows::Forms::TabPage());
+			this->KeywordgroupBox = (gcnew System::Windows::Forms::GroupBox());
+			this->KeywordSoundbutton = (gcnew System::Windows::Forms::Button());
+			this->KeywordSoundtextBox = (gcnew System::Windows::Forms::TextBox());
 			this->groupBoxEnterSound = (gcnew System::Windows::Forms::GroupBox());
 			this->textBoxEnterSound = (gcnew System::Windows::Forms::TextBox());
 			this->buttonEnterSound = (gcnew System::Windows::Forms::Button());
@@ -252,6 +260,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->IPgroupBox = (gcnew System::Windows::Forms::GroupBox());
 			this->IPtextBox = (gcnew System::Windows::Forms::TextBox());
 			this->tabPageSound->SuspendLayout();
+			this->KeywordgroupBox->SuspendLayout();
 			this->groupBoxEnterSound->SuspendLayout();
 			this->groupBoxNoticeSound->SuspendLayout();
 			this->groupBoxVSSound->SuspendLayout();
@@ -291,7 +300,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonOK
 			// 
-			this->buttonOK->Location = System::Drawing::Point(152, 272);
+			this->buttonOK->Location = System::Drawing::Point(160, 286);
 			this->buttonOK->Name = L"buttonOK";
 			this->buttonOK->Size = System::Drawing::Size(64, 24);
 			this->buttonOK->TabIndex = 7;
@@ -301,7 +310,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonApply
 			// 
-			this->buttonApply->Location = System::Drawing::Point(224, 272);
+			this->buttonApply->Location = System::Drawing::Point(230, 286);
 			this->buttonApply->Name = L"buttonApply";
 			this->buttonApply->Size = System::Drawing::Size(64, 24);
 			this->buttonApply->TabIndex = 8;
@@ -311,7 +320,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonCancel
 			// 
-			this->buttonCancel->Location = System::Drawing::Point(296, 272);
+			this->buttonCancel->Location = System::Drawing::Point(301, 286);
 			this->buttonCancel->Name = L"buttonCancel";
 			this->buttonCancel->Size = System::Drawing::Size(64, 24);
 			this->buttonCancel->TabIndex = 9;
@@ -329,16 +338,49 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// tabPageSound
 			// 
+			this->tabPageSound->Controls->Add(this->KeywordgroupBox);
 			this->tabPageSound->Controls->Add(this->groupBoxEnterSound);
 			this->tabPageSound->Controls->Add(this->groupBoxNoticeSound);
 			this->tabPageSound->Controls->Add(this->groupBoxVSSound);
 			this->tabPageSound->Location = System::Drawing::Point(4, 22);
 			this->tabPageSound->Name = L"tabPageSound";
 			this->tabPageSound->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageSound->Size = System::Drawing::Size(369, 242);
+			this->tabPageSound->Size = System::Drawing::Size(369, 254);
 			this->tabPageSound->TabIndex = 3;
 			this->tabPageSound->Text = L"音声";
 			this->tabPageSound->UseVisualStyleBackColor = true;
+			// 
+			// KeywordgroupBox
+			// 
+			this->KeywordgroupBox->Controls->Add(this->KeywordSoundbutton);
+			this->KeywordgroupBox->Controls->Add(this->KeywordSoundtextBox);
+			this->KeywordgroupBox->Location = System::Drawing::Point(8, 187);
+			this->KeywordgroupBox->Name = L"KeywordgroupBox";
+			this->KeywordgroupBox->Size = System::Drawing::Size(352, 52);
+			this->KeywordgroupBox->TabIndex = 4;
+			this->KeywordgroupBox->TabStop = false;
+			this->KeywordgroupBox->Text = L"ニックネームが呼ばれたら再生";
+			// 
+			// KeywordSoundbutton
+			// 
+			this->KeywordSoundbutton->Location = System::Drawing::Point(320, 18);
+			this->KeywordSoundbutton->Name = L"KeywordSoundbutton";
+			this->KeywordSoundbutton->Size = System::Drawing::Size(24, 20);
+			this->KeywordSoundbutton->TabIndex = 3;
+			this->KeywordSoundbutton->Text = L"...";
+			this->KeywordSoundbutton->UseVisualStyleBackColor = true;
+			this->KeywordSoundbutton->Click += gcnew System::EventHandler(this, &OptionForm::KeywordSoundbutton_Click);
+			// 
+			// KeywordSoundtextBox
+			// 
+			this->KeywordSoundtextBox->AllowDrop = true;
+			this->KeywordSoundtextBox->Location = System::Drawing::Point(13, 19);
+			this->KeywordSoundtextBox->Name = L"KeywordSoundtextBox";
+			this->KeywordSoundtextBox->Size = System::Drawing::Size(304, 19);
+			this->KeywordSoundtextBox->TabIndex = 2;
+			this->KeywordSoundtextBox->TextChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			this->KeywordSoundtextBox->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &OptionForm::KeywordSoundtextBox_DragDrop);
+			this->KeywordSoundtextBox->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &OptionForm::textBoxSound_DragEnter);
 			// 
 			// groupBoxEnterSound
 			// 
@@ -354,7 +396,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// textBoxEnterSound
 			// 
 			this->textBoxEnterSound->AllowDrop = true;
-			this->textBoxEnterSound->Location = System::Drawing::Point(16, 20);
+			this->textBoxEnterSound->Location = System::Drawing::Point(13, 20);
 			this->textBoxEnterSound->Name = L"textBoxEnterSound";
 			this->textBoxEnterSound->Size = System::Drawing::Size(304, 19);
 			this->textBoxEnterSound->TabIndex = 1;
@@ -364,7 +406,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonEnterSound
 			// 
-			this->buttonEnterSound->Location = System::Drawing::Point(320, 20);
+			this->buttonEnterSound->Location = System::Drawing::Point(320, 19);
 			this->buttonEnterSound->Name = L"buttonEnterSound";
 			this->buttonEnterSound->Size = System::Drawing::Size(24, 20);
 			this->buttonEnterSound->TabIndex = 2;
@@ -386,7 +428,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// textBoxNoticeSound
 			// 
 			this->textBoxNoticeSound->AllowDrop = true;
-			this->textBoxNoticeSound->Location = System::Drawing::Point(16, 20);
+			this->textBoxNoticeSound->Location = System::Drawing::Point(13, 20);
 			this->textBoxNoticeSound->Name = L"textBoxNoticeSound";
 			this->textBoxNoticeSound->Size = System::Drawing::Size(304, 19);
 			this->textBoxNoticeSound->TabIndex = 1;
@@ -396,7 +438,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonNoticeSound
 			// 
-			this->buttonNoticeSound->Location = System::Drawing::Point(320, 20);
+			this->buttonNoticeSound->Location = System::Drawing::Point(320, 19);
 			this->buttonNoticeSound->Name = L"buttonNoticeSound";
 			this->buttonNoticeSound->Size = System::Drawing::Size(24, 20);
 			this->buttonNoticeSound->TabIndex = 2;
@@ -418,7 +460,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// textBoxVSSound
 			// 
 			this->textBoxVSSound->AllowDrop = true;
-			this->textBoxVSSound->Location = System::Drawing::Point(16, 20);
+			this->textBoxVSSound->Location = System::Drawing::Point(13, 20);
 			this->textBoxVSSound->Name = L"textBoxVSSound";
 			this->textBoxVSSound->Size = System::Drawing::Size(304, 19);
 			this->textBoxVSSound->TabIndex = 1;
@@ -428,7 +470,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			// buttonVSSound
 			// 
-			this->buttonVSSound->Location = System::Drawing::Point(320, 20);
+			this->buttonVSSound->Location = System::Drawing::Point(320, 19);
 			this->buttonVSSound->Name = L"buttonVSSound";
 			this->buttonVSSound->Size = System::Drawing::Size(24, 20);
 			this->buttonVSSound->TabIndex = 2;
@@ -444,7 +486,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabPagePath->Location = System::Drawing::Point(4, 22);
 			this->tabPagePath->Name = L"tabPagePath";
 			this->tabPagePath->Padding = System::Windows::Forms::Padding(3);
-			this->tabPagePath->Size = System::Drawing::Size(369, 242);
+			this->tabPagePath->Size = System::Drawing::Size(369, 254);
 			this->tabPagePath->TabIndex = 0;
 			this->tabPagePath->Text = L"基本";
 			this->tabPagePath->UseVisualStyleBackColor = true;
@@ -621,7 +663,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabControlOption->Location = System::Drawing::Point(0, 0);
 			this->tabControlOption->Name = L"tabControlOption";
 			this->tabControlOption->SelectedIndex = 0;
-			this->tabControlOption->Size = System::Drawing::Size(377, 268);
+			this->tabControlOption->Size = System::Drawing::Size(377, 280);
 			this->tabControlOption->TabIndex = 0;
 			// 
 			// tabPageGame
@@ -634,7 +676,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabPageGame->Location = System::Drawing::Point(4, 22);
 			this->tabPageGame->Name = L"tabPageGame";
 			this->tabPageGame->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageGame->Size = System::Drawing::Size(369, 242);
+			this->tabPageGame->Size = System::Drawing::Size(369, 254);
 			this->tabPageGame->TabIndex = 4;
 			this->tabPageGame->Text = L"ゲーム";
 			this->tabPageGame->UseVisualStyleBackColor = true;
@@ -857,7 +899,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabPageColor->Location = System::Drawing::Point(4, 22);
 			this->tabPageColor->Name = L"tabPageColor";
 			this->tabPageColor->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageColor->Size = System::Drawing::Size(369, 242);
+			this->tabPageColor->Size = System::Drawing::Size(369, 254);
 			this->tabPageColor->TabIndex = 5;
 			this->tabPageColor->Text = L"カラー";
 			this->tabPageColor->UseVisualStyleBackColor = true;
@@ -1062,7 +1104,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabPageVolume->Location = System::Drawing::Point(4, 22);
 			this->tabPageVolume->Name = L"tabPageVolume";
 			this->tabPageVolume->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageVolume->Size = System::Drawing::Size(369, 242);
+			this->tabPageVolume->Size = System::Drawing::Size(369, 254);
 			this->tabPageVolume->TabIndex = 6;
 			this->tabPageVolume->Text = L"音量";
 			this->tabPageVolume->UseVisualStyleBackColor = true;
@@ -1176,7 +1218,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->tabPageIP->Location = System::Drawing::Point(4, 22);
 			this->tabPageIP->Name = L"tabPageIP";
 			this->tabPageIP->Padding = System::Windows::Forms::Padding(3);
-			this->tabPageIP->Size = System::Drawing::Size(369, 242);
+			this->tabPageIP->Size = System::Drawing::Size(369, 254);
 			this->tabPageIP->TabIndex = 7;
 			this->tabPageIP->Text = L"IPの変換";
 			this->tabPageIP->UseVisualStyleBackColor = true;
@@ -1253,7 +1295,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(377, 301);
+			this->ClientSize = System::Drawing::Size(377, 322);
 			this->Controls->Add(this->tabControlOption);
 			this->Controls->Add(this->buttonApply);
 			this->Controls->Add(this->buttonCancel);
@@ -1267,6 +1309,8 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			this->Shown += gcnew System::EventHandler(this, &OptionForm::OptionForm_Shown);
 			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &OptionForm::OptionForm_FormClosed);
 			this->tabPageSound->ResumeLayout(false);
+			this->KeywordgroupBox->ResumeLayout(false);
+			this->KeywordgroupBox->PerformLayout();
 			this->groupBoxEnterSound->ResumeLayout(false);
 			this->groupBoxEnterSound->PerformLayout();
 			this->groupBoxNoticeSound->ResumeLayout(false);
@@ -1374,6 +1418,7 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			textBoxVSSound->Text      = gcnew String(MTOPTION.VS_SOUND);
 			textBoxNoticeSound->Text  = gcnew String(MTOPTION.NOTICE_SOUND);
 			textBoxEnterSound->Text   = gcnew String(MTOPTION.ENTER_SOUND);
+			KeywordSoundtextBox->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
 			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 			trackBarBGM->Value                = MTOPTION.BGM_VOLUME / 5;
 			trackBarSE->Value                 = MTOPTION.SE_VOLUME / 5;
@@ -1581,6 +1626,16 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			}
 		}
 
+		// ニックネームが呼ばれたら再生ボタン
+		System::Void KeywordSoundbutton_Click(System::Object^  sender, System::EventArgs^  e) {
+			openFileDialog1->Title  = gcnew String("ニックネームが呼ばれたら鳴らす音声ファイル");
+			openFileDialog1->Filter = gcnew String("wav file (*.wav)|*.wav");
+
+			if(openFileDialog1->ShowDialog() == ::DialogResult::OK){
+				KeywordSoundtextBox->Text = openFileDialog1->FileName;
+			}
+		}
+
 		System::Void ApplyButtonEnable(System::Object^  sender, System::EventArgs^  e) {
 			buttonApply->Enabled = true;
 		}
@@ -1771,6 +1826,12 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 			}
 		}
 
+		System::Void KeywordSoundtextBox_DragDrop(System::Object^  sender, System::Windows::Forms::DragEventArgs^  e) {
+			if(e->Data->GetDataPresent(DataFormats::FileDrop)){
+				KeywordSoundtextBox->Text = safe_cast<array<String^>^>(e->Data->GetData(DataFormats::FileDrop, false))[0];
+			}
+		}
+
 		// IP入力チェック
 		System::Void IPtextBox_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			if(Net::IPAddress::TryParse(IPtextBox->Text, gcnew Net::IPAddress(0)) == false){
@@ -1792,6 +1853,5 @@ private: System::Windows::Forms::Button^  AddPortbutton;
 		System::Void AddPortbutton_Click(System::Object^  sender, System::EventArgs^  e) {
 			Base64textBox->Text = String::Format("{0}:{1}", EncryptionIP(IPtextBox->Text), MTOPTION.OPEN_PORT);
 		}
-
 	};
 }

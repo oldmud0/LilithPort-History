@@ -90,7 +90,8 @@ namespace LilithPort {
 	private: System::Windows::Forms::Label^  labelAccessPort;
 	private: System::Windows::Forms::GroupBox^  groupBoxProfile;
 	private: System::Windows::Forms::GroupBox^  groupBoxWelcome;
-	private: System::Windows::Forms::TextBox^  textBoxWelcome;
+	private: System::Windows::Forms::RichTextBox^  textBoxWelcome;
+
 
 
 
@@ -135,7 +136,7 @@ namespace LilithPort {
 			this->labelIP = (gcnew System::Windows::Forms::Label());
 			this->groupBoxProfile = (gcnew System::Windows::Forms::GroupBox());
 			this->groupBoxWelcome = (gcnew System::Windows::Forms::GroupBox());
-			this->textBoxWelcome = (gcnew System::Windows::Forms::TextBox());
+			this->textBoxWelcome = (gcnew System::Windows::Forms::RichTextBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownOpenPort))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownPort))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->BeginInit();
@@ -346,11 +347,11 @@ namespace LilithPort {
 			// labelAccessPort
 			// 
 			this->labelAccessPort->AutoSize = true;
-			this->labelAccessPort->Location = System::Drawing::Point(62, 42);
+			this->labelAccessPort->Location = System::Drawing::Point(59, 42);
 			this->labelAccessPort->Name = L"labelAccessPort";
-			this->labelAccessPort->Size = System::Drawing::Size(65, 12);
+			this->labelAccessPort->Size = System::Drawing::Size(71, 12);
 			this->labelAccessPort->TabIndex = 5;
-			this->labelAccessPort->Text = L"サーバポート:";
+			this->labelAccessPort->Text = L"接続先ポート:";
 			// 
 			// labelIP
 			// 
@@ -386,12 +387,13 @@ namespace LilithPort {
 			// 
 			// textBoxWelcome
 			// 
-			this->textBoxWelcome->Location = System::Drawing::Point(9, 19);
-			this->textBoxWelcome->MaxLength = 127;
-			this->textBoxWelcome->Multiline = true;
+			this->textBoxWelcome->Location = System::Drawing::Point(8, 19);
+			this->textBoxWelcome->MaxLength = 126;
 			this->textBoxWelcome->Name = L"textBoxWelcome";
-			this->textBoxWelcome->Size = System::Drawing::Size(165, 87);
+			this->textBoxWelcome->Size = System::Drawing::Size(167, 86);
 			this->textBoxWelcome->TabIndex = 0;
+			this->textBoxWelcome->Text = L"";
+			this->textBoxWelcome->WordWrap = false;
 			// 
 			// StartupForm
 			// 
@@ -399,7 +401,6 @@ namespace LilithPort {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->CancelButton = this->buttonCancel;
 			this->ClientSize = System::Drawing::Size(407, 241);
-			this->ControlBox = false;
 			this->Controls->Add(this->groupBoxWelcome);
 			this->Controls->Add(this->groupBoxProfile);
 			this->Controls->Add(this->groupBoxConnection);
@@ -424,7 +425,6 @@ namespace LilithPort {
 			this->groupBoxProfile->ResumeLayout(false);
 			this->groupBoxProfile->PerformLayout();
 			this->groupBoxWelcome->ResumeLayout(false);
-			this->groupBoxWelcome->PerformLayout();
 			this->ResumeLayout(false);
 
 		}

@@ -11,7 +11,6 @@
 #include <tchar.h>
 #include <mmsystem.h>
 #include <deque>
-#include <string>
 
 
 #pragma comment(lib, "user32.lib")
@@ -223,6 +222,7 @@ typedef struct _MT_SP_OPTION
 	TCHAR VS_SOUND[_MAX_PATH];
 	TCHAR NOTICE_SOUND[_MAX_PATH];
 	TCHAR ENTER_SOUND[_MAX_PATH];
+	TCHAR KEYWORD_SOUND[_MAX_PATH];
 	TCHAR NAME[MAX_NAME];
 	TCHAR COMMENT[MAX_NAME];
 	UINT  PORT;
@@ -250,6 +250,8 @@ typedef struct _MT_SP_OPTION
 	UINT  REPLAY_VERSION;
 	bool  RECORD_REPLAY;
 	bool  ALLOW_SPECTATOR;
+	bool  LOG_LOCK;
+	bool  KEYWORD_FLASH;
 	bool  AFTER_REST;
 } MT_SP_OPTION;
 

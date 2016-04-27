@@ -877,7 +877,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					form->richTextBoxLog->AppendText(Byte(rcv[1]).ToString() + "¥n");
 
 					form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
-					form->richTextBoxLog->ScrollToCaret();
+					if(MTOPTION.LOG_LOCK == 0) {
+						form->richTextBoxLog->ScrollToCaret();
+					}
 				}
 				catch(Exception ^e){
 					WriteErrorLog(e->ToString(), "RichTextBox");
@@ -1112,6 +1114,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 				MTINFO.CONTROL = 0;
 
 				// 対戦開始
+				form->WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
 				form->WriteMessage(String::Format("対戦を開始します。(delay:{0})¥n", NetVS->DELAY), SystemMessageColor);
 
 				// 音でお知らせ
@@ -1550,7 +1553,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 									form->richTextBoxLog->AppendText("の ダメージ！！¥n");
 
 									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
-									form->richTextBoxLog->ScrollToCaret();
+									if(MTOPTION.LOG_LOCK == 0) {
+										form->richTextBoxLog->ScrollToCaret();
+									}
 								}
 								catch(Exception ^e){
 									WriteErrorLog(e->ToString(), "RichTextBox");

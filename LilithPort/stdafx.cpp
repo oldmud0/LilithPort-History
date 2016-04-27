@@ -3,7 +3,6 @@
 // stdafx.obj にはプリコンパイル済み型情報が含まれます。
 
 #include "stdafx.h"
-using namespace std;
 
 extern CRITICAL_SECTION CS_CAPTION;
 
@@ -60,16 +59,17 @@ void LoadMTOption()
 	_stprintf_s(ini, _T("%sLilithPort.ini"), MTOPTION.PATH);
 
 	MTOPTION.CONNECTION_TYPE = GetPrivateProfileInt(_T("LilithPort"),   _T("ConnectType"), 0, ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ServerName"),         _T(""),           MTOPTION.SERVER_NAME,    MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),           MTOPTION.CONNECTION_IP,  MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Welcome"),            _T(""),           MTOPTION.WELCOME,        MAX_TITLE, ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("GameExe"),            _T("game.exe"),   MTOPTION.GAME_EXE,      _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ReplayFolder"),       _T("Replay"),     MTOPTION.REPLAY_FOLDER, _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("VSSound"),            _T("vs.wav"),     MTOPTION.VS_SOUND,      _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("NoticeSound"),        _T("notice.wav"), MTOPTION.NOTICE_SOUND,  _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("EnterSound"),         _T("enter.wav"),  MTOPTION.ENTER_SOUND,   _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Name"),               _T("名無しさん"), MTOPTION.NAME,           MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Comment"),            _T(""),           MTOPTION.COMMENT,        MAX_NAME,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ServerName"),         _T(""),            MTOPTION.SERVER_NAME,    MAX_NAME,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),            MTOPTION.CONNECTION_IP,  MAX_NAME,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Welcome"),            _T(""),            MTOPTION.WELCOME,        MAX_TITLE, ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("GameExe"),            _T("game.exe"),    MTOPTION.GAME_EXE,      _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ReplayFolder"),       _T("Replay"),      MTOPTION.REPLAY_FOLDER, _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("VSSound"),            _T("vs.wav"),      MTOPTION.VS_SOUND,      _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("NoticeSound"),        _T("notice.wav"),  MTOPTION.NOTICE_SOUND,  _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("EnterSound"),         _T("enter.wav"),   MTOPTION.ENTER_SOUND,   _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("KeywordSound"),       _T("keyword.wav"), MTOPTION.KEYWORD_SOUND, _MAX_PATH,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Name"),               _T("名無しさん"),  MTOPTION.NAME,           MAX_NAME,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Comment"),            _T(""),            MTOPTION.COMMENT,        MAX_NAME,  ini);
 
 	MTOPTION.BOOKMARK_COUNT     = GetPrivateProfileInt(_T("LilithPort"), _T("BookMarkCount"),    0, ini);
 
@@ -122,9 +122,9 @@ void LoadMTOption()
 	MTOPTION.TIMER              = GetPrivateProfileInt(_T("LilithPort"), _T("Timer"),            0, ini);
 	MTOPTION.SIMULATE_DELAY     = GetPrivateProfileInt(_T("LilithPort"), _T("SimulateDelay"),    0, ini);
 	MTOPTION.HIT_JUDGE          = GetPrivateProfileInt(_T("LilithPort"), _T("HitJudge"),         0, ini) == 1 ? true : false;
-	MTOPTION.DISPLAY_NAME       = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayName"),      0, ini) == 1 ? true : false;
-	MTOPTION.DISPLAY_VERSUS     = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayVersus"),    0, ini) == 1 ? true : false;
-	MTOPTION.DISPLAY_FRAMERATE  = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayFramerate"), 0, ini) == 1 ? true : false;
+	MTOPTION.DISPLAY_NAME       = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayName"),      1, ini) == 1 ? true : false;
+	MTOPTION.DISPLAY_VERSUS     = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayVersus"),    1, ini) == 1 ? true : false;
+	MTOPTION.DISPLAY_FRAMERATE  = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayFramerate"), 1, ini) == 1 ? true : false;
 	MTOPTION.DISPLAY_RAND       = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayRand"),      0, ini) == 1 ? true : false;
 	MTOPTION.REPLAY_DIVIDE      = GetPrivateProfileInt(_T("LilithPort"), _T("ReplayDivide"),     0, ini) == 1 ? true : false;
 	MTOPTION.CHANGE_WINDOW_SIZE = GetPrivateProfileInt(_T("LilithPort"), _T("ChangeWindowSize"), 0, ini) == 1 ? true : false;
@@ -134,6 +134,8 @@ void LoadMTOption()
 	MTOPTION.REPLAY_VERSION     = GetPrivateProfileInt(_T("LilithPort"), _T("ReplayVersion"),    2, ini);
 	MTOPTION.RECORD_REPLAY      = GetPrivateProfileInt(_T("LilithPort"), _T("RecordReplay"),     0, ini) == 1 ? true : false;
 	MTOPTION.ALLOW_SPECTATOR    = GetPrivateProfileInt(_T("LilithPort"), _T("AllowSpectator"),   0, ini) == 1 ? true : false;
+	MTOPTION.LOG_LOCK           = GetPrivateProfileInt(_T("LilithPort"), _T("LogLock"),          0, ini) == 1 ? true : false;
+	MTOPTION.KEYWORD_FLASH      = GetPrivateProfileInt(_T("LilithPort"), _T("KeywordFlash"),     1, ini) == 1 ? true : false;
 	MTOPTION.AFTER_REST         = GetPrivateProfileInt(_T("LilithPort"), _T("AfterRest"),        0, ini) == 1 ? true : false;
 
 	MTWS.LEFT        = GetPrivateProfileInt(_T("State"), _T("Left"),       0, ini);
@@ -196,6 +198,7 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("VSSound"),              MTOPTION.VS_SOUND,               ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("NoticeSound"),          MTOPTION.NOTICE_SOUND,           ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("EnterSound"),           MTOPTION.ENTER_SOUND,            ini);
+	WritePrivateProfileString(_T("LilithPort"), _T("KeywordSound"),         MTOPTION.KEYWORD_SOUND,          ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("Name"),                 MTOPTION.NAME,                   ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("Comment"),              MTOPTION.COMMENT,                ini);
 
@@ -265,6 +268,10 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("RecordReplay"), buf, ini);
 	_itot_s(MTOPTION.ALLOW_SPECTATOR, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("AllowSpectator"), buf, ini);
+	_itot_s(MTOPTION.LOG_LOCK, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("LogLock"), buf, ini);
+	_itot_s(MTOPTION.KEYWORD_FLASH, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("KeywordFlash"), buf, ini);
 	_itot_s(MTOPTION.AFTER_REST, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("AfterRest"), buf, ini);
 	_itot_s(MTWS.LEFT, buf, 10);
@@ -344,12 +351,18 @@ void CheckMTOption()
 		_tfullpath(MTOPTION.ENTER_SOUND, buf, _MAX_PATH);
 	}
 
+	if(MTOPTION.KEYWORD_SOUND[1] != ':'){
+		_tcscpy_s(buf, MTOPTION.KEYWORD_SOUND);
+		_tfullpath(MTOPTION.KEYWORD_SOUND, buf, _MAX_PATH);
+	}
+
 	// 絶対パスに変換されるとドライブ名が小文字になるのが気になっていけない
 	MTOPTION.GAME_EXE[0]      = _totupper(MTOPTION.GAME_EXE[0]);
 	MTOPTION.REPLAY_FOLDER[0] = _totupper(MTOPTION.REPLAY_FOLDER[0]);
 	MTOPTION.VS_SOUND[0]      = _totupper(MTOPTION.VS_SOUND[0]);
 	MTOPTION.NOTICE_SOUND[0]  = _totupper(MTOPTION.NOTICE_SOUND[0]);
 	MTOPTION.ENTER_SOUND[0]   = _totupper(MTOPTION.ENTER_SOUND[0]);
+	MTOPTION.KEYWORD_SOUND[0] = _totupper(MTOPTION.KEYWORD_SOUND[0]);
 }
 
 // 対戦中のタイトルバー

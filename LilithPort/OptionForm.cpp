@@ -41,6 +41,10 @@ void OptionForm::SaveOption(bool apply){
 	_tcscpy_s(MTOPTION.ENTER_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
 	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(KeywordSoundtextBox->Text);
+	_tcscpy_s(MTOPTION.KEYWORD_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
 	// コメント
 	if(textBoxComment->Text != gcnew String(MTOPTION.COMMENT)){
 		mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxComment->Text);
@@ -119,5 +123,6 @@ void OptionForm::SaveOption(bool apply){
 		textBoxVSSound->Text      = gcnew String(MTOPTION.VS_SOUND);
 		textBoxNoticeSound->Text  = gcnew String(MTOPTION.NOTICE_SOUND);
 		textBoxEnterSound->Text   = gcnew String(MTOPTION.ENTER_SOUND);
+		KeywordSoundtextBox->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
 	}
 }
