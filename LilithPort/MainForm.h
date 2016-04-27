@@ -138,12 +138,13 @@ namespace LilithPort {
 	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator9;
 	private: System::Windows::Forms::ToolStripMenuItem^  LeaveToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  RestToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  SeekToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  ClearToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator10;
 private: System::Windows::Forms::ToolStripMenuItem^  VSReplayToolStripMenuItem;
 private: System::Windows::Forms::ToolStripMenuItem^  ToggleHitJudgeToolStripMenuItem;
 private: System::Windows::Forms::ToolStripMenuItem^  LogLockToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuItem;
+
 private: System::Windows::Forms::ToolStripMenuItem^  GetIPToolStripMenuItem;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator11;
 private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripMenuItem;
@@ -184,10 +185,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->toolStripSeparator8 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->CommandToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->GameStartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->GameStartNoReplayToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator9 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->RestartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->LeaveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->RestToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->SeekToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator10 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->ClearToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToggleHitJudgeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -214,7 +217,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->toolStripMenuItemRecordReplay = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAllowSpectator = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->LogLockToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->KeywordFlashToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator7 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemAfterRest = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemHelp = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -237,7 +239,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->textBoxInput = (gcnew System::Windows::Forms::TextBox());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->toolTipMember = (gcnew System::Windows::Forms::ToolTip(this->components));
-			this->GameStartNoReplayToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			this->splitContainer1->Panel1->SuspendLayout();
 			this->splitContainer1->Panel2->SuspendLayout();
@@ -313,9 +314,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			// 
 			// CommandToolStripMenuItem
 			// 
-			this->CommandToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {this->GameStartToolStripMenuItem, 
+			this->CommandToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(12) {this->GameStartToolStripMenuItem, 
 				this->GameStartNoReplayToolStripMenuItem, this->toolStripSeparator9, this->RestartToolStripMenuItem, this->LeaveToolStripMenuItem, 
-				this->RestToolStripMenuItem, this->toolStripSeparator10, this->ClearToolStripMenuItem, this->ToggleHitJudgeToolStripMenuItem, 
+				this->RestToolStripMenuItem, this->SeekToolStripMenuItem, this->toolStripSeparator10, this->ClearToolStripMenuItem, this->ToggleHitJudgeToolStripMenuItem, 
 				this->toolStripSeparator11, this->GetIPToolStripMenuItem});
 			this->CommandToolStripMenuItem->Name = L"CommandToolStripMenuItem";
 			this->CommandToolStripMenuItem->Size = System::Drawing::Size(86, 22);
@@ -328,6 +329,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->GameStartToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->GameStartToolStripMenuItem->Text = L"ゲームの起動(&G)";
 			this->GameStartToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartToolStripMenuItem_Click);
+			// 
+			// GameStartNoReplayToolStripMenuItem
+			// 
+			this->GameStartNoReplayToolStripMenuItem->Name = L"GameStartNoReplayToolStripMenuItem";
+			this->GameStartNoReplayToolStripMenuItem->Size = System::Drawing::Size(310, 22);
+			this->GameStartNoReplayToolStripMenuItem->Text = L"ゲームの起動（リプレイを保存しない）(&T)";
+			this->GameStartNoReplayToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartNoReplayToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator9
 			// 
@@ -354,6 +362,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->RestToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->RestToolStripMenuItem->Text = L"休憩状態の切り替え(&M)";
 			this->RestToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::RestToolStripMenuItem_Click);
+			// 
+			// SeekToolStripMenuItem
+			// 
+			this->SeekToolStripMenuItem->Name = L"SeekToolStripMenuItem";
+			this->SeekToolStripMenuItem->Size = System::Drawing::Size(310, 22);
+			this->SeekToolStripMenuItem->Text = L"対戦募集状態の切り替え(&S)";
+			this->SeekToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::SeekToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator10
 			// 
@@ -389,9 +404,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			// 
 			// toolStripMenuItemOption
 			// 
-			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->toolStripMenuItemSetting, 
+			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {this->toolStripMenuItemSetting, 
 				this->toolStripSeparator2, this->toolStripMenuItemDelay, this->toolStripSeparator3, this->toolStripMenuItemRecordReplay, this->toolStripMenuItemAllowSpectator, 
-				this->LogLockToolStripMenuItem, this->KeywordFlashToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest});
+				this->LogLockToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest});
 			this->toolStripMenuItemOption->Name = L"toolStripMenuItemOption";
 			this->toolStripMenuItemOption->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemOption->Text = L"オプション(&O)";
@@ -399,14 +414,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			// toolStripMenuItemSetting
 			// 
 			this->toolStripMenuItemSetting->Name = L"toolStripMenuItemSetting";
-			this->toolStripMenuItemSetting->Size = System::Drawing::Size(275, 22);
+			this->toolStripMenuItemSetting->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemSetting->Text = L"設定(&S)";
 			this->toolStripMenuItemSetting->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemSetting_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this->toolStripSeparator2->Name = L"toolStripSeparator2";
-			this->toolStripSeparator2->Size = System::Drawing::Size(272, 6);
+			this->toolStripSeparator2->Size = System::Drawing::Size(244, 6);
 			// 
 			// toolStripMenuItemDelay
 			// 
@@ -415,7 +430,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				this->toolStripMenuItemDelay6, this->toolStripMenuItemDelay7, this->toolStripMenuItemDelay8, this->toolStripMenuItemDelay9, this->toolStripMenuItemDelay10, 
 				this->toolStripMenuItemDelay11, this->toolStripMenuItemDelay12});
 			this->toolStripMenuItemDelay->Name = L"toolStripMenuItemDelay";
-			this->toolStripMenuItemDelay->Size = System::Drawing::Size(275, 22);
+			this->toolStripMenuItemDelay->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemDelay->Text = L"ディレイ(&D)";
 			// 
 			// toolStripMenuItemDelayAuto
@@ -512,14 +527,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			// toolStripSeparator3
 			// 
 			this->toolStripSeparator3->Name = L"toolStripSeparator3";
-			this->toolStripSeparator3->Size = System::Drawing::Size(272, 6);
+			this->toolStripSeparator3->Size = System::Drawing::Size(244, 6);
 			// 
 			// toolStripMenuItemRecordReplay
 			// 
 			this->toolStripMenuItemRecordReplay->Checked = true;
 			this->toolStripMenuItemRecordReplay->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemRecordReplay->Name = L"toolStripMenuItemRecordReplay";
-			this->toolStripMenuItemRecordReplay->Size = System::Drawing::Size(275, 22);
+			this->toolStripMenuItemRecordReplay->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemRecordReplay->Text = L"リプレイファイルの保存(&R)";
 			this->toolStripMenuItemRecordReplay->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemRecordReplay_Click);
 			// 
@@ -528,7 +543,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->toolStripMenuItemAllowSpectator->Checked = true;
 			this->toolStripMenuItemAllowSpectator->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemAllowSpectator->Name = L"toolStripMenuItemAllowSpectator";
-			this->toolStripMenuItemAllowSpectator->Size = System::Drawing::Size(275, 22);
+			this->toolStripMenuItemAllowSpectator->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemAllowSpectator->Text = L"観戦の許可(&A)";
 			this->toolStripMenuItemAllowSpectator->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAllowSpectator_Click);
 			// 
@@ -538,28 +553,19 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->LogLockToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->LogLockToolStripMenuItem->Name = L"LogLockToolStripMenuItem";
 			this->LogLockToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F3;
-			this->LogLockToolStripMenuItem->Size = System::Drawing::Size(275, 22);
+			this->LogLockToolStripMenuItem->Size = System::Drawing::Size(247, 22);
 			this->LogLockToolStripMenuItem->Text = L"ログのスクロールを固定(&L)";
 			this->LogLockToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::LogLockToolStripMenuItem_Click);
-			// 
-			// KeywordFlashToolStripMenuItem
-			// 
-			this->KeywordFlashToolStripMenuItem->Checked = true;
-			this->KeywordFlashToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
-			this->KeywordFlashToolStripMenuItem->Name = L"KeywordFlashToolStripMenuItem";
-			this->KeywordFlashToolStripMenuItem->Size = System::Drawing::Size(275, 22);
-			this->KeywordFlashToolStripMenuItem->Text = L"呼ばれたらウィンドウを点滅する(N)";
-			this->KeywordFlashToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::KeywordFlashToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator7
 			// 
 			this->toolStripSeparator7->Name = L"toolStripSeparator7";
-			this->toolStripSeparator7->Size = System::Drawing::Size(272, 6);
+			this->toolStripSeparator7->Size = System::Drawing::Size(244, 6);
 			// 
 			// toolStripMenuItemAfterRest
 			// 
 			this->toolStripMenuItemAfterRest->Name = L"toolStripMenuItemAfterRest";
-			this->toolStripMenuItemAfterRest->Size = System::Drawing::Size(275, 22);
+			this->toolStripMenuItemAfterRest->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemAfterRest->Text = L"ネット対戦後に一息入れる(&N)";
 			this->toolStripMenuItemAfterRest->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAfterRest_Click);
 			// 
@@ -732,13 +738,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			this->openFileDialog1->Filter = L"MT Replay file (*.mtr)|*.mtr";
 			this->openFileDialog1->Title = L"LilithPort用のリプレイファイル";
 			// 
-			// GameStartNoReplayToolStripMenuItem
-			// 
-			this->GameStartNoReplayToolStripMenuItem->Name = L"GameStartNoReplayToolStripMenuItem";
-			this->GameStartNoReplayToolStripMenuItem->Size = System::Drawing::Size(310, 22);
-			this->GameStartNoReplayToolStripMenuItem->Text = L"ゲームの起動（リプレイを保存しない）(&T)";
-			this->GameStartNoReplayToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartNoReplayToolStripMenuItem_Click);
-			// 
 			// MainForm
 			// 
 			this->AllowDrop = true;
@@ -907,9 +906,22 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				return;
 			}
 
+			/*
 			if(MemberList[0]->STATE != MS_FREE){
 				return;
 			}
+			*/
+
+			switch(MemberList[0]->STATE) {
+				case MS_FREE:
+				break;
+				case MS_SEEK:
+				break;
+				default:
+					return;
+				break;
+			}
+
 
 			if(GameThread != nullptr && GameThread->IsAlive == false){
 				GameThread = nullptr;
@@ -1048,6 +1060,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			if(GameThread != nullptr && GameThread->IsAlive){
 				try{
 					Process::GetProcessById(MTINFO.PROCESS_ID)->CloseMainWindow();
+					
 				}
 				catch(ArgumentException^){
 					GameThread = nullptr;
@@ -1238,10 +1251,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				}
 
 				if(i >= MemberList->Count && MTOPTION.CONNECTION_TYPE != CT_SERVER){
-					name = gcnew String("Unknown");
+					name = gcnew String(String::Format("Unknown(ID:{0})", id));
 					col  = ErrorMessageColor;
 
-					// 知らない人がいたのでサーバに問い合わせ
+					// メンバーリスト外のIDがいたので問い合わせ
 					array<BYTE>^ send = gcnew array<BYTE>(3){ PH_REQ_LIST };
 					Array::Copy(BitConverter::GetBytes(id), 0, send, 1, 2);
 					UDP->Send(send, 3, MemberList[1]->IP_EP);
@@ -1256,36 +1269,69 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			try{
 				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
 
-				// キーワード
+				// 音声優先度
+				// ニックネーム > キーワード > 発言
+				// ニックネーム音声再生
 				String ^tmpMsg = Encoding::Unicode->GetString(msg, 4, msg[3]);
-				bool keyword = 0;
-				if(tmpMsg->IndexOf(gcnew String(MTOPTION.NAME)) == -1) {
-				}else{
-					keyword = 1;
-
-					// ウィンドウ点滅
-					if(MTOPTION.KEYWORD_FLASH) {
-						FLASHWINFO stfi;
-						ZeroMemory(&stfi, sizeof(FLASHWINFO));
-						stfi.cbSize = sizeof(FLASHWINFO);
-						stfi.hwnd = reinterpret_cast<HWND&>(this->Handle);
-						stfi.dwFlags = FLASHW_ALL;
-						stfi.uCount = 3;
-						stfi.dwTimeout = 0;
-						FlashWindowEx(&stfi);
+				bool inname = 0;
+				if(tmpMsg->IndexOf(gcnew String(MTOPTION.NAME)) > -1) {
+					// 名前が呼ばれたらウィンドウ点滅
+					if(MTOPTION.NAME_FLASH) {
+						WindowFlash();
 					}
 
-					// キーワード音声再生
-					try{
-						Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.KEYWORD_SOUND));
-						wav->Play();
+					if(MTOPTION.NAME_SOUND_ENABLE){
+						inname = 1;
+						try{
+							Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.NAME_SOUND));
+							wav->Play();
+						}
+						catch(Exception^){
+						}
 					}
-					catch(Exception^){
+				}
+
+				// キーワード反応
+				bool inkeyword = 0;
+				if(MTOPTION.KEYWORD_SOUND_ENABLE && !inname){
+					// 分割バッファ
+					TCHAR *tok, *next;
+					TCHAR s1[MAX_KEYWORD];
+					_tcscpy_s(s1, MTOPTION.KEYWORD);
+					tok = wcstok_s(s1, _T(","), &next);
+					while(tok != NULL){
+						if(tmpMsg->IndexOf(gcnew String(tok)) > -1) {
+							inkeyword = 1;
+							try{
+								Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.KEYWORD_SOUND));
+								wav->Play();
+							}
+							catch(Exception^){
+							}
+							break;
+						}
+						tok = wcstok_s(NULL, _T(","), &next);
+					}
+				}
+
+				if(MemberList[0]->ID != id && !inname) {
+					// 発言でウィンドウ点滅
+					if(MTOPTION.TALK_FLASH) {
+						WindowFlash();
+					}
+					// 発言で音を再生
+					if(MTOPTION.TALK_SOUND_ENABLE && !inkeyword){
+						try{
+							Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.TALK_SOUND));
+							wav->Play();
+						}
+						catch(Exception^){
+						}
 					}
 				}
 
 				// 時間
-				if(keyword) {
+				if(inname||inkeyword) {
 					richTextBoxLog->SelectionColor = DebugMessageColor;
 				}else{
 					richTextBoxLog->SelectionColor = SystemMessageColor;
@@ -1327,6 +1373,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 					richTextBoxLog->AppendText(msg);
 
 					richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+
 					if(MTOPTION.LOG_LOCK == 0) {
 						richTextBoxLog->ScrollToCaret();
 					}
@@ -1345,11 +1392,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 		void WriteNotice(String^ msg){
 			// 音でお知らせ
 			if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
-				try{
-					Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.NOTICE_SOUND));
-					wav->Play();
-				}
-				catch(Exception^){
+				if(MTOPTION.NOTICE_SOUND_ENABLE){
+					try{
+						Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.NOTICE_SOUND));
+						wav->Play();
+					}
+					catch(Exception^){
+					}
 				}
 			}
 
@@ -1360,16 +1409,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			try{
 				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
 
-				richTextBoxLog->AppendText("¥n");
-
 				richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
 				richTextBoxLog->SelectionColor = TalkMessageColor;
 				richTextBoxLog->SelectionBackColor = NoticeBackColor;
 				richTextBoxLog->AppendText(msg + "¥n");
 
-				richTextBoxLog->AppendText("¥n");
-
 				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+
 				if(MTOPTION.LOG_LOCK == 0) {
 					richTextBoxLog->ScrollToCaret();
 				}
@@ -1388,11 +1434,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			}
 
 			// 音でお知らせ
-			try{
-				Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.ENTER_SOUND));
-				wav->Play();
-			}
-			catch(Exception^){
+			if(MTOPTION.ENTER_SOUND_ENABLE){
+				try{
+					Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.ENTER_SOUND));
+					wav->Play();
+				}
+				catch(Exception^){
+				}
 			}
 
 			if(comment->Length > 0){
@@ -1442,6 +1490,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				"/quit ： 起動中のゲームを終了¥n"
 				"/restart ： フリープレイから新規に回線接続¥n"
 				"/rest ： 休憩状態の切り替え¥n"
+				"/seek ： 対戦募集状態の切り替え¥n"
 				"/list ： リストの表示を切り替え¥n"
 				"/leave ： 退室＆フリープレイに移行¥n"
 				"/exit ： プログラムの終了¥n", SystemMessageColor);
@@ -1508,6 +1557,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				WriteMessage(String::Format("¥"{0}¥"にログを保存しました。¥n", file), SystemMessageColor);
 			}
 			else if(textBoxInput->Text->StartsWith("/debug", StringComparison::OrdinalIgnoreCase)){
+				
 				MTINFO.DEBUG ^= 1;
 
 				if(MTINFO.DEBUG){
@@ -1516,6 +1566,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				else{
 					WriteMessage("デバッグモード > オフ¥n", SystemMessageColor);
 				}
+				
+				
 			}
 			else if(textBoxInput->Text->StartsWith("/vs", StringComparison::OrdinalIgnoreCase)){
 				RandomVersus();
@@ -1538,13 +1590,33 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 				if(MemberList[0]->STATE == MS_FREE){
 					ChangeState((BYTE)MS_REST);
+					WriteMessage("休憩状態を変更しました。 > オン¥n", SystemMessageColor);
 				}
 				else if(MemberList[0]->STATE == MS_REST){
 					ChangeState((BYTE)MS_FREE);
+					WriteMessage("休憩状態を変更しました。 > オフ¥n", SystemMessageColor);
 				}
+
+			}
+			else if(textBoxInput->Text->StartsWith("/seek", StringComparison::OrdinalIgnoreCase)){
+				if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
+
+				if(MemberList[0]->STATE == MS_FREE){
+					ChangeState((BYTE)MS_SEEK);
+					WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
+					WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
+					WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
+				}
+				else if(MemberList[0]->STATE == MS_SEEK){
+					ChangeState((BYTE)MS_FREE);
+					WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
+					WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
+					WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
+				}
+
 			}
 			else if(textBoxInput->Text->StartsWith("/list", StringComparison::OrdinalIgnoreCase)){
-				ChangeListView(true);
+				ChangeListView(true);	
 			}
 			else if(textBoxInput->Text->StartsWith("/time", StringComparison::OrdinalIgnoreCase)){
 				WriteMessage(String::Format("{0} {1}¥n", DateTime::Now.ToLongDateString(), DateTime::Now.ToLongTimeString()), SecretColor);
@@ -1582,6 +1654,38 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			}
 			else if(textBoxInput->Text->StartsWith("/exit", StringComparison::OrdinalIgnoreCase)){
 				this->Close();
+			}
+			else if(textBoxInput->Text->StartsWith("/memberlist", StringComparison::OrdinalIgnoreCase)){
+				// デバッグ用コマンド
+				if(MTINFO.DEBUG){
+					for(int i = 0; i < MemberList->Count; i++){
+						// TYPE 0:Server 1:Host 2:Client
+						WriteMessage("NAME / ID / IP_EP / TYPE", DebugMessageColor);
+						WriteMessage(String::Format("{0} / {1} / {2} / {3}¥n", MemberList[i]->NAME, MemberList[i]->ID, MemberList[i]->IP_EP, MemberList[i]->TYPE), DebugMessageColor);
+					}
+				}
+			}
+			else if(textBoxInput->Text->StartsWith("/test", StringComparison::OrdinalIgnoreCase)){
+
+				/*
+				// Unknown対策簡易メッセージ
+				IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Parse("127.0.0.1")->Address, 7501);
+				WriteMessage(String::Format("to > {0}¥n", ep), DebugMessageColor);
+				
+				// チャット
+				String^ testmsg = "testmessage";
+
+				BYTE len = (BYTE)(testmsg->Length * 2);
+				array<BYTE>^ msg = gcnew array<BYTE>(4 + len);
+
+				msg[0] = PH_MESSAGE;
+				Array::Copy(BitConverter::GetBytes(0xFFFF), 0, msg, 1, 2);
+				msg[3] = len;
+				Array::Copy(Encoding::Unicode->GetBytes(testmsg), 0, msg, 4, len);
+
+				UDP->BeginSend(msg, msg->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
+				*/
+				
 			}
 		}
 
@@ -1779,7 +1883,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 				richTextBoxLog->SelectionColor = TalkMessageColor;
 				richTextBoxLog->SelectionBackColor = NoticeBackColor;
-				richTextBoxLog->AppendText(String::Format("{0}:{1}¥n¥n", EncryptionIP(s3[1]), MTOPTION.OPEN_PORT));
+				richTextBoxLog->AppendText(String::Format("{0}:{1}¥n", EncryptionIP(s3[1]), MTOPTION.OPEN_PORT));
+				WriteMessage("-------------------------------¥n", SystemMessageColor);
 			}
 			GetIPClient = nullptr;
 		}
@@ -1828,6 +1933,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				Color::FromArgb(MTCOLOR.REST_STATE),
 				Color::FromArgb(MTCOLOR.VS_STATE),
 				Color::FromArgb(MTCOLOR.WATCH_STATE),
+				Color::FromArgb(MTCOLOR.SEEK_STATE),
 			};
 
 			TalkMessageColor   = SystemColors::WindowText;
@@ -1861,6 +1967,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				}
 			}
 		}
+
 	private:
 		System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			// 行間を詰める
@@ -1888,7 +1995,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			toolStripMenuItemRecordReplay->Checked   = MTOPTION.RECORD_REPLAY;
 			toolStripMenuItemAllowSpectator->Checked = MTOPTION.ALLOW_SPECTATOR;
 			LogLockToolStripMenuItem->Checked        = MTOPTION.LOG_LOCK;
-			KeywordFlashToolStripMenuItem->Checked   = MTOPTION.KEYWORD_FLASH;
 			toolStripMenuItemAfterRest->Checked      = MTOPTION.AFTER_REST;
 
 			IsFormClosing = false;
@@ -1903,6 +2009,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			SpectatorList = gcnew Generic::List<SpectatorInfo^>;
 			WatchHistory  = gcnew array<UINT16>(TIME_OUT/5 * 3);
 			InputHistory  = gcnew array<UINT16>(TIME_OUT/5 * 3);
+
+			// richtextboxのデフォルトfalseバグ対策
+			richTextBoxLog->AutoWordSelection = true;
+			richTextBoxLog->AutoWordSelection = false;
 
 			timeBeginPeriod(1);
 		}
@@ -2046,7 +2156,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 					PacketSendAllMember(msg, 0);
 
+					WriteMessage("[サーバー告知]-------------------¥n", SystemMessageColor);
 					WriteNotice(textBoxInput->Text);
+					WriteMessage("-------------------------------¥n", SystemMessageColor);
 				}
 				else if(textBoxInput->Text[0] == '/'){
 					AnalyzeCommand();
@@ -2096,7 +2208,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				case MS_COUCH:
 					e->Graphics->FillRectangle(gcnew SolidBrush(StateRectColor[2]), e->Bounds);
 					break;
-
+				case MS_SEEK:
+					e->Graphics->FillRectangle(gcnew SolidBrush(StateRectColor[3]), e->Bounds);
+					break;
 				default:
 					e->DrawBackground();
 				}
@@ -2125,9 +2239,11 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				// 休憩状態の変更
 				if(state == MS_FREE){
 					ChangeState((BYTE)MS_REST);
+					WriteMessage("休憩状態を変更しました。 > オン¥n", SystemMessageColor);
 				}
 				else if(state == MS_REST){
 					ChangeState((BYTE)MS_FREE);
+					WriteMessage("休憩状態を変更しました。 > オフ¥n", SystemMessageColor);
 				}
 				else if(state == MS_VS){
 					WriteMessage("対戦を中止します。¥n", SystemMessageColor);
@@ -2206,7 +2322,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("Lilith Port v1.02¥n", SystemMessageColor);
+			WriteMessage("Lilith Port v1.03¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2291,7 +2407,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 		// ゲームの起動
 		System::Void GameStartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			StartGame(RT_FREE);
+			StartGame(RT_FREE);			
 		}
 		// ゲームの起動(リプレイを保存しない)
 		System::Void GameStartNoReplayToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2354,9 +2470,29 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 			if(MemberList[0]->STATE == MS_FREE){
 				ChangeState((BYTE)MS_REST);
+				WriteMessage("休憩状態を変更しました。 > オン¥n", SystemMessageColor);
 			}
 			else if(MemberList[0]->STATE == MS_REST){
 				ChangeState((BYTE)MS_FREE);
+				WriteMessage("休憩状態を変更しました。 > オフ¥n", SystemMessageColor);
+			}
+		}
+
+		// 対戦募集状態の切り替え
+		System::Void SeekToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			if(MTOPTION.CONNECTION_TYPE == CT_FREE) return;
+
+			if(MemberList[0]->STATE == MS_FREE){
+				ChangeState((BYTE)MS_SEEK);
+				WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
+				WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
+				WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
+			}
+			else if(MemberList[0]->STATE == MS_SEEK){
+				ChangeState((BYTE)MS_FREE);
+				WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
+				WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), SystemMessageColor);
+				WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
 			}
 		}
 
@@ -2449,12 +2585,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			MTOPTION.LOG_LOCK = LogLockToolStripMenuItem->Checked;
 		}
 
-		// 呼ばれたらウィンドウを点滅する
-		System::Void KeywordFlashToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			KeywordFlashToolStripMenuItem->Checked ^= 1;
-			MTOPTION.KEYWORD_FLASH = KeywordFlashToolStripMenuItem->Checked;
-		}
-
 		System::Void toolStripMenuItemAfterRest_Click(System::Object^  sender, System::EventArgs^  e) {
 			toolStripMenuItemAfterRest->Checked ^= 1;
 			MTOPTION.AFTER_REST = toolStripMenuItemAfterRest->Checked;
@@ -2538,6 +2668,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 
 		// 対戦する(リプレイを保存)
 		System::Void VSReplayToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+
 			if(listBoxMember->SelectedIndex == -1){
 				return;
 			}
@@ -2565,6 +2696,19 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 				MTOPTION.RECORD_REPLAY = toolStripMenuItemRecordReplay->Checked;
 			}
 
+		}
+
+		// 点滅関数
+		System::Void WindowFlash() {
+			// ウィンドウ点滅
+			FLASHWINFO stfi;
+			ZeroMemory(&stfi, sizeof(FLASHWINFO));
+			stfi.cbSize = sizeof(FLASHWINFO);
+			stfi.hwnd = reinterpret_cast<HWND&>(this->Handle);
+			stfi.dwFlags = FLASHW_ALL;
+			stfi.uCount = 3;
+			stfi.dwTimeout = 0;
+			FlashWindowEx(&stfi);
 		}
 
 		System::Void toolStripMenuItemWatch_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2608,6 +2752,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 		}
 
 		System::Void contextMenuStripMember_Opening(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+			
 			if(listBoxMember->SelectedIndex == -1){
 				toolStripMenuItemVS->Enabled       = false;
 				VSReplayToolStripMenuItem->Enabled = false;
@@ -2623,9 +2768,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripM
 			toolStripMenuItemWatch->Enabled    = true;
 			toolStripMenuItemPing->Enabled     = true;
 
-			if((state == MS_FREE && MemberList[0]->STATE == MS_FREE) || ListView == LV_BLIND){
+			if(( ( state == MS_FREE || state == MS_SEEK) && ( MemberList[0]->STATE == MS_FREE || state == MS_SEEK )) || ListView == LV_BLIND){
 				toolStripMenuItemVS->Enabled       = true;
 				VSReplayToolStripMenuItem->Enabled = true;
+				
 			}
 
 			if(listBoxMember->SelectedIndex == 0){

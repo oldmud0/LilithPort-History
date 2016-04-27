@@ -59,17 +59,21 @@ void LoadMTOption()
 	_stprintf_s(ini, _T("%sLilithPort.ini"), MTOPTION.PATH);
 
 	MTOPTION.CONNECTION_TYPE = GetPrivateProfileInt(_T("LilithPort"),   _T("ConnectType"), 0, ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ServerName"),         _T(""),            MTOPTION.SERVER_NAME,    MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),            MTOPTION.CONNECTION_IP,  MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Welcome"),            _T(""),            MTOPTION.WELCOME,        MAX_TITLE, ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("GameExe"),            _T("game.exe"),    MTOPTION.GAME_EXE,      _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ReplayFolder"),       _T("Replay"),      MTOPTION.REPLAY_FOLDER, _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("VSSound"),            _T("vs.wav"),      MTOPTION.VS_SOUND,      _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("NoticeSound"),        _T("notice.wav"),  MTOPTION.NOTICE_SOUND,  _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("EnterSound"),         _T("enter.wav"),   MTOPTION.ENTER_SOUND,   _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("KeywordSound"),       _T("keyword.wav"), MTOPTION.KEYWORD_SOUND, _MAX_PATH,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Name"),               _T("名無しさん"),  MTOPTION.NAME,           MAX_NAME,  ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("Comment"),            _T(""),            MTOPTION.COMMENT,        MAX_NAME,  ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ServerName"),         _T(""),            MTOPTION.SERVER_NAME,    MAX_NAME,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),            MTOPTION.CONNECTION_IP,  MAX_NAME,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Welcome"),            _T(""),            MTOPTION.WELCOME,        MAX_WELCOME, ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("GameExe"),            _T("game.exe"),    MTOPTION.GAME_EXE,      _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ReplayFolder"),       _T("Replay"),      MTOPTION.REPLAY_FOLDER, _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("VSSound"),            _T("vs.wav"),      MTOPTION.VS_SOUND,      _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("NoticeSound"),        _T("notice.wav"),  MTOPTION.NOTICE_SOUND,  _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("EnterSound"),         _T("enter.wav"),   MTOPTION.ENTER_SOUND,   _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("NameSound"),          _T("name.wav"),    MTOPTION.NAME_SOUND,    _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("TalkSound"),          _T("talk.wav"),    MTOPTION.TALK_SOUND,    _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("SeekSound"),          _T("seek.wav"),    MTOPTION.SEEK_SOUND,    _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("KeywordSound"),       _T("name.wav"),    MTOPTION.KEYWORD_SOUND, _MAX_PATH,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Keyword"),            _T(""),            MTOPTION.KEYWORD,        MAX_KEYWORD, ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Name"),               _T("名無しさん"),  MTOPTION.NAME,           MAX_NAME,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("Comment"),            _T(""),            MTOPTION.COMMENT,        MAX_NAME,    ini);
 
 	MTOPTION.BOOKMARK_COUNT     = GetPrivateProfileInt(_T("LilithPort"), _T("BookMarkCount"),    0, ini);
 
@@ -134,8 +138,19 @@ void LoadMTOption()
 	MTOPTION.RECORD_REPLAY      = GetPrivateProfileInt(_T("LilithPort"), _T("RecordReplay"),     0, ini) == 1 ? true : false;
 	MTOPTION.ALLOW_SPECTATOR    = GetPrivateProfileInt(_T("LilithPort"), _T("AllowSpectator"),   0, ini) == 1 ? true : false;
 	MTOPTION.LOG_LOCK           = GetPrivateProfileInt(_T("LilithPort"), _T("LogLock"),          0, ini) == 1 ? true : false;
-	MTOPTION.KEYWORD_FLASH      = GetPrivateProfileInt(_T("LilithPort"), _T("KeywordFlash"),     1, ini) == 1 ? true : false;
+	MTOPTION.NAME_FLASH         = GetPrivateProfileInt(_T("LilithPort"), _T("NameFlash"),        1, ini) == 1 ? true : false;
+	MTOPTION.TALK_FLASH         = GetPrivateProfileInt(_T("LilithPort"), _T("TalkFlash"),        0, ini) == 1 ? true : false;
 	MTOPTION.AFTER_REST         = GetPrivateProfileInt(_T("LilithPort"), _T("AfterRest"),        0, ini) == 1 ? true : false;
+
+	MTOPTION.ENTER_SOUND_ENABLE   = GetPrivateProfileInt(_T("LilithPort"), _T("EnterSoundEnable"),     0, ini);
+	MTOPTION.VS_SOUND_ENABLE      = GetPrivateProfileInt(_T("LilithPort"), _T("VSSoundEnable"),        0, ini);
+	MTOPTION.NOTICE_SOUND_ENABLE  = GetPrivateProfileInt(_T("LilithPort"), _T("NoticeSoundEnable"),    0, ini);
+	MTOPTION.NAME_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("NameSoundEnable"),      1, ini);
+	MTOPTION.TALK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("TalkSoundEnable"),      1, ini);
+	MTOPTION.SEEK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("SeekSoundEnable"),      1, ini);
+	MTOPTION.KEYWORD_SOUND_ENABLE = GetPrivateProfileInt(_T("LilithPort"), _T("KeywordSoundEnable"),   1, ini);
+
+	MTOPTION.GET_IP_ENABLE        = GetPrivateProfileInt(_T("LilithPort"), _T("GetIPEnable"),          1, ini);
 
 	MTWS.LEFT        = GetPrivateProfileInt(_T("State"), _T("Left"),       0, ini);
 	MTWS.TOP         = GetPrivateProfileInt(_T("State"), _T("Top"),        0, ini);
@@ -151,6 +166,8 @@ void LoadMTOption()
 	MTCOLOR.REST_STATE     = GetPrivateProfileInt(_T("Color"), _T("RestState"),     Color::Khaki.ToArgb(),       ini);
 	MTCOLOR.VS_STATE       = GetPrivateProfileInt(_T("Color"), _T("VSState"),       Color::Salmon.ToArgb(),      ini);
 	MTCOLOR.WATCH_STATE    = GetPrivateProfileInt(_T("Color"), _T("WatchState"),    Color::PaleGreen.ToArgb(),   ini);
+	MTCOLOR.SEEK_STATE     = GetPrivateProfileInt(_T("Color"), _T("SeekState"),     Color::PowderBlue.ToArgb(),  ini);
+	
 	MTCOLOR.SYSTEM_MESSAGE = GetPrivateProfileInt(_T("Color"), _T("SystemMessage"), Color::Teal.ToArgb(),        ini);
 	MTCOLOR.ERROR_MESSAGE  = GetPrivateProfileInt(_T("Color"), _T("ErrorMessage"),  Color::Red.ToArgb(),         ini);
 	MTCOLOR.DEBUG_MESSAGE  = GetPrivateProfileInt(_T("Color"), _T("DebugMessage"),  Color::DarkOrange.ToArgb(),  ini);
@@ -182,8 +199,8 @@ void SaveMTOption()
 	}
 
 	TCHAR ini[_MAX_PATH], buf[MAX_NAME];
-	TCHAR tmpStrName[MAX_TITLE] = L"";
-	TCHAR tmpStrIP[MAX_TITLE] = L"";
+	TCHAR tmpStrName[MAX_TITLE] = _T("");
+	TCHAR tmpStrIP[MAX_TITLE] = _T("");
 
 	_stprintf_s(ini, _T("%sLilithPort.ini"), MTOPTION.PATH);
 
@@ -197,12 +214,15 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("VSSound"),              MTOPTION.VS_SOUND,               ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("NoticeSound"),          MTOPTION.NOTICE_SOUND,           ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("EnterSound"),           MTOPTION.ENTER_SOUND,            ini);
+	WritePrivateProfileString(_T("LilithPort"), _T("NameSound"),            MTOPTION.NAME_SOUND,             ini);
+	WritePrivateProfileString(_T("LilithPort"), _T("TalkSound"),            MTOPTION.TALK_SOUND,             ini);
+	WritePrivateProfileString(_T("LilithPort"), _T("SeekSound"),            MTOPTION.SEEK_SOUND,             ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("KeywordSound"),         MTOPTION.KEYWORD_SOUND,          ini);
+	WritePrivateProfileString(_T("LilithPort"), _T("Keyword"),              MTOPTION.KEYWORD,                ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("Name"),                 MTOPTION.NAME,                   ini);
 	WritePrivateProfileString(_T("LilithPort"), _T("Comment"),              MTOPTION.COMMENT,                ini);
 
 	if(MTOPTION.BOOKMARK_COUNT > 0) {
-
 		// ブックマーク情報連結処理
 		for(UINT i=0;i < MTOPTION.BOOKMARK_COUNT;i++) {
 			if(gcnew String(MTOPTION.BOOKMARK_SERVER_NAME[i]) != ""){
@@ -267,10 +287,31 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("AllowSpectator"), buf, ini);
 	_itot_s(MTOPTION.LOG_LOCK, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("LogLock"), buf, ini);
-	_itot_s(MTOPTION.KEYWORD_FLASH, buf, 10);
-	WritePrivateProfileString(_T("LilithPort"), _T("KeywordFlash"), buf, ini);
+	_itot_s(MTOPTION.NAME_FLASH, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("NameFlash"), buf, ini);
+	_itot_s(MTOPTION.TALK_FLASH, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("TalkFlash"), buf, ini);
 	_itot_s(MTOPTION.AFTER_REST, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("AfterRest"), buf, ini);
+
+	_itot_s(MTOPTION.ENTER_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("EnterSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.VS_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("VSSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.NOTICE_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("NoticeSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.NAME_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("NameSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.TALK_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("TalkSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.SEEK_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("SeekSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.KEYWORD_SOUND_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("KeywordSoundEnable"), buf, ini);
+
+	_itot_s(MTOPTION.GET_IP_ENABLE, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("GetIPEnable"), buf, ini);
+
 	_itot_s(MTWS.LEFT, buf, 10);
 	WritePrivateProfileString(_T("State"), _T("Left"), buf, ini);
 	_itot_s(MTWS.TOP, buf, 10);
@@ -298,6 +339,11 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("Color"), _T("VSState"), buf, ini);
 	_ultot_s(MTCOLOR.WATCH_STATE, buf, 10);
 	WritePrivateProfileString(_T("Color"), _T("WatchState"), buf, ini);
+
+	// 対戦募集カラー
+	_ultot_s(MTCOLOR.SEEK_STATE, buf, 10);
+	WritePrivateProfileString(_T("Color"), _T("SeekState"), buf, ini);
+
 	_ultot_s(MTCOLOR.SYSTEM_MESSAGE, buf, 10);
 	WritePrivateProfileString(_T("Color"), _T("SystemMessage"),buf, ini);
 	_ultot_s(MTCOLOR.ERROR_MESSAGE, buf, 10);
@@ -348,10 +394,27 @@ void CheckMTOption()
 		_tfullpath(MTOPTION.ENTER_SOUND, buf, _MAX_PATH);
 	}
 
+	if(MTOPTION.NAME_SOUND[1] != ':'){
+		_tcscpy_s(buf, MTOPTION.NAME_SOUND);
+		_tfullpath(MTOPTION.NAME_SOUND, buf, _MAX_PATH);
+	}
+
+	if(MTOPTION.TALK_SOUND[1] != ':'){
+		_tcscpy_s(buf, MTOPTION.TALK_SOUND);
+		_tfullpath(MTOPTION.TALK_SOUND, buf, _MAX_PATH);
+	}
+
+	if(MTOPTION.SEEK_SOUND[1] != ':'){
+		_tcscpy_s(buf, MTOPTION.SEEK_SOUND);
+		_tfullpath(MTOPTION.SEEK_SOUND, buf, _MAX_PATH);
+	}
+
 	if(MTOPTION.KEYWORD_SOUND[1] != ':'){
 		_tcscpy_s(buf, MTOPTION.KEYWORD_SOUND);
 		_tfullpath(MTOPTION.KEYWORD_SOUND, buf, _MAX_PATH);
 	}
+
+	
 
 	// 絶対パスに変換されるとドライブ名が小文字になるのが気になっていけない
 	MTOPTION.GAME_EXE[0]      = _totupper(MTOPTION.GAME_EXE[0]);
@@ -359,6 +422,9 @@ void CheckMTOption()
 	MTOPTION.VS_SOUND[0]      = _totupper(MTOPTION.VS_SOUND[0]);
 	MTOPTION.NOTICE_SOUND[0]  = _totupper(MTOPTION.NOTICE_SOUND[0]);
 	MTOPTION.ENTER_SOUND[0]   = _totupper(MTOPTION.ENTER_SOUND[0]);
+	MTOPTION.NAME_SOUND[0]    = _totupper(MTOPTION.NAME_SOUND[0]);
+	MTOPTION.TALK_SOUND[0]    = _totupper(MTOPTION.TALK_SOUND[0]);
+	MTOPTION.SEEK_SOUND[0]    = _totupper(MTOPTION.SEEK_SOUND[0]);
 	MTOPTION.KEYWORD_SOUND[0] = _totupper(MTOPTION.KEYWORD_SOUND[0]);
 }
 
@@ -483,7 +549,7 @@ String^ EncryptionIP(String^ ip)
 	}
 
 	array<Byte> ^binaryData = gcnew array<Byte>(11);
-	binaryData = System::Text::Encoding::ASCII->GetBytes(ipString);
+	binaryData = System::Text::Encoding::Unicode->GetBytes(ipString);
 
 	String ^ipBase64;
 	try {
@@ -516,5 +582,5 @@ _int64 DecryptionIP(String^ cipher_ip)
 		return 0;
 	}
 
-	return Convert::ToInt64(Encoding::ASCII->GetString(binaryData));
+	return Convert::ToInt64(Encoding::Unicode->GetString(binaryData));
 }

@@ -376,7 +376,7 @@ namespace LilithPort {
 			// textBoxWelcome
 			// 
 			this->textBoxWelcome->Location = System::Drawing::Point(8, 19);
-			this->textBoxWelcome->MaxLength = 126;
+			this->textBoxWelcome->MaxLength = 254;
 			this->textBoxWelcome->Name = L"textBoxWelcome";
 			this->textBoxWelcome->Size = System::Drawing::Size(167, 86);
 			this->textBoxWelcome->TabIndex = 0;

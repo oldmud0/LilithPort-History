@@ -41,9 +41,37 @@ void OptionForm::SaveOption(bool apply){
 	_tcscpy_s(MTOPTION.ENTER_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
 	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
 
-	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(KeywordSoundtextBox->Text);
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxNameSound->Text);
+	_tcscpy_s(MTOPTION.NAME_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxTalkSound->Text);
+	_tcscpy_s(MTOPTION.TALK_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxSeekSound->Text);
+	_tcscpy_s(MTOPTION.SEEK_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxKeywordSoundPath->Text);
 	_tcscpy_s(MTOPTION.KEYWORD_SOUND, static_cast<PTCHAR>(mp.ToPointer()));
 	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxKeyword->Text);
+	_tcscpy_s(MTOPTION.KEYWORD, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+	
+
+	MTOPTION.ENTER_SOUND_ENABLE   = checkBoxEnterSound->Checked;
+	MTOPTION.VS_SOUND_ENABLE      = checkBoxVSSound->Checked;
+	MTOPTION.NOTICE_SOUND_ENABLE  = checkBoxNoticeSound->Checked;
+	MTOPTION.NAME_SOUND_ENABLE    = checkBoxNameSound->Checked;
+	MTOPTION.TALK_SOUND_ENABLE    = checkBoxTalkSound->Checked;
+	MTOPTION.SEEK_SOUND_ENABLE    = checkBoxSeekSound->Checked;
+	MTOPTION.KEYWORD_SOUND_ENABLE = checkBoxKeywordSound->Checked;
+
+	MTOPTION.GET_IP_ENABLE        = checkBoxGetIP->Checked;
+
 
 	// コメント
 	if(textBoxComment->Text != gcnew String(MTOPTION.COMMENT)){
@@ -97,6 +125,12 @@ void OptionForm::SaveOption(bool apply){
 		}
 	}
 
+	// 詳細設定
+	// 発言でウィンドウを点滅
+	MTOPTION.TALK_FLASH = checkBoxTalkFlash->Checked;
+	// 名前が呼ばれたらウィンドウを点滅
+	MTOPTION.NAME_FLASH = checkBoxNameFlash->Checked;
+
 	//　色
 	MTCOLOR.SERVER_NAME    = buttonServerName->ForeColor.ToArgb();
 	MTCOLOR.HOST_NAME      = buttonHostName->ForeColor.ToArgb();
@@ -104,6 +138,8 @@ void OptionForm::SaveOption(bool apply){
 	MTCOLOR.REST_STATE     = buttonRestState->BackColor.ToArgb();
 	MTCOLOR.VS_STATE       = buttonVSState->BackColor.ToArgb();
 	MTCOLOR.WATCH_STATE    = buttonWatchState->BackColor.ToArgb();
+	MTCOLOR.SEEK_STATE     = buttonSeekState->BackColor.ToArgb();
+
 	MTCOLOR.SYSTEM_MESSAGE = buttonSystemMessage->ForeColor.ToArgb();
 	MTCOLOR.ERROR_MESSAGE  = buttonErrorMessage->ForeColor.ToArgb();
 	MTCOLOR.DEBUG_MESSAGE  = buttonDebugMessage->ForeColor.ToArgb();
@@ -118,11 +154,14 @@ void OptionForm::SaveOption(bool apply){
 	CheckMTOption();
 
 	if(apply){
-		textBoxGameExe->Text      = gcnew String(MTOPTION.GAME_EXE);
-		textBoxReplayFolder->Text = gcnew String(MTOPTION.REPLAY_FOLDER);
-		textBoxVSSound->Text      = gcnew String(MTOPTION.VS_SOUND);
-		textBoxNoticeSound->Text  = gcnew String(MTOPTION.NOTICE_SOUND);
-		textBoxEnterSound->Text   = gcnew String(MTOPTION.ENTER_SOUND);
-		KeywordSoundtextBox->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
+		textBoxGameExe->Text          = gcnew String(MTOPTION.GAME_EXE);
+		textBoxReplayFolder->Text     = gcnew String(MTOPTION.REPLAY_FOLDER);
+		textBoxVSSound->Text          = gcnew String(MTOPTION.VS_SOUND);
+		textBoxNoticeSound->Text      = gcnew String(MTOPTION.NOTICE_SOUND);
+		textBoxEnterSound->Text       = gcnew String(MTOPTION.ENTER_SOUND);
+		textBoxNameSound->Text        = gcnew String(MTOPTION.NAME_SOUND);
+		textBoxTalkSound->Text        = gcnew String(MTOPTION.TALK_SOUND);
+		textBoxSeekSound->Text        = gcnew String(MTOPTION.SEEK_SOUND);
+		textBoxKeywordSoundPath->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
 	}
 }

@@ -2,7 +2,7 @@
  【 ソフト名 】 Lilith Port
  【ランタイム】 .NET Framework 2.0/3.5
  【 開発環境 】 Windows 7  +  Visual C++ 2008 Express Edition
- 【 推奨環境 】 Windows XP or Windows Vista or Windows 7 32bit/64bit
+ 【 推奨環境 】 Windows XP / Windows Vista / Windows 7 32bit/64bit
  【   備考   】 転載等は自己責任で
 ================================================================================
 
@@ -26,3 +26,9 @@
   機能追加に伴い、将来的に『るなぽMT』シリーズと互換性が取れなくなる場合を踏まえて、予めご了承頂ければ幸いです。
 
   2014/04/16 Joe
+
+■ Copyright
+
+  音声ファイル
+  フリー効果音素材 くらげ工匠 様
+  http://www.kurage-kosho.info/
