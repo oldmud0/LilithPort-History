@@ -189,6 +189,13 @@ private: System::Windows::Forms::TextBox^  textBoxKeyword;
 private: System::Windows::Forms::Button^  buttonKeywordSound;
 private: System::Windows::Forms::Button^  buttonKeywordSoundPlay;
 private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
+private: System::Windows::Forms::GroupBox^  groupBoxTeamOption;
+private: System::Windows::Forms::CheckBox^  checkBoxTeamRoundHP;
+private: System::Windows::Forms::Label^  labelTeamRoundHP;
+private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
+
+
+
 
 
 
@@ -210,6 +217,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(OptionForm::typeid));
 			this->buttonOK = (gcnew System::Windows::Forms::Button());
 			this->buttonApply = (gcnew System::Windows::Forms::Button());
 			this->buttonCancel = (gcnew System::Windows::Forms::Button());
@@ -272,6 +280,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->radioButtonReplayVersion2 = (gcnew System::Windows::Forms::RadioButton());
 			this->tabControlOption = (gcnew System::Windows::Forms::TabControl());
 			this->tabPageGame = (gcnew System::Windows::Forms::TabPage());
+			this->groupBoxTeamOption = (gcnew System::Windows::Forms::GroupBox());
+			this->labelTeamRoundHP = (gcnew System::Windows::Forms::Label());
+			this->checkBoxTeamRoundHP = (gcnew System::Windows::Forms::CheckBox());
 			this->groupBoxSimulate = (gcnew System::Windows::Forms::GroupBox());
 			this->numericUpDownSimDelay = (gcnew System::Windows::Forms::NumericUpDown());
 			this->labelSimDelay = (gcnew System::Windows::Forms::Label());
@@ -330,6 +341,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->IPtextBox = (gcnew System::Windows::Forms::TextBox());
 			this->tabPageDetails = (gcnew System::Windows::Forms::TabPage());
 			this->groupBoxDetails = (gcnew System::Windows::Forms::GroupBox());
+			this->checkBoxShowGameOption = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxNameFlash = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxGetIP = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxTalkFlash = (gcnew System::Windows::Forms::CheckBox());
@@ -349,6 +361,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->groupBoxSave->SuspendLayout();
 			this->tabControlOption->SuspendLayout();
 			this->tabPageGame->SuspendLayout();
+			this->groupBoxTeamOption->SuspendLayout();
 			this->groupBoxSimulate->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownSimDelay))->BeginInit();
 			this->groupBoxRun->SuspendLayout();
@@ -482,6 +495,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// 
 			// textBoxKeywordSoundPath
 			// 
+			this->textBoxKeywordSoundPath->AllowDrop = true;
 			this->textBoxKeywordSoundPath->Location = System::Drawing::Point(10, 63);
 			this->textBoxKeywordSoundPath->Name = L"textBoxKeywordSoundPath";
 			this->textBoxKeywordSoundPath->Size = System::Drawing::Size(150, 19);
@@ -495,9 +509,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->labelKeywordSound->AutoSize = true;
 			this->labelKeywordSound->Location = System::Drawing::Point(10, 16);
 			this->labelKeywordSound->Name = L"labelKeywordSound";
-			this->labelKeywordSound->Size = System::Drawing::Size(133, 12);
+			this->labelKeywordSound->Size = System::Drawing::Size(141, 12);
 			this->labelKeywordSound->TabIndex = 1;
-			this->labelKeywordSound->Text = L"コロン(,)で複数登録が可能";
+			this->labelKeywordSound->Text = L"コンマ( , )で複数登録が可能";
 			// 
 			// textBoxKeyword
 			// 
@@ -979,9 +993,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// 
 			this->groupBoxSave->Controls->Add(this->radioButtonReplayVersion1);
 			this->groupBoxSave->Controls->Add(this->radioButtonReplayVersion2);
-			this->groupBoxSave->Location = System::Drawing::Point(192, 184);
+			this->groupBoxSave->Location = System::Drawing::Point(195, 184);
 			this->groupBoxSave->Name = L"groupBoxSave";
-			this->groupBoxSave->Size = System::Drawing::Size(168, 52);
+			this->groupBoxSave->Size = System::Drawing::Size(154, 42);
 			this->groupBoxSave->TabIndex = 4;
 			this->groupBoxSave->TabStop = false;
 			this->groupBoxSave->Text = L"リプレイファイル";
@@ -989,7 +1003,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// radioButtonReplayVersion1
 			// 
 			this->radioButtonReplayVersion1->AutoSize = true;
-			this->radioButtonReplayVersion1->Location = System::Drawing::Point(96, 22);
+			this->radioButtonReplayVersion1->Location = System::Drawing::Point(88, 17);
 			this->radioButtonReplayVersion1->Name = L"radioButtonReplayVersion1";
 			this->radioButtonReplayVersion1->Size = System::Drawing::Size(59, 16);
 			this->radioButtonReplayVersion1->TabIndex = 2;
@@ -1001,7 +1015,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// radioButtonReplayVersion2
 			// 
 			this->radioButtonReplayVersion2->AutoSize = true;
-			this->radioButtonReplayVersion2->Location = System::Drawing::Point(16, 22);
+			this->radioButtonReplayVersion2->Location = System::Drawing::Point(16, 17);
 			this->radioButtonReplayVersion2->Name = L"radioButtonReplayVersion2";
 			this->radioButtonReplayVersion2->Size = System::Drawing::Size(66, 16);
 			this->radioButtonReplayVersion2->TabIndex = 2;
@@ -1028,6 +1042,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// 
 			// tabPageGame
 			// 
+			this->tabPageGame->AutoScroll = true;
+			this->tabPageGame->Controls->Add(this->groupBoxTeamOption);
 			this->tabPageGame->Controls->Add(this->groupBoxSave);
 			this->tabPageGame->Controls->Add(this->groupBoxSimulate);
 			this->tabPageGame->Controls->Add(this->groupBoxRun);
@@ -1041,20 +1057,51 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->tabPageGame->Text = L"ゲーム";
 			this->tabPageGame->UseVisualStyleBackColor = true;
 			// 
+			// groupBoxTeamOption
+			// 
+			this->groupBoxTeamOption->Controls->Add(this->labelTeamRoundHP);
+			this->groupBoxTeamOption->Controls->Add(this->checkBoxTeamRoundHP);
+			this->groupBoxTeamOption->Location = System::Drawing::Point(9, 224);
+			this->groupBoxTeamOption->Name = L"groupBoxTeamOption";
+			this->groupBoxTeamOption->Size = System::Drawing::Size(167, 68);
+			this->groupBoxTeamOption->TabIndex = 6;
+			this->groupBoxTeamOption->TabStop = false;
+			this->groupBoxTeamOption->Text = L"チームプレイ設定";
+			// 
+			// labelTeamRoundHP
+			// 
+			this->labelTeamRoundHP->AutoSize = true;
+			this->labelTeamRoundHP->Location = System::Drawing::Point(13, 42);
+			this->labelTeamRoundHP->Name = L"labelTeamRoundHP";
+			this->labelTeamRoundHP->Size = System::Drawing::Size(138, 12);
+			this->labelTeamRoundHP->TabIndex = 1;
+			this->labelTeamRoundHP->Text = L"※1vs1ではオフにしてください";
+			// 
+			// checkBoxTeamRoundHP
+			// 
+			this->checkBoxTeamRoundHP->AutoSize = true;
+			this->checkBoxTeamRoundHP->Location = System::Drawing::Point(15, 21);
+			this->checkBoxTeamRoundHP->Name = L"checkBoxTeamRoundHP";
+			this->checkBoxTeamRoundHP->Size = System::Drawing::Size(148, 16);
+			this->checkBoxTeamRoundHP->TabIndex = 0;
+			this->checkBoxTeamRoundHP->Text = L"ラウンド間でHPを持ち越す";
+			this->checkBoxTeamRoundHP->UseVisualStyleBackColor = true;
+			this->checkBoxTeamRoundHP->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			// 
 			// groupBoxSimulate
 			// 
 			this->groupBoxSimulate->Controls->Add(this->numericUpDownSimDelay);
 			this->groupBoxSimulate->Controls->Add(this->labelSimDelay);
-			this->groupBoxSimulate->Location = System::Drawing::Point(192, 132);
+			this->groupBoxSimulate->Location = System::Drawing::Point(195, 132);
 			this->groupBoxSimulate->Name = L"groupBoxSimulate";
-			this->groupBoxSimulate->Size = System::Drawing::Size(168, 44);
+			this->groupBoxSimulate->Size = System::Drawing::Size(154, 44);
 			this->groupBoxSimulate->TabIndex = 5;
 			this->groupBoxSimulate->TabStop = false;
 			this->groupBoxSimulate->Text = L"シミュレート";
 			// 
 			// numericUpDownSimDelay
 			// 
-			this->numericUpDownSimDelay->Location = System::Drawing::Point(112, 16);
+			this->numericUpDownSimDelay->Location = System::Drawing::Point(88, 18);
 			this->numericUpDownSimDelay->Name = L"numericUpDownSimDelay";
 			this->numericUpDownSimDelay->Size = System::Drawing::Size(40, 19);
 			this->numericUpDownSimDelay->TabIndex = 1;
@@ -1073,7 +1120,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// 
 			this->groupBoxRun->Controls->Add(this->checkBoxWindowSize);
 			this->groupBoxRun->Controls->Add(this->checkBoxHitJudge);
-			this->groupBoxRun->Location = System::Drawing::Point(8, 168);
+			this->groupBoxRun->Location = System::Drawing::Point(8, 149);
 			this->groupBoxRun->Name = L"groupBoxRun";
 			this->groupBoxRun->Size = System::Drawing::Size(168, 68);
 			this->groupBoxRun->TabIndex = 3;
@@ -1108,9 +1155,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->groupBoxView->Controls->Add(this->checkBoxName);
 			this->groupBoxView->Controls->Add(this->checkBoxFramerate);
 			this->groupBoxView->Controls->Add(this->checkBoxRand);
-			this->groupBoxView->Location = System::Drawing::Point(192, 8);
+			this->groupBoxView->Location = System::Drawing::Point(195, 8);
 			this->groupBoxView->Name = L"groupBoxView";
-			this->groupBoxView->Size = System::Drawing::Size(168, 116);
+			this->groupBoxView->Size = System::Drawing::Size(154, 116);
 			this->groupBoxView->TabIndex = 4;
 			this->groupBoxView->TabStop = false;
 			this->groupBoxView->Text = L"タイトルバー";
@@ -1171,7 +1218,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->groupBoxSetting->Controls->Add(this->numericUpDownStageSelect);
 			this->groupBoxSetting->Location = System::Drawing::Point(8, 8);
 			this->groupBoxSetting->Name = L"groupBoxSetting";
-			this->groupBoxSetting->Size = System::Drawing::Size(168, 128);
+			this->groupBoxSetting->Size = System::Drawing::Size(168, 134);
 			this->groupBoxSetting->TabIndex = 1;
 			this->groupBoxSetting->TabStop = false;
 			this->groupBoxSetting->Text = L"対戦設定";
@@ -1676,6 +1723,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			// 
 			// groupBoxDetails
 			// 
+			this->groupBoxDetails->Controls->Add(this->checkBoxShowGameOption);
 			this->groupBoxDetails->Controls->Add(this->checkBoxNameFlash);
 			this->groupBoxDetails->Controls->Add(this->checkBoxGetIP);
 			this->groupBoxDetails->Controls->Add(this->checkBoxTalkFlash);
@@ -1685,6 +1733,17 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->groupBoxDetails->TabIndex = 0;
 			this->groupBoxDetails->TabStop = false;
 			this->groupBoxDetails->Text = L"詳細設定";
+			// 
+			// checkBoxShowGameOption
+			// 
+			this->checkBoxShowGameOption->AutoSize = true;
+			this->checkBoxShowGameOption->Location = System::Drawing::Point(8, 85);
+			this->checkBoxShowGameOption->Name = L"checkBoxShowGameOption";
+			this->checkBoxShowGameOption->Size = System::Drawing::Size(199, 16);
+			this->checkBoxShowGameOption->TabIndex = 3;
+			this->checkBoxShowGameOption->Text = L"ゲーム起動時に対戦設定を表示する";
+			this->checkBoxShowGameOption->UseVisualStyleBackColor = true;
+			this->checkBoxShowGameOption->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			// 
 			// checkBoxNameFlash
 			// 
@@ -1764,6 +1823,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			this->groupBoxSave->PerformLayout();
 			this->tabControlOption->ResumeLayout(false);
 			this->tabPageGame->ResumeLayout(false);
+			this->groupBoxTeamOption->ResumeLayout(false);
+			this->groupBoxTeamOption->PerformLayout();
 			this->groupBoxSimulate->ResumeLayout(false);
 			this->groupBoxSimulate->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownSimDelay))->EndInit();
@@ -1866,7 +1927,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			textBoxKeywordSoundPath->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
 			textBoxKeyword->Text          = gcnew String(MTOPTION.KEYWORD);
 
-			// セレクションを末尾に
+			// パスのセレクションを末尾に
 			textBoxGameExe->SelectionStart          = textBoxGameExe->TextLength;
 			textBoxReplayFolder->SelectionStart     = textBoxReplayFolder->TextLength;
 			textBoxComment->SelectionStart          = textBoxComment->TextLength;
@@ -1887,6 +1948,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			checkBoxKeywordSound->Checked     = MTOPTION.KEYWORD_SOUND_ENABLE;
 
 			checkBoxGetIP->Checked            = MTOPTION.GET_IP_ENABLE;
+			checkBoxShowGameOption->Checked   = MTOPTION.SHOW_GAME_OPTION;
 
 			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 			trackBarBGM->Value                = MTOPTION.BGM_VOLUME / 5;
@@ -1905,6 +1967,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxKeywordSound;
 			checkBoxWindowSize->Checked       = MTOPTION.CHANGE_WINDOW_SIZE;
 			checkBoxTalkFlash->Checked        = MTOPTION.TALK_FLASH;
 			checkBoxNameFlash->Checked        = MTOPTION.NAME_FLASH;
+			checkBoxTeamRoundHP->Checked      = MTOPTION.TEAM_ROUND_HP;
 
 			CheckStageValue();
 

@@ -60,7 +60,7 @@ void LoadMTOption()
 
 	MTOPTION.CONNECTION_TYPE = GetPrivateProfileInt(_T("LilithPort"),   _T("ConnectType"), 0, ini);
 	GetPrivateProfileString(_T("LilithPort"), _T("ServerName"),         _T(""),            MTOPTION.SERVER_NAME,    MAX_NAME,    ini);
-	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),            MTOPTION.CONNECTION_IP,  MAX_NAME,    ini);
+	GetPrivateProfileString(_T("LilithPort"), _T("ConnectIP"),          _T(""),            MTOPTION.CONNECTION_IP,  MAX_ARRAY,   ini);
 	GetPrivateProfileString(_T("LilithPort"), _T("Welcome"),            _T(""),            MTOPTION.WELCOME,        MAX_WELCOME, ini);
 	GetPrivateProfileString(_T("LilithPort"), _T("GameExe"),            _T("game.exe"),    MTOPTION.GAME_EXE,      _MAX_PATH,    ini);
 	GetPrivateProfileString(_T("LilithPort"), _T("ReplayFolder"),       _T("Replay"),      MTOPTION.REPLAY_FOLDER, _MAX_PATH,    ini);
@@ -123,6 +123,7 @@ void LoadMTOption()
 	MTOPTION.STAGE_SELECT       = GetPrivateProfileInt(_T("LilithPort"), _T("StageSelect"),      0, ini);
 	MTOPTION.ROUND              = GetPrivateProfileInt(_T("LilithPort"), _T("Round"),            2, ini);
 	MTOPTION.TIMER              = GetPrivateProfileInt(_T("LilithPort"), _T("Timer"),            0, ini);
+	MTOPTION.TEAM_ROUND_HP      = GetPrivateProfileInt(_T("LilithPort"), _T("TeamRoundHP"),      0, ini) == 1 ? true : false;
 	MTOPTION.SIMULATE_DELAY     = GetPrivateProfileInt(_T("LilithPort"), _T("SimulateDelay"),    0, ini);
 	MTOPTION.HIT_JUDGE          = GetPrivateProfileInt(_T("LilithPort"), _T("HitJudge"),         0, ini) == 1 ? true : false;
 	MTOPTION.DISPLAY_NAME       = GetPrivateProfileInt(_T("LilithPort"), _T("DisplayName"),      1, ini) == 1 ? true : false;
@@ -136,21 +137,22 @@ void LoadMTOption()
 	MTOPTION.INTERVAL           = GetPrivateProfileInt(_T("LilithPort"), _T("Interval"),         1, ini);
 	MTOPTION.REPLAY_VERSION     = GetPrivateProfileInt(_T("LilithPort"), _T("ReplayVersion"),    2, ini);
 	MTOPTION.RECORD_REPLAY      = GetPrivateProfileInt(_T("LilithPort"), _T("RecordReplay"),     0, ini) == 1 ? true : false;
-	MTOPTION.ALLOW_SPECTATOR    = GetPrivateProfileInt(_T("LilithPort"), _T("AllowSpectator"),   0, ini) == 1 ? true : false;
+	MTOPTION.ALLOW_SPECTATOR    = GetPrivateProfileInt(_T("LilithPort"), _T("AllowSpectator"),   1, ini) == 1 ? true : false;
 	MTOPTION.LOG_LOCK           = GetPrivateProfileInt(_T("LilithPort"), _T("LogLock"),          0, ini) == 1 ? true : false;
 	MTOPTION.NAME_FLASH         = GetPrivateProfileInt(_T("LilithPort"), _T("NameFlash"),        1, ini) == 1 ? true : false;
 	MTOPTION.TALK_FLASH         = GetPrivateProfileInt(_T("LilithPort"), _T("TalkFlash"),        0, ini) == 1 ? true : false;
 	MTOPTION.AFTER_REST         = GetPrivateProfileInt(_T("LilithPort"), _T("AfterRest"),        0, ini) == 1 ? true : false;
 
-	MTOPTION.ENTER_SOUND_ENABLE   = GetPrivateProfileInt(_T("LilithPort"), _T("EnterSoundEnable"),     0, ini);
-	MTOPTION.VS_SOUND_ENABLE      = GetPrivateProfileInt(_T("LilithPort"), _T("VSSoundEnable"),        0, ini);
-	MTOPTION.NOTICE_SOUND_ENABLE  = GetPrivateProfileInt(_T("LilithPort"), _T("NoticeSoundEnable"),    0, ini);
-	MTOPTION.NAME_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("NameSoundEnable"),      1, ini);
-	MTOPTION.TALK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("TalkSoundEnable"),      1, ini);
-	MTOPTION.SEEK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("SeekSoundEnable"),      1, ini);
-	MTOPTION.KEYWORD_SOUND_ENABLE = GetPrivateProfileInt(_T("LilithPort"), _T("KeywordSoundEnable"),   1, ini);
+	MTOPTION.ENTER_SOUND_ENABLE   = GetPrivateProfileInt(_T("LilithPort"), _T("EnterSoundEnable"),     0, ini) == 1 ? true : false;
+	MTOPTION.VS_SOUND_ENABLE      = GetPrivateProfileInt(_T("LilithPort"), _T("VSSoundEnable"),        0, ini) == 1 ? true : false;
+	MTOPTION.NOTICE_SOUND_ENABLE  = GetPrivateProfileInt(_T("LilithPort"), _T("NoticeSoundEnable"),    0, ini) == 1 ? true : false;
+	MTOPTION.NAME_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("NameSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.TALK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("TalkSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.SEEK_SOUND_ENABLE    = GetPrivateProfileInt(_T("LilithPort"), _T("SeekSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.KEYWORD_SOUND_ENABLE = GetPrivateProfileInt(_T("LilithPort"), _T("KeywordSoundEnable"),   1, ini) == 1 ? true : false;
 
-	MTOPTION.GET_IP_ENABLE        = GetPrivateProfileInt(_T("LilithPort"), _T("GetIPEnable"),          1, ini);
+	MTOPTION.GET_IP_ENABLE        = GetPrivateProfileInt(_T("LilithPort"), _T("GetIPEnable"),          1, ini) == 1 ? true : false;
+	MTOPTION.SHOW_GAME_OPTION     = GetPrivateProfileInt(_T("LilithPort"), _T("ShowGameOption"),       1, ini) == 1 ? true : false;
 
 	MTWS.LEFT        = GetPrivateProfileInt(_T("State"), _T("Left"),       0, ini);
 	MTWS.TOP         = GetPrivateProfileInt(_T("State"), _T("Top"),        0, ini);
@@ -257,6 +259,8 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("Round"), buf, ini);
 	_itot_s(MTOPTION.TIMER, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("Timer"), buf, ini);
+	_itot_s(MTOPTION.TEAM_ROUND_HP, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("TeamRoundHP"), buf, ini);
 	_itot_s(MTOPTION.SIMULATE_DELAY, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("SimulateDelay"), buf, ini);
 	_itot_s(MTOPTION.HIT_JUDGE, buf, 10);
@@ -311,6 +315,8 @@ void SaveMTOption()
 
 	_itot_s(MTOPTION.GET_IP_ENABLE, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("GetIPEnable"), buf, ini);
+	_itot_s(MTOPTION.SHOW_GAME_OPTION, buf, 10);
+	WritePrivateProfileString(_T("LilithPort"), _T("ShowGameOption"), buf, ini);
 
 	_itot_s(MTWS.LEFT, buf, 10);
 	WritePrivateProfileString(_T("State"), _T("Left"), buf, ini);

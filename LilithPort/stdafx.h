@@ -39,7 +39,6 @@ UINT CipherRand(UINT32 seed = 0);
 UINT XorShift(UINT32 seed = 0);
 UINT RandomStage(UINT32 seed = 0);
 
-
 // メンバー情報
 public ref struct MemberInfo
 {
@@ -51,6 +50,13 @@ public ref struct MemberInfo
 	UINT        STATE;
 	UINT        NUM_VS;
 	DWORD       RESPONSE;
+};
+
+// バックアップ
+public ref struct MemberInfoBackUp
+{
+	IPEndPoint^ IP_EP;
+	UINT16      ID;
 };
 
 
@@ -177,8 +183,8 @@ const BYTE VOLUME_SET_2_95_CODE[] = {0x50,0x8B,0x08,0xCC,0x52,0x50,0xFF,0x51,0x3
                                      0x08,0xCC,0x52,0x50,0xFF,0x51,0x3C,0xE9,0x7A,0xFF,0xFF,0xFF};
 
 // バージョン情報
-// LilithPort 1.03から互換, それ以前はなし
-const UINT LP_VERSION = 103;
+// LilithPort 1.03以上互換, それ以前はなし
+const UINT LP_VERSION = 104;
 
 // 設定項目
 const UINT MAX_NAME   = 32;
@@ -218,6 +224,9 @@ typedef struct _MT_SP_INFORMATION
 	TCHAR  TITLE[MAX_TITLE];
 	INT32  VOLUME[21];
 	bool VERSION_CHECKED;
+	UINT P_HP;
+	bool WINNER; // 0:P1 1:P2
+	bool TEAM_ROUND_HP;
 } MT_SP_INFORMATION;
 
 typedef struct _MT_SP_OPTION
@@ -225,7 +234,7 @@ typedef struct _MT_SP_OPTION
 	TCHAR PATH[_MAX_PATH];
 	UINT  CONNECTION_TYPE;
 	TCHAR SERVER_NAME[MAX_NAME];
-	TCHAR CONNECTION_IP[MAX_NAME];
+	TCHAR CONNECTION_IP[MAX_ARRAY];
 	TCHAR WELCOME[MAX_WELCOME];
 	UINT  BOOKMARK_COUNT;
 	UINT  BOOKMARK_DELETED_COUNT;
@@ -260,6 +269,7 @@ typedef struct _MT_SP_OPTION
 	UINT  STAGE_SELECT;
 	UINT  ROUND;
 	UINT  TIMER;
+	bool  TEAM_ROUND_HP;
 	UINT  SIMULATE_DELAY;
 	bool  HIT_JUDGE;
 	bool  DISPLAY_NAME;
@@ -279,6 +289,7 @@ typedef struct _MT_SP_OPTION
 	bool  TALK_FLASH;
 	bool  AFTER_REST;
 	bool  GET_IP_ENABLE;
+	bool  SHOW_GAME_OPTION;
 } MT_SP_OPTION;
 
 typedef struct _MT_SP_WINDOW_STATE
@@ -481,3 +492,5 @@ public:
 		return data;
 	}
 };
+
+#include "OptionForm.h"

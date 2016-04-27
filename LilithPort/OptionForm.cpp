@@ -71,6 +71,7 @@ void OptionForm::SaveOption(bool apply){
 	MTOPTION.KEYWORD_SOUND_ENABLE = checkBoxKeywordSound->Checked;
 
 	MTOPTION.GET_IP_ENABLE        = checkBoxGetIP->Checked;
+	MTOPTION.SHOW_GAME_OPTION     = checkBoxShowGameOption->Checked;
 
 
 	// コメント
@@ -89,6 +90,7 @@ void OptionForm::SaveOption(bool apply){
 	MTOPTION.TIMER          = (UINT)numericUpDownTimer->Value;
 	MTOPTION.SIMULATE_DELAY = (UINT)numericUpDownSimDelay->Value;
 
+	MTOPTION.TEAM_ROUND_HP     = checkBoxTeamRoundHP->Checked;
 	MTOPTION.DISPLAY_NAME      = checkBoxName->Checked;
 	MTOPTION.DISPLAY_VERSUS    = checkBoxVersus->Checked;
 	MTOPTION.DISPLAY_FRAMERATE = checkBoxFramerate->Checked;

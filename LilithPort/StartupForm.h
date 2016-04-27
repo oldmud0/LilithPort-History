@@ -420,7 +420,7 @@ namespace LilithPort {
 	private:
 		System::Void StartupForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			textBoxServerName->MaxLength      = MAX_NAME;
-			textBoxIP->MaxLength              = MAX_NAME;
+			textBoxIP->MaxLength              = MAX_ARRAY;
 			textBoxName->MaxLength            = MAX_NAME;
 			textBoxComment->MaxLength         = MAX_NAME;
 
@@ -462,7 +462,7 @@ namespace LilithPort {
 
 		System::Void buttonOK_Click(System::Object^  sender, System::EventArgs^  e) {
 			IntPtr mp;
-			TCHAR p1[MAX_NAME];
+			TCHAR p1[MAX_ARRAY];
 			TCHAR *p2;
 
 			if(radioButtonServer->Checked){
