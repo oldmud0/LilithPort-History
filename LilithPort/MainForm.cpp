@@ -73,6 +73,7 @@ void MainForm::Begin()
 	// ネットに接続
 	if(UDP != nullptr){
 		if(MTOPTION.CONNECTION_TYPE == CT_SERVER){
+
 			// 鯖受信開始
 			UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), this);
 
@@ -82,7 +83,17 @@ void MainForm::Begin()
 			SonarThread->Start();
 
 			this->Text += String::Format("  [{0}] [Server Port:{1}]", ServerName, MTOPTION.OPEN_PORT);
-			WriteMessage("サーバの準備が完了しました。¥n¥n[オプション -> 設定 -> IPの変換] から、¥nIPアドレスを変換することができます。¥n", SystemMessageColor);
+			WriteMessage("サーバの準備が完了しました。¥n¥n", SystemMessageColor);
+
+			// Welcomeメッセージの表示
+			richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
+			richTextBoxLog->SelectionColor = TalkMessageColor;
+			richTextBoxLog->SelectionBackColor = NoticeBackColor;
+			richTextBoxLog->AppendText(gcnew String(MTOPTION.WELCOME)+"¥n¥n");
+			
+			// IPアドレスを取得して表示
+			GetIPAddress();
+
 		}
 		else{
 			// クライアント
@@ -102,9 +113,11 @@ void MainForm::Begin()
 			}
 
 			try{
-				if(MTOPTION.DNS){
+				// ローカル接続
+				/*
+				if((host[0] == "127.0.0.1")||(host[0] == "localhost")) {
 					try{
-						address = Dns::GetHostEntry(host[0])->AddressList[0]->Address;
+						address = IPAddress::Parse("127.0.0.1")->Address;
 					}
 					catch(Exception^ e){
 						address = 0;
@@ -112,10 +125,31 @@ void MainForm::Begin()
 						if(MTINFO.DEBUG){
 							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
 						}
+						throw gcnew SocketException;
 					}
 				}
-				else{
-					address = DecryptionIP(host[0]);
+				*/
+
+				if(address == 0) {
+					try{
+						// 変換アドレス接続
+						address = DecryptionIP(host[0]);
+					}
+					catch(Exception^ e){
+						try{
+							if(MTINFO.DEBUG){
+								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+							}
+							// DNS接続
+							address = Dns::GetHostEntry(host[0])->AddressList[0]->Address;
+						}
+						catch(Exception^ e){
+							if(MTINFO.DEBUG){
+								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+							}
+							address = 0;
+						}
+					}
 				}
 
 				if(address == 0){
@@ -1612,6 +1646,26 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 		form->WriteMessage(e->ToString() + "¥n", ErrorMessageColor);
 	}
 }
+// IP取得タイムアウト用タイマー
+void MainForm::TimerGetIP()
+{
+	GetIPSleeping = true;
+	try{
+		// 15秒ぐらいでタイムアウト
+		Thread::Sleep(1000*15);
+	}
+	catch(ThreadInterruptedException^){
+	}
+	GetIPSleeping = false;
+
+	try{
+		if(GetIPClient != nullptr){
+			GetIPClient->CancelAsync();
+		}
+	}
+	catch(Exception^ e) {
+	}
+}
 
 void MainForm::RunSonar()
 {
@@ -1795,6 +1849,8 @@ void MainForm::RunGame(Object^ obj)
 
 	// ディレイシミュレート
 	std::deque<UINT16> sim_que;
+	//UINT16 past_eax = 0x0000;
+	//bool puru_flag = false;
 
 	if(run_type == RT_FREE && sim_delay > 0){
 		for(UINT i = 0; i < sim_delay; i++){
@@ -1966,6 +2022,9 @@ void MainForm::RunGame(Object^ obj)
 			WriteMessage(String::Format("ERROR({0}) > ¥"{1}¥"が開けませんでした。¥n", GetLastError(), gcnew String(MTOPTION.GAME_EXE)), ErrorMessageColor);
 			return;
 		}
+
+		// 起動待ち
+		Thread::Sleep(100);
 
 		MTINFO.PROCESS    = pi.hProcess;
 		MTINFO.PROCESS_ID = pi.dwProcessId;
@@ -2189,11 +2248,45 @@ void MainForm::RunGame(Object^ obj)
 						}
 						else if(run_type == RT_FREE && sim_delay > 0){
 							// 2P入力のシミュレートはしない
+							
 							if(e_address != VS_P2_KEY){
+
 								sim_que.push_back((UINT16)c.Eax);
 								c.Eax = sim_que.front();
 								sim_que.pop_front();
+
+								// eax debug
+								/*
+								//if((c.Eax & 0x0003) == 0x0003){
+								//	c.Eax &= 0xFFFD;
+								//}
+								if((sim_que.back() & 0x0002) == 0x0002){
+									if((c.Eax & 0x0001) == 0x0001){
+										if(puru_flag){
+											puru_flag = false;
+										}else{
+											//c.Eax ^= 0x0001;
+											//c.Eax |= 0x0002;
+											moge = false;
+											puru_flag = true;
+											c.Eax = sim_que.back();
+
+											sim_que.push_back((UINT16)c.Eax);
+											c.Eax = sim_que.front();
+											sim_que.pop_front();
+
+										}
+
+										WriteMessage("eax = "+c.Eax+", simback = "+sim_que.back()+", simfront"+sim_que.front()+"¥n", DebugMessageColor);
+									}
+								}
+
+								//past_eax = c.Eax;
+								//WriteMessage("eax = "+c.Eax+", simback = "+sim_que.back()+", simfront = "+sim_que.front()+"¥n", DebugMessageColor);
+								*/
+								//WriteMessage("eax = "+c.Eax+", simback = "+sim_que.back()+", simfront = "+sim_que.front()+"¥n", DebugMessageColor);
 							}
+							
 						}
 
 						if(record_replay || allow_spectator){
@@ -2282,11 +2375,13 @@ void MainForm::RunGame(Object^ obj)
 						}
 						else if(run_type == RT_FREE && sim_delay > 0){
 							// 2P入力のシミュレートはしない
+							
 							if(e_address != STORY_P2_KEY_95 && e_address != VS_P2_KEY_95){
 								sim_que.push_back((UINT16)c.Eax);
 								c.Eax = sim_que.front();
 								sim_que.pop_front();
 							}
+							
 						}
 
 						if(record_replay || allow_spectator){
@@ -2539,8 +2634,11 @@ void MainForm::RunGame(Object^ obj)
 		AllowWatch = false;
 		InputFrame = 0;
 
+
+
 		CloseHandle(pi.hThread);
 		CloseHandle(pi.hProcess);
+		
 
 		if(br != nullptr){
 			br->Close();
@@ -2553,6 +2651,7 @@ void MainForm::RunGame(Object^ obj)
 
 			bw->Close();
 		}
+		
 
 		if(MTINFO.INITIALIZED){
 			if(WaitingWatch > 0){
@@ -2854,6 +2953,7 @@ UINT16 MainForm::LocalInput(UINT16 eax)
 	if((eax & 0x0003) == 0x0003){
 		eax &= 0xFFFD;
 	}
+	
 
 	Monitor::Enter(NetVS->LOCAL);
 	try{

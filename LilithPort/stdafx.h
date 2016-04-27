@@ -12,7 +12,6 @@
 #include <mmsystem.h>
 #include <deque>
 
-
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "winmm.lib")
 
@@ -227,7 +226,6 @@ typedef struct _MT_SP_OPTION
 	TCHAR COMMENT[MAX_NAME];
 	UINT  PORT;
 	UINT  OPEN_PORT;
-	bool  DNS;
 	UINT  AUTO_SAVE;
 	UINT  MAX_CONNECTION;
 	UINT  BGM_VOLUME;

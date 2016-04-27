@@ -86,14 +86,14 @@ void LoadMTOption()
 
 			if (nameP2 != NULL){
 				nameLen = (int)(nameP2 - nameP1);
-				ipLen   = (int)(ipP2 - ipP1);
+				ipLen = (int)(ipP2 - ipP1);
 			}else{
 				nameLen = (int)_tcslen(nameP1);
-				ipLen   = (int)_tcslen(ipP1);
+				ipLen = (int)_tcslen(ipP1);
 			}
 
 			_tcsncpy_s(tmpName, _countof(tmpName), nameP1, nameLen);
-			_tcsncpy_s(tmpIP,   _countof(tmpIP), ipP1, ipLen);
+			_tcsncpy_s(tmpIP, _countof(tmpIP), ipP1, ipLen);
 			tmpName[nameLen] = NULL;
 			tmpIP[ipLen] = NULL;
 
@@ -111,7 +111,6 @@ void LoadMTOption()
 
 	MTOPTION.PORT               = GetPrivateProfileInt(_T("LilithPort"), _T("Port"),          7500, ini);
 	MTOPTION.OPEN_PORT          = GetPrivateProfileInt(_T("LilithPort"), _T("OpenPort"),      7500, ini);
-	MTOPTION.DNS                = GetPrivateProfileInt(_T("LilithPort"), _T("DNS"),              0, ini) == 1 ? true : false;
 	MTOPTION.AUTO_SAVE          = GetPrivateProfileInt(_T("LilithPort"), _T("AutoSave"),         0, ini);
 	MTOPTION.MAX_CONNECTION     = GetPrivateProfileInt(_T("LilithPort"), _T("MaxConnection"),    1, ini);
 	MTOPTION.BGM_VOLUME         = GetPrivateProfileInt(_T("LilithPort"), _T("BGMVolume"),      100, ini);
@@ -222,8 +221,6 @@ void SaveMTOption()
 	WritePrivateProfileString(_T("LilithPort"), _T("Port"), buf, ini);
 	_itot_s(MTOPTION.OPEN_PORT, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("OpenPort"), buf, ini);
-	_itot_s(MTOPTION.DNS, buf, 10);
-	WritePrivateProfileString(_T("LilithPort"), _T("DNS"), buf, ini);
 	_itot_s(MTOPTION.AUTO_SAVE, buf, 10);
 	WritePrivateProfileString(_T("LilithPort"), _T("AutoSave"), buf, ini);
 	_itot_s(MTOPTION.MAX_CONNECTION, buf, 10);
@@ -511,9 +508,11 @@ _int64 DecryptionIP(String^ cipher_ip)
 		binaryData = Convert::FromBase64String(cipher_ip);
 	}
 	catch (ArgumentNullException^) {
+		throw gcnew ArgumentNullException;
 		return 0;
 	}
 	catch (FormatException^) {
+		throw gcnew FormatException;
 		return 0;
 	}
 

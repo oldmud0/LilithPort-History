@@ -76,7 +76,7 @@ namespace LilithPort {
 
 
 
-	private: System::Windows::Forms::CheckBox^  checkBoxDNS;
+
 	private: System::Windows::Forms::GroupBox^  groupBoxStartMode;
 
 	private: System::Windows::Forms::TextBox^  textBoxServerName;
@@ -121,7 +121,6 @@ namespace LilithPort {
 			this->numericUpDownOpenPort = (gcnew System::Windows::Forms::NumericUpDown());
 			this->buttonOK = (gcnew System::Windows::Forms::Button());
 			this->buttonCancel = (gcnew System::Windows::Forms::Button());
-			this->checkBoxDNS = (gcnew System::Windows::Forms::CheckBox());
 			this->textBoxComment = (gcnew System::Windows::Forms::TextBox());
 			this->labelComment = (gcnew System::Windows::Forms::Label());
 			this->textBoxName = (gcnew System::Windows::Forms::TextBox());
@@ -235,16 +234,6 @@ namespace LilithPort {
 			this->buttonCancel->UseVisualStyleBackColor = true;
 			this->buttonCancel->Click += gcnew System::EventHandler(this, &StartupForm::buttonCancel_Click);
 			// 
-			// checkBoxDNS
-			// 
-			this->checkBoxDNS->AutoSize = true;
-			this->checkBoxDNS->Location = System::Drawing::Point(9, 41);
-			this->checkBoxDNS->Name = L"checkBoxDNS";
-			this->checkBoxDNS->Size = System::Drawing::Size(47, 16);
-			this->checkBoxDNS->TabIndex = 3;
-			this->checkBoxDNS->Text = L"DNS";
-			this->checkBoxDNS->UseVisualStyleBackColor = true;
-			// 
 			// textBoxComment
 			// 
 			this->textBoxComment->Location = System::Drawing::Point(80, 43);
@@ -333,7 +322,6 @@ namespace LilithPort {
 			// groupBoxConnection
 			// 
 			this->groupBoxConnection->Controls->Add(this->labelAccessPort);
-			this->groupBoxConnection->Controls->Add(this->checkBoxDNS);
 			this->groupBoxConnection->Controls->Add(this->labelIP);
 			this->groupBoxConnection->Controls->Add(this->textBoxIP);
 			this->groupBoxConnection->Controls->Add(this->numericUpDownPort);
@@ -347,7 +335,7 @@ namespace LilithPort {
 			// labelAccessPort
 			// 
 			this->labelAccessPort->AutoSize = true;
-			this->labelAccessPort->Location = System::Drawing::Point(59, 42);
+			this->labelAccessPort->Location = System::Drawing::Point(7, 42);
 			this->labelAccessPort->Name = L"labelAccessPort";
 			this->labelAccessPort->Size = System::Drawing::Size(71, 12);
 			this->labelAccessPort->TabIndex = 5;
@@ -459,7 +447,6 @@ namespace LilithPort {
 			
 
 			numericUpDownOpenPort->Value = MTOPTION.OPEN_PORT;
-			checkBoxDNS->Checked = MTOPTION.DNS;
 
 			textBoxName->Text = gcnew String(MTOPTION.NAME);
 			numericUpDownPort->Value = MTOPTION.PORT;
@@ -546,8 +533,6 @@ namespace LilithPort {
 			MTOPTION.PORT           = (UINT)numericUpDownPort->Value;
 			MTOPTION.MAX_CONNECTION = (UINT)numericUpDownMaxConnection->Value;
 
-			MTOPTION.DNS = checkBoxDNS->Checked;
-
 			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxComment->Text);
 			_tcscpy_s(MTOPTION.COMMENT, static_cast<PTCHAR>(mp.ToPointer()));
 			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
@@ -568,7 +553,6 @@ namespace LilithPort {
 		System::Void radioButtonServer_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = true;
 			numericUpDownPort->Enabled     = false;
-			checkBoxDNS->Enabled           = false;
 			labelOpenPort->Enabled         = true;
 			labelServerName->Enabled       = true;
 			textBoxServerName->Enabled     = true;
@@ -582,7 +566,6 @@ namespace LilithPort {
 		System::Void radioButtonHost_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = true;
 			numericUpDownPort->Enabled     = true;
-			checkBoxDNS->Enabled           = true;
 			labelOpenPort->Enabled         = true;
 			labelServerName->Enabled       = false;
 			textBoxServerName->Enabled     = false;
@@ -594,7 +577,6 @@ namespace LilithPort {
 		System::Void radioButtonClient_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = false;
 			numericUpDownPort->Enabled     = true;
-			checkBoxDNS->Enabled           = true;
 			labelOpenPort->Enabled         = false;
 			labelServerName->Enabled       = false;
 			textBoxServerName->Enabled     = false;

@@ -38,12 +38,10 @@ namespace LilithPort {
 
 			// ブックマークをメニューに登録
 			String^ tmpName;
-			//String^ tmpIP;
 			
 			if(MTOPTION.BOOKMARK_COUNT > 0) {
 				for(UINT i=0;i < MTOPTION.BOOKMARK_COUNT;i++) {
 					tmpName = gcnew String(MTOPTION.BOOKMARK_SERVER_NAME[i]);
-					//tmpIP   = gcnew String(MTOPTION.BOOKMARK_CONNECTION_IP[i]);
 					
 					toolStripMenuItemBookMark = (gcnew System::Windows::Forms::ToolStripMenuItem());
 					toolStripMenuItemBookMarkMenu->DropDownItems->Add(toolStripMenuItemBookMark);
@@ -146,6 +144,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  VSReplayToolStripMenuItem;
 private: System::Windows::Forms::ToolStripMenuItem^  ToggleHitJudgeToolStripMenuItem;
 private: System::Windows::Forms::ToolStripMenuItem^  LogLockToolStripMenuItem;
 private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuItem;
+private: System::Windows::Forms::ToolStripMenuItem^  GetIPToolStripMenuItem;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator11;
+private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripMenuItem;
+
+
+
+
 
 
 
@@ -186,6 +191,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			this->toolStripSeparator10 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->ClearToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToggleHitJudgeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripSeparator11 = (gcnew System::Windows::Forms::ToolStripSeparator());
+			this->GetIPToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemOption = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemSetting = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
@@ -230,6 +237,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			this->textBoxInput = (gcnew System::Windows::Forms::TextBox());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->toolTipMember = (gcnew System::Windows::Forms::ToolTip(this->components));
+			this->GameStartNoReplayToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			this->splitContainer1->Panel1->SuspendLayout();
 			this->splitContainer1->Panel2->SuspendLayout();
@@ -305,9 +313,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			// 
 			// CommandToolStripMenuItem
 			// 
-			this->CommandToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {this->GameStartToolStripMenuItem, 
-				this->toolStripSeparator9, this->RestartToolStripMenuItem, this->LeaveToolStripMenuItem, this->RestToolStripMenuItem, this->toolStripSeparator10, 
-				this->ClearToolStripMenuItem, this->ToggleHitJudgeToolStripMenuItem});
+			this->CommandToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {this->GameStartToolStripMenuItem, 
+				this->GameStartNoReplayToolStripMenuItem, this->toolStripSeparator9, this->RestartToolStripMenuItem, this->LeaveToolStripMenuItem, 
+				this->RestToolStripMenuItem, this->toolStripSeparator10, this->ClearToolStripMenuItem, this->ToggleHitJudgeToolStripMenuItem, 
+				this->toolStripSeparator11, this->GetIPToolStripMenuItem});
 			this->CommandToolStripMenuItem->Name = L"CommandToolStripMenuItem";
 			this->CommandToolStripMenuItem->Size = System::Drawing::Size(86, 22);
 			this->CommandToolStripMenuItem->Text = L"コマンド(&C)";
@@ -316,45 +325,45 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			// 
 			this->GameStartToolStripMenuItem->BackColor = System::Drawing::SystemColors::Control;
 			this->GameStartToolStripMenuItem->Name = L"GameStartToolStripMenuItem";
-			this->GameStartToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->GameStartToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->GameStartToolStripMenuItem->Text = L"ゲームの起動(&G)";
 			this->GameStartToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator9
 			// 
 			this->toolStripSeparator9->Name = L"toolStripSeparator9";
-			this->toolStripSeparator9->Size = System::Drawing::Size(234, 6);
+			this->toolStripSeparator9->Size = System::Drawing::Size(307, 6);
 			// 
 			// RestartToolStripMenuItem
 			// 
 			this->RestartToolStripMenuItem->Name = L"RestartToolStripMenuItem";
-			this->RestartToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->RestartToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->RestartToolStripMenuItem->Text = L"再起動(&R)";
 			this->RestartToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::RestartToolStripMenuItem_Click);
 			// 
 			// LeaveToolStripMenuItem
 			// 
 			this->LeaveToolStripMenuItem->Name = L"LeaveToolStripMenuItem";
-			this->LeaveToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->LeaveToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->LeaveToolStripMenuItem->Text = L"退室(&L)";
 			this->LeaveToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::LeaveToolStripMenuItem_Click);
 			// 
 			// RestToolStripMenuItem
 			// 
 			this->RestToolStripMenuItem->Name = L"RestToolStripMenuItem";
-			this->RestToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->RestToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->RestToolStripMenuItem->Text = L"休憩状態の切り替え(&M)";
 			this->RestToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::RestToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator10
 			// 
 			this->toolStripSeparator10->Name = L"toolStripSeparator10";
-			this->toolStripSeparator10->Size = System::Drawing::Size(234, 6);
+			this->toolStripSeparator10->Size = System::Drawing::Size(307, 6);
 			// 
 			// ClearToolStripMenuItem
 			// 
 			this->ClearToolStripMenuItem->Name = L"ClearToolStripMenuItem";
-			this->ClearToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->ClearToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->ClearToolStripMenuItem->Text = L"ログの全削除(&C)";
 			this->ClearToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ClearToolStripMenuItem_Click);
 			// 
@@ -362,9 +371,21 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			// 
 			this->ToggleHitJudgeToolStripMenuItem->Name = L"ToggleHitJudgeToolStripMenuItem";
 			this->ToggleHitJudgeToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F1;
-			this->ToggleHitJudgeToolStripMenuItem->Size = System::Drawing::Size(237, 22);
+			this->ToggleHitJudgeToolStripMenuItem->Size = System::Drawing::Size(310, 22);
 			this->ToggleHitJudgeToolStripMenuItem->Text = L"当たり判定の表示切替(&H)";
 			this->ToggleHitJudgeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ToggleHitJudgeToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator11
+			// 
+			this->toolStripSeparator11->Name = L"toolStripSeparator11";
+			this->toolStripSeparator11->Size = System::Drawing::Size(307, 6);
+			// 
+			// GetIPToolStripMenuItem
+			// 
+			this->GetIPToolStripMenuItem->Name = L"GetIPToolStripMenuItem";
+			this->GetIPToolStripMenuItem->Size = System::Drawing::Size(310, 22);
+			this->GetIPToolStripMenuItem->Text = L"IPアドレスの取得(&I)";
+			this->GetIPToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GetIPToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItemOption
 			// 
@@ -711,6 +732,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			this->openFileDialog1->Filter = L"MT Replay file (*.mtr)|*.mtr";
 			this->openFileDialog1->Title = L"LilithPort用のリプレイファイル";
 			// 
+			// GameStartNoReplayToolStripMenuItem
+			// 
+			this->GameStartNoReplayToolStripMenuItem->Name = L"GameStartNoReplayToolStripMenuItem";
+			this->GameStartNoReplayToolStripMenuItem->Size = System::Drawing::Size(310, 22);
+			this->GameStartNoReplayToolStripMenuItem->Text = L"ゲームの起動（リプレイを保存しない）(&T)";
+			this->GameStartNoReplayToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::GameStartNoReplayToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this->AllowDrop = true;
@@ -782,6 +810,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 		static String^ ConnectIP;
 		static bool AfterCloseUDP; // 対戦中の鯖落ちに巻き込まれないように
 
+		// IP取得用
+		static WebClient^ GetIPClient;
+		static Uri^ GetIPUri = gcnew Uri("http://checkip.dyndns.org/");
+		static Thread^ TimerGetIPThread;
+		static bool    GetIPCancelled;
+		static bool    GetIPSleeping;
+
 		// 回線の生死判定
 		static Thread^ SonarThread;
 		static bool    Ranging;
@@ -834,6 +869,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 
 		// MainForm.cppに記述
 		void Begin();
+		void TimerGetIP();
 		void RunSonar();
 		void RunGame(Object^ obj);
 		void RunVersus();
@@ -1065,6 +1101,17 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			MemberList->Clear();
 			listBoxMember->Items->Clear();
 
+			// IP取得のキャンセル
+			if(GetIPClient != nullptr){
+				GetIPClient->CancelAsync();
+			}
+			if(TimerGetIPThread != nullptr && TimerGetIPThread->IsAlive){
+				if(GetIPSleeping){
+					TimerGetIPThread->Interrupt();
+				}
+				TimerGetIPThread->Join();
+			}
+			
 			this->Text = gcnew String("LilithPort");
 
 			StartupForm^ s = gcnew StartupForm;
@@ -1306,7 +1353,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 				}
 			}
 
-			msg = msg->Replace("_", "¥n");
+			// ¥nで改行
+			msg = msg->Replace("¥¥n", "¥n");
 
 			Monitor::Enter(ChatHistory);
 			try{
@@ -1676,7 +1724,66 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			}
 		}
 
+
 	public:
+		// IP取得完了
+		void GetIPOpenReadCompleted(System::Object^ sender, System::Net::OpenReadCompletedEventArgs^ e) {
+
+			// 終了用
+			if(GetIPClient == nullptr) return;
+			if(GetIPCancelled == true) {
+				GetIPCancelled = false;
+				GetIPClient = nullptr;
+				return;
+			}
+			// TimerGetIPタイムアウト
+			if(e->Cancelled) {
+				WriteMessage("IPアドレス取得の要求がタイムアウトによりキャンセルされました。¥n", ErrorMessageColor);
+				if(MTINFO.DEBUG){
+					WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+				}
+				GetIPClient = nullptr;
+				return;
+			}
+			// アドレスの抽出
+			String^ html;
+			_int64 grobal_address;
+			array<String^> ^s1, ^s2, ^s3;
+			Stream^ reply = nullptr;
+			StreamReader^ sr = nullptr;
+			try{
+				reply = dynamic_cast<Stream^>(e->Result);
+				sr = gcnew StreamReader(reply);
+				html = sr->ReadToEnd();
+				s1 = html->Split(':');
+				s2 = s1[1]->Split('<');
+				s3 = s2[0]->Split(' ');
+				grobal_address = Int64(Net::IPAddress::Parse(s3[1])->Address);
+			}
+			catch(Exception^ e) {
+				grobal_address = 0;
+				WriteMessage("IPアドレス情報の抽出に失敗しました。¥nLilithPortのバージョンが古い可能性があります。¥n", ErrorMessageColor);
+
+				if(MTINFO.DEBUG){
+					WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+				}
+			}
+			finally{
+				// Streamはしっかり開放
+				if(sr != nullptr) sr->Close();
+				if(reply != nullptr) reply->Close();
+			}
+			if(grobal_address > 0) {
+				WriteMessage(String::Format("IPアドレスを取得しました。 > {0}¥n", s3[1]), SystemMessageColor);
+				WriteMessage("変換アドレス:ポート > ", SystemMessageColor);
+
+				richTextBoxLog->SelectionColor = TalkMessageColor;
+				richTextBoxLog->SelectionBackColor = NoticeBackColor;
+				richTextBoxLog->AppendText(String::Format("{0}:{1}¥n¥n", EncryptionIP(s3[1]), MTOPTION.OPEN_PORT));
+			}
+			GetIPClient = nullptr;
+		}
+
 		void ChangeComment(String^ comment){
 			if(UDP == nullptr || (MTOPTION.CONNECTION_TYPE != CT_FREE && ServerMode >= SM_MATCH)){
 				return;
@@ -1732,6 +1839,28 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			SecretColor        = Color::FromArgb(MTCOLOR.SECRET);
 		}
 
+		void GetIPAddress(){
+			if(GetIPClient == nullptr){
+				// グローバルIPの取得
+				GetIPClient = gcnew WebClient();
+				GetIPClient->OpenReadCompleted += gcnew OpenReadCompletedEventHandler(this, &MainForm::GetIPOpenReadCompleted);
+
+				// タイムアウトタイマー
+				WriteMessage("IPアドレスを取得中です...¥n", SystemMessageColor);
+				TimerGetIPThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::TimerGetIP));
+				TimerGetIPThread->Start();
+				try{
+					GetIPClient->OpenReadAsync(GetIPUri);
+				}
+				catch(WebException^ e) {
+					WriteMessage("IPアドレスの取得に失敗しました。¥n", ErrorMessageColor);
+
+					if(MTINFO.DEBUG){
+						WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+					}
+				}
+			}
+		}
 	private:
 		System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			// 行間を詰める
@@ -1817,6 +1946,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 
 			QuitWatch(true);
 			CloseUdp(true);
+
+			// IP取得のキャンセル
+			if(GetIPClient != nullptr){
+				GetIPCancelled = true;
+				GetIPClient->CancelAsync();
+			}
+			if(TimerGetIPThread != nullptr && TimerGetIPThread->IsAlive){
+				if(GetIPSleeping){
+					TimerGetIPThread->Interrupt();
+				}
+				TimerGetIPThread->Join();
+			}
 
 			if(MTINFO.DEBUG){
 				String^ path = gcnew String(MTOPTION.PATH);
@@ -2065,7 +2206,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("Lilith Port v1.01¥n", SystemMessageColor);
+			WriteMessage("Lilith Port v1.02¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2151,20 +2292,24 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 		// ゲームの起動
 		System::Void GameStartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 			StartGame(RT_FREE);
-
-/* ハイライト用
-			FLASHWINFO stfi;
-			ZeroMemory(&stfi, sizeof(FLASHWINFO));
-			stfi.cbSize = sizeof(FLASHWINFO);
-			stfi.hwnd = reinterpret_cast<HWND&>(this->Handle);
-			stfi.dwFlags = FLASHW_ALL;
-			stfi.uCount = 3;
-			stfi.dwTimeout = 0;
-			FlashWindowEx(&stfi);
-*/
-
 		}
-
+		// ゲームの起動(リプレイを保存しない)
+		System::Void GameStartNoReplayToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			bool primary = 0;
+			// リプレイ保存ONなら一時的無効化
+			if(toolStripMenuItemRecordReplay->Checked == 1) {
+				primary = 1;
+				MTOPTION.RECORD_REPLAY = 0;
+			}
+			
+			StartGame(RT_FREE);
+			
+			if(primary == 1) {
+				// 起動前に戻してしまうの防止
+				Thread::Sleep(100);
+				MTOPTION.RECORD_REPLAY = toolStripMenuItemRecordReplay->Checked;
+			}
+		}
 		// 再起動
 		System::Void RestartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 			if(MTOPTION.CONNECTION_TYPE == CT_SERVER) {
@@ -2243,7 +2388,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 
 		System::Void toolStripMenuItemSaveLog_Click(System::Object^  sender, System::EventArgs^  e) {
 			String^ path = gcnew String(MTOPTION.PATH);
-			String^ file = String::Format("MT_{0}.log", DateTime::Now.ToString("yyMMdd-HHmmss"));
+			String^ file = String::Format("LilithPort_{0}.log", DateTime::Now.ToString("yyMMdd-HHmmss"));
 			path += file;
 
 			Monitor::Enter(ChatHistory);
@@ -2294,6 +2439,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  KeywordFlashToolStripMenuIt
 			}
 		}
 
+		// IPアドレスの取得コマンド
+		System::Void GetIPToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+			GetIPAddress();
+		}
 		// ログのスクロールを固定
 		System::Void LogLockToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 			LogLockToolStripMenuItem->Checked ^= 1;
