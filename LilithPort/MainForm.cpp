@@ -111,7 +111,6 @@ void MainForm::Begin()
 			// クライアント
 			_int64 address;
 			int port = MTOPTION.PORT;
-
 			array<String^>^ host = ConnectIP->Split(gcnew array<wchar_t>{':'}, 2, StringSplitOptions::RemoveEmptyEntries);
 
 			// ポート":"指定
@@ -126,54 +125,87 @@ void MainForm::Begin()
 
 			try{
 				// ローカル接続
-				if(host[0] == "localhost"){
-					host[0] = IPAddress::Loopback->ToString();
-				}
-				if((host[0] == IPAddress::Loopback->ToString())||(host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
-					try{
-						address = IPAddress::Parse(host[0])->Address;
+				/*
+				if(MTINFO.DEBUG){
+					if(host[0] == "localhost"){
+						host[0] = IPAddress::Loopback->ToString();
 					}
-					catch(Exception^ e){
-						address = 0;
-
-						if(MTINFO.DEBUG){
-							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
-						}
-						throw gcnew SocketException;
-					}
-				}
-				
-
-				if(address == 0) {
-					try{
-						// 変換アドレス接続
-						address = DecryptionIP(host[0]);
-					}
-					catch(Exception^ e){
+					if((host[0] == IPAddress::Loopback->ToString())||(host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
 						try{
-							if(MTINFO.DEBUG){
-								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
-							}
-							// DNS接続
-							address = Dns::GetHostEntry(host[0])->AddressList[0]->Address;
+							address = IPAddress::Parse(host[0])->Address;
 						}
 						catch(Exception^ e){
+							address = 0;
+	
 							if(MTINFO.DEBUG){
+								WriteMessage("ローカル接続失敗¥n", ErrorMessageColor);
 								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
 							}
-							address = 0;
+							throw gcnew SocketException;
+						}
+					}
+				}
+				*/
+
+				// 変換アドレス接続(ASCII)
+				if(address == 0){
+					try{
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレスを変換します(ASCII)¥n", DebugMessageColor);
+						}
+						address = DecryptionIP(host[0], true);
+					}
+					catch(Exception^ e){
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレス変換(ASCII)失敗¥n", ErrorMessageColor);
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+						}
+					}
+				}
+
+				// DNS接続
+				if(address == 0){
+					try{
+						if(MTINFO.DEBUG){
+							WriteMessage("DNSを取得します¥n", DebugMessageColor);
+						}
+						address = Dns::GetHostEntry(host[0])->AddressList[0]->Address;
+					}
+					catch(Exception^ e){
+						if(MTINFO.DEBUG){
+							WriteMessage("DNS取得失敗¥n", ErrorMessageColor);
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+						}
+						address = 0;
+					}
+				}
+
+				// 変換アドレス接続(Unicode)
+				if(address == 0){
+					try{
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレスを変換します(Unicode)¥n", DebugMessageColor);
+						}
+						address = DecryptionIP(host[0], false);
+					}
+					catch(Exception^ e){
+						if(MTINFO.DEBUG){
+							WriteMessage("アドレス変換(Unicode)失敗¥n", ErrorMessageColor);
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
 						}
 					}
 				}
 
 				if(address == 0){
 					WriteMessage("接続先が見つかりませんでした。¥n", ErrorMessageColor);
-
 					throw gcnew SocketException;
 				}
 
 				IPEndPoint^ ep = gcnew IPEndPoint(address, port);
-
+				if(MTINFO.DEBUG){
+					WriteMessage(String::Format("Connect > {0}¥n", ep), DebugMessageColor);
+				}
+				
 				PacketPacker^ pp = gcnew PacketPacker;
 				array<BYTE>^ name = Encoding::Unicode->GetBytes(me->NAME);
 				array<BYTE>^ cmnt = Encoding::Unicode->GetBytes(me->COMMENT);
@@ -310,7 +342,7 @@ void MainForm::Begin()
 						WriteMessage(String::Format("{0}はこれ以上IDを発行できません。¥n", ServerName), ErrorMessageColor);
 					}
 					else if(address != 0){
-						WriteMessage("サーバに接続できませんでした。¥n", ErrorMessageColor);
+						WriteMessage("サーバに接続できませんでした。¥n回線が混雑している可能性があります。¥n", ErrorMessageColor);
 					}
 				}
 				else{
@@ -318,12 +350,11 @@ void MainForm::Begin()
 						WriteMessage("サーバのポートが開いていません。¥n", ErrorMessageColor);
 					}
 					else if(e->ErrorCode == WSAETIMEDOUT){
-						WriteMessage("サーバからの応答がありませんでした。¥n", ErrorMessageColor);
+						WriteMessage("サーバからの応答がありませんでした。¥nサーバが稼働していないか、アドレスが間違っている可能性があります。¥n", ErrorMessageColor);
 					}
 					else if(e->ErrorCode != WSAHOST_NOT_FOUND){
 						WriteMessage(String::Format("ソケットエラー > {0}¥n", e->ErrorCode), ErrorMessageColor);
 					}
-
 					if(MTINFO.DEBUG){
 						WriteMessage(e->ToString() + "¥n", DebugMessageColor);
 					}
@@ -1789,7 +1820,6 @@ void MainForm::TimerGetIP()
 	}
 }
 
-
 // HP持ち越しタイマー
 void MainForm::SetTeamHP(){
 	if(MTINFO.DEBUG){
@@ -2809,29 +2839,10 @@ void MainForm::RunGame(Object^ obj)
 		AllowWatch = false;
 		InputFrame = 0;
 
-
-		// デバッグ:プロセスのActiveチェック
-		
-		if(MTINFO.DEBUG){
-			DWORD dwExCode;
-			GetExitCodeProcess(pi.hProcess, &dwExCode);
-			if(dwExCode == STILL_ACTIVE){
-				WriteMessage(String::Format("{0}is active¥n", MTINFO.PROCESS_ID), DebugMessageColor);
-			}
-			else {
-				WriteMessage(String::Format("{0}is exited¥n", MTINFO.PROCESS_ID), DebugMessageColor);
-			}
-			//WriteMessage(String::Format("ExitProcess = {0}¥n", MTINFO.PROCESS_ID), DebugMessageColor);
-		}
-
-		//CloseHandle(thread);
-		//CloseHandle(de.u.CreateProcessInfo.hThread);
-		//CloseHandle(MTINFO.PROCESS);
 		CloseHandle(pi.hThread);
 		CloseHandle(pi.hProcess);
 		
-		
-		
+
 		if(br != nullptr){
 			br->Close();
 		}

@@ -47,58 +47,26 @@ namespace LilithPort {
 	private: System::Windows::Forms::RadioButton^  radioButtonHost;
 	private: System::Windows::Forms::RadioButton^  radioButtonClient;
 	private: System::Windows::Forms::Label^  labelServerName;
-
 	private: System::Windows::Forms::TextBox^  textBoxIP;
 	private: System::Windows::Forms::Label^  labelOpenPort;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDownOpenPort;
-
 	private: System::Windows::Forms::Button^  buttonOK;
 	private: System::Windows::Forms::Button^  buttonCancel;
-
-
-
-
-
-
 	private: System::Windows::Forms::Label^  labelName;
 	private: System::Windows::Forms::TextBox^  textBoxName;
-
 	private: System::Windows::Forms::NumericUpDown^  numericUpDownPort;
 	private: System::Windows::Forms::Label^  labelMaxConnection;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDownMaxConnection;
-
-
 	private: System::Windows::Forms::Label^  labelComment;
 	private: System::Windows::Forms::TextBox^  textBoxComment;
-
-
-
-
-
-
-
 	private: System::Windows::Forms::GroupBox^  groupBoxStartMode;
-
 	private: System::Windows::Forms::TextBox^  textBoxServerName;
 	private: System::Windows::Forms::GroupBox^  groupBoxConnection;
-
-
-
-
-
 	private: System::Windows::Forms::Label^  labelIP;
 	private: System::Windows::Forms::Label^  labelAccessPort;
 	private: System::Windows::Forms::GroupBox^  groupBoxProfile;
 	private: System::Windows::Forms::GroupBox^  groupBoxWelcome;
 	private: System::Windows::Forms::RichTextBox^  textBoxWelcome;
-
-
-
-
-
-
-
-
 	private:
 		/// <summary>
 		/// 必要なデザイナ変数です。
@@ -112,6 +80,7 @@ namespace LilithPort {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(StartupForm::typeid));
 			this->radioButtonServer = (gcnew System::Windows::Forms::RadioButton());
 			this->radioButtonHost = (gcnew System::Windows::Forms::RadioButton());
 			this->radioButtonClient = (gcnew System::Windows::Forms::RadioButton());
@@ -389,12 +358,14 @@ namespace LilithPort {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->CancelButton = this->buttonCancel;
 			this->ClientSize = System::Drawing::Size(407, 241);
+			this->ControlBox = false;
 			this->Controls->Add(this->groupBoxWelcome);
 			this->Controls->Add(this->groupBoxProfile);
 			this->Controls->Add(this->groupBoxConnection);
 			this->Controls->Add(this->groupBoxStartMode);
 			this->Controls->Add(this->buttonOK);
 			this->Controls->Add(this->buttonCancel);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"StartupForm";

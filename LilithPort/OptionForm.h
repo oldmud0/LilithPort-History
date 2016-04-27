@@ -193,15 +193,15 @@ private: System::Windows::Forms::GroupBox^  groupBoxTeamOption;
 private: System::Windows::Forms::CheckBox^  checkBoxTeamRoundHP;
 private: System::Windows::Forms::Label^  labelTeamRoundHP;
 private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
+private: System::Windows::Forms::GroupBox^  groupBoxProfile;
+private: System::Windows::Forms::ComboBox^  comboBoxProfile;
+private: System::Windows::Forms::Button^  buttonCopyProfile;
+private: System::Windows::Forms::Button^  buttonDeleteProfile;
+private: System::Windows::Forms::TextBox^  textBoxProfileName;
 
-
-
-
-
-
-
-
-
+private: System::Windows::Forms::Button^  buttonAddProfile;
+private: System::Windows::Forms::Label^  labelProfileName;
+private: System::Windows::Forms::Button^  buttonSaveProfile;
 
 
 	private:
@@ -263,6 +263,14 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->textBoxVSSound = (gcnew System::Windows::Forms::TextBox());
 			this->buttonVSSound = (gcnew System::Windows::Forms::Button());
 			this->tabPagePath = (gcnew System::Windows::Forms::TabPage());
+			this->groupBoxProfile = (gcnew System::Windows::Forms::GroupBox());
+			this->buttonSaveProfile = (gcnew System::Windows::Forms::Button());
+			this->buttonAddProfile = (gcnew System::Windows::Forms::Button());
+			this->labelProfileName = (gcnew System::Windows::Forms::Label());
+			this->buttonDeleteProfile = (gcnew System::Windows::Forms::Button());
+			this->textBoxProfileName = (gcnew System::Windows::Forms::TextBox());
+			this->buttonCopyProfile = (gcnew System::Windows::Forms::Button());
+			this->comboBoxProfile = (gcnew System::Windows::Forms::ComboBox());
 			this->groupBoxReplayFolder = (gcnew System::Windows::Forms::GroupBox());
 			this->textBoxReplayFolder = (gcnew System::Windows::Forms::TextBox());
 			this->buttonReplayFolder = (gcnew System::Windows::Forms::Button());
@@ -354,6 +362,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->groupBoxNoticeSound->SuspendLayout();
 			this->groupBoxVSSound->SuspendLayout();
 			this->tabPagePath->SuspendLayout();
+			this->groupBoxProfile->SuspendLayout();
 			this->groupBoxReplayFolder->SuspendLayout();
 			this->groupBoxNet->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->BeginInit();
@@ -853,6 +862,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			// tabPagePath
 			// 
+			this->tabPagePath->AutoScroll = true;
+			this->tabPagePath->AutoScrollMinSize = System::Drawing::Size(0, 330);
+			this->tabPagePath->Controls->Add(this->groupBoxProfile);
 			this->tabPagePath->Controls->Add(this->groupBoxReplayFolder);
 			this->tabPagePath->Controls->Add(this->groupBoxNet);
 			this->tabPagePath->Controls->Add(this->groupBoxGameExe);
@@ -864,14 +876,100 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->tabPagePath->Text = L"基本";
 			this->tabPagePath->UseVisualStyleBackColor = true;
 			// 
+			// groupBoxProfile
+			// 
+			this->groupBoxProfile->Controls->Add(this->buttonSaveProfile);
+			this->groupBoxProfile->Controls->Add(this->buttonAddProfile);
+			this->groupBoxProfile->Controls->Add(this->labelProfileName);
+			this->groupBoxProfile->Controls->Add(this->buttonDeleteProfile);
+			this->groupBoxProfile->Controls->Add(this->textBoxProfileName);
+			this->groupBoxProfile->Controls->Add(this->buttonCopyProfile);
+			this->groupBoxProfile->Controls->Add(this->comboBoxProfile);
+			this->groupBoxProfile->Location = System::Drawing::Point(8, 8);
+			this->groupBoxProfile->Name = L"groupBoxProfile";
+			this->groupBoxProfile->Size = System::Drawing::Size(330, 85);
+			this->groupBoxProfile->TabIndex = 4;
+			this->groupBoxProfile->TabStop = false;
+			this->groupBoxProfile->Text = L"プロファイル";
+			// 
+			// buttonSaveProfile
+			// 
+			this->buttonSaveProfile->Location = System::Drawing::Point(275, 50);
+			this->buttonSaveProfile->Name = L"buttonSaveProfile";
+			this->buttonSaveProfile->Size = System::Drawing::Size(45, 22);
+			this->buttonSaveProfile->TabIndex = 7;
+			this->buttonSaveProfile->Text = L"保存";
+			this->buttonSaveProfile->UseVisualStyleBackColor = true;
+			this->buttonSaveProfile->Click += gcnew System::EventHandler(this, &OptionForm::buttonSaveProfile_Click);
+			// 
+			// buttonAddProfile
+			// 
+			this->buttonAddProfile->Location = System::Drawing::Point(223, 50);
+			this->buttonAddProfile->Name = L"buttonAddProfile";
+			this->buttonAddProfile->Size = System::Drawing::Size(45, 22);
+			this->buttonAddProfile->TabIndex = 6;
+			this->buttonAddProfile->Text = L"追加";
+			this->buttonAddProfile->UseVisualStyleBackColor = true;
+			this->buttonAddProfile->Click += gcnew System::EventHandler(this, &OptionForm::buttonAddProfile_Click);
+			// 
+			// labelProfileName
+			// 
+			this->labelProfileName->AutoSize = true;
+			this->labelProfileName->Location = System::Drawing::Point(10, 55);
+			this->labelProfileName->Name = L"labelProfileName";
+			this->labelProfileName->Size = System::Drawing::Size(69, 12);
+			this->labelProfileName->TabIndex = 5;
+			this->labelProfileName->Text = L"プロファイル名";
+			// 
+			// buttonDeleteProfile
+			// 
+			this->buttonDeleteProfile->Location = System::Drawing::Point(275, 18);
+			this->buttonDeleteProfile->Name = L"buttonDeleteProfile";
+			this->buttonDeleteProfile->Size = System::Drawing::Size(45, 22);
+			this->buttonDeleteProfile->TabIndex = 4;
+			this->buttonDeleteProfile->Text = L"削除";
+			this->buttonDeleteProfile->UseVisualStyleBackColor = true;
+			this->buttonDeleteProfile->Click += gcnew System::EventHandler(this, &OptionForm::buttonDeleteProfile_Click);
+			// 
+			// textBoxProfileName
+			// 
+			this->textBoxProfileName->Location = System::Drawing::Point(85, 52);
+			this->textBoxProfileName->MaxLength = 63;
+			this->textBoxProfileName->Name = L"textBoxProfileName";
+			this->textBoxProfileName->Size = System::Drawing::Size(127, 19);
+			this->textBoxProfileName->TabIndex = 3;
+			this->textBoxProfileName->TextChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			// 
+			// buttonCopyProfile
+			// 
+			this->buttonCopyProfile->Location = System::Drawing::Point(223, 18);
+			this->buttonCopyProfile->Name = L"buttonCopyProfile";
+			this->buttonCopyProfile->Size = System::Drawing::Size(45, 22);
+			this->buttonCopyProfile->TabIndex = 2;
+			this->buttonCopyProfile->Text = L"複製";
+			this->buttonCopyProfile->UseVisualStyleBackColor = true;
+			this->buttonCopyProfile->Click += gcnew System::EventHandler(this, &OptionForm::buttonCopyProfile_Click);
+			// 
+			// comboBoxProfile
+			// 
+			this->comboBoxProfile->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->comboBoxProfile->FormattingEnabled = true;
+			this->comboBoxProfile->ItemHeight = 12;
+			this->comboBoxProfile->Location = System::Drawing::Point(12, 19);
+			this->comboBoxProfile->MaxDropDownItems = 64;
+			this->comboBoxProfile->Name = L"comboBoxProfile";
+			this->comboBoxProfile->Size = System::Drawing::Size(200, 20);
+			this->comboBoxProfile->TabIndex = 0;
+			this->comboBoxProfile->SelectedIndexChanged += gcnew System::EventHandler(this, &OptionForm::comboBoxProfile_SelectedIndexChanged);
+			// 
 			// groupBoxReplayFolder
 			// 
 			this->groupBoxReplayFolder->Controls->Add(this->textBoxReplayFolder);
 			this->groupBoxReplayFolder->Controls->Add(this->buttonReplayFolder);
 			this->groupBoxReplayFolder->Controls->Add(this->checkBoxDivide);
-			this->groupBoxReplayFolder->Location = System::Drawing::Point(8, 68);
+			this->groupBoxReplayFolder->Location = System::Drawing::Point(8, 157);
 			this->groupBoxReplayFolder->Name = L"groupBoxReplayFolder";
-			this->groupBoxReplayFolder->Size = System::Drawing::Size(352, 80);
+			this->groupBoxReplayFolder->Size = System::Drawing::Size(330, 80);
 			this->groupBoxReplayFolder->TabIndex = 2;
 			this->groupBoxReplayFolder->TabStop = false;
 			this->groupBoxReplayFolder->Text = L"リプレイ保存フォルダ";
@@ -879,9 +977,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// textBoxReplayFolder
 			// 
 			this->textBoxReplayFolder->AllowDrop = true;
-			this->textBoxReplayFolder->Location = System::Drawing::Point(16, 20);
+			this->textBoxReplayFolder->Location = System::Drawing::Point(12, 20);
 			this->textBoxReplayFolder->Name = L"textBoxReplayFolder";
-			this->textBoxReplayFolder->Size = System::Drawing::Size(304, 19);
+			this->textBoxReplayFolder->Size = System::Drawing::Size(278, 19);
 			this->textBoxReplayFolder->TabIndex = 1;
 			this->textBoxReplayFolder->TextChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			this->textBoxReplayFolder->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &OptionForm::textBoxReplayFolder_DragDrop);
@@ -889,7 +987,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			// buttonReplayFolder
 			// 
-			this->buttonReplayFolder->Location = System::Drawing::Point(320, 20);
+			this->buttonReplayFolder->Location = System::Drawing::Point(296, 20);
 			this->buttonReplayFolder->Name = L"buttonReplayFolder";
 			this->buttonReplayFolder->Size = System::Drawing::Size(24, 20);
 			this->buttonReplayFolder->TabIndex = 2;
@@ -900,7 +998,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// checkBoxDivide
 			// 
 			this->checkBoxDivide->AutoSize = true;
-			this->checkBoxDivide->Location = System::Drawing::Point(16, 52);
+			this->checkBoxDivide->Location = System::Drawing::Point(12, 51);
 			this->checkBoxDivide->Name = L"checkBoxDivide";
 			this->checkBoxDivide->Size = System::Drawing::Size(168, 16);
 			this->checkBoxDivide->TabIndex = 3;
@@ -914,9 +1012,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->groupBoxNet->Controls->Add(this->numericUpDownMaxConnection);
 			this->groupBoxNet->Controls->Add(this->textBoxComment);
 			this->groupBoxNet->Controls->Add(this->label5);
-			this->groupBoxNet->Location = System::Drawing::Point(8, 156);
+			this->groupBoxNet->Location = System::Drawing::Point(8, 243);
 			this->groupBoxNet->Name = L"groupBoxNet";
-			this->groupBoxNet->Size = System::Drawing::Size(352, 80);
+			this->groupBoxNet->Size = System::Drawing::Size(330, 80);
 			this->groupBoxNet->TabIndex = 3;
 			this->groupBoxNet->TabStop = false;
 			this->groupBoxNet->Text = L"回線設定";
@@ -924,7 +1022,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// labelComment
 			// 
 			this->labelComment->AutoSize = true;
-			this->labelComment->Location = System::Drawing::Point(16, 52);
+			this->labelComment->Location = System::Drawing::Point(10, 51);
 			this->labelComment->Name = L"labelComment";
 			this->labelComment->Size = System::Drawing::Size(38, 12);
 			this->labelComment->TabIndex = 0;
@@ -932,7 +1030,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			// numericUpDownMaxConnection
 			// 
-			this->numericUpDownMaxConnection->Location = System::Drawing::Point(88, 20);
+			this->numericUpDownMaxConnection->Location = System::Drawing::Point(81, 20);
 			this->numericUpDownMaxConnection->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 			this->numericUpDownMaxConnection->Name = L"numericUpDownMaxConnection";
 			this->numericUpDownMaxConnection->Size = System::Drawing::Size(40, 19);
@@ -942,16 +1040,16 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			// textBoxComment
 			// 
-			this->textBoxComment->Location = System::Drawing::Point(88, 48);
+			this->textBoxComment->Location = System::Drawing::Point(81, 48);
 			this->textBoxComment->Name = L"textBoxComment";
-			this->textBoxComment->Size = System::Drawing::Size(248, 19);
+			this->textBoxComment->Size = System::Drawing::Size(206, 19);
 			this->textBoxComment->TabIndex = 2;
 			this->textBoxComment->TextChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			// 
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(16, 24);
+			this->label5->Location = System::Drawing::Point(10, 22);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(65, 12);
 			this->label5->TabIndex = 0;
@@ -961,9 +1059,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			this->groupBoxGameExe->Controls->Add(this->textBoxGameExe);
 			this->groupBoxGameExe->Controls->Add(this->buttonGameExe);
-			this->groupBoxGameExe->Location = System::Drawing::Point(8, 8);
+			this->groupBoxGameExe->Location = System::Drawing::Point(8, 99);
 			this->groupBoxGameExe->Name = L"groupBoxGameExe";
-			this->groupBoxGameExe->Size = System::Drawing::Size(352, 52);
+			this->groupBoxGameExe->Size = System::Drawing::Size(330, 52);
 			this->groupBoxGameExe->TabIndex = 1;
 			this->groupBoxGameExe->TabStop = false;
 			this->groupBoxGameExe->Text = L"実行ファイルのパス";
@@ -971,9 +1069,9 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// textBoxGameExe
 			// 
 			this->textBoxGameExe->AllowDrop = true;
-			this->textBoxGameExe->Location = System::Drawing::Point(16, 20);
+			this->textBoxGameExe->Location = System::Drawing::Point(12, 20);
 			this->textBoxGameExe->Name = L"textBoxGameExe";
-			this->textBoxGameExe->Size = System::Drawing::Size(304, 19);
+			this->textBoxGameExe->Size = System::Drawing::Size(278, 19);
 			this->textBoxGameExe->TabIndex = 1;
 			this->textBoxGameExe->TextChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			this->textBoxGameExe->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &OptionForm::textBoxGameExe_DragDrop);
@@ -981,7 +1079,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			// 
 			// buttonGameExe
 			// 
-			this->buttonGameExe->Location = System::Drawing::Point(320, 20);
+			this->buttonGameExe->Location = System::Drawing::Point(296, 20);
 			this->buttonGameExe->Name = L"buttonGameExe";
 			this->buttonGameExe->Size = System::Drawing::Size(24, 20);
 			this->buttonGameExe->TabIndex = 2;
@@ -1788,6 +1886,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->Controls->Add(this->buttonApply);
 			this->Controls->Add(this->buttonCancel);
 			this->Controls->Add(this->buttonOK);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"OptionForm";
@@ -1812,6 +1911,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			this->groupBoxVSSound->ResumeLayout(false);
 			this->groupBoxVSSound->PerformLayout();
 			this->tabPagePath->ResumeLayout(false);
+			this->groupBoxProfile->ResumeLayout(false);
+			this->groupBoxProfile->PerformLayout();
 			this->groupBoxReplayFolder->ResumeLayout(false);
 			this->groupBoxReplayFolder->PerformLayout();
 			this->groupBoxNet->ResumeLayout(false);
@@ -1893,6 +1994,10 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 
 		// OptionForm.cpp
 		void SaveOption(bool apply);
+		void CloseOption();
+		void DeleteProfile(String^ buf);
+		bool CheckTextProfileName(String^ buf);
+		void OverWriteProfile(String^ buf);
 
 	public:
 		bool GameExePathError;
@@ -1914,6 +2019,14 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 			textBoxKeywordSoundPath->MaxLength = _MAX_PATH;
 
 			textBoxComment->MaxLength = MAX_NAME;
+
+			comboBoxProfile->Items->Clear();
+			for(int i=0; i < Profile::ProfileList->Count; i++){
+				comboBoxProfile->Items->Add(Profile::ProfileList[i]);
+				if(Profile::ProfileList[i] == gcnew String(MTOPTION.PROFILE)){
+					comboBoxProfile->SelectedIndex = i;
+				}
+			}
 
 			textBoxGameExe->Text          = gcnew String(MTOPTION.GAME_EXE);
 			textBoxReplayFolder->Text     = gcnew String(MTOPTION.REPLAY_FOLDER);
@@ -2087,6 +2200,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 
 			MTWS.DIALOG_LEFT = this->Location.X;
 			MTWS.DIALOG_TOP  = this->Location.Y;
+
+			CloseOption();
 
 			this->Owner->Focus();
 		}
@@ -2487,15 +2602,143 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowGameOption;
 				AddPortbutton->Enabled = true;
 			}
 		}
-
 		// IPの変換
 		System::Void Convertbutton_Click(System::Object^  sender, System::EventArgs^  e) {
 			Base64textBox->Text = EncryptionIP(IPtextBox->Text);
 		}
-
 		// ポート付きIPの変換
 		System::Void AddPortbutton_Click(System::Object^  sender, System::EventArgs^  e) {
 			Base64textBox->Text = String::Format("{0}:{1}", EncryptionIP(IPtextBox->Text), MTOPTION.OPEN_PORT);
+		}
+		// プロファイルコンボボックス変更
+		System::Void comboBoxProfile_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
+			String^ buf = ((ComboBox^)sender)->Text;
+			String^ bufProfile = gcnew String(MTOPTION.PROFILE);
+
+			if(buf != bufProfile){
+				// 切り替え
+				IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(buf);
+				_tcscpy_s(MTOPTION.PROFILE, static_cast<PTCHAR>(mp.ToPointer()));
+				Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+				LoadMTOption();
+
+				// プロファイルセクションの設定値を更新
+				textBoxGameExe->Text                = gcnew String(MTOPTION.GAME_EXE);
+				textBoxReplayFolder->Text           = gcnew String(MTOPTION.REPLAY_FOLDER);
+				textBoxGameExe->SelectionStart      = textBoxGameExe->TextLength;
+				textBoxReplayFolder->SelectionStart = textBoxReplayFolder->TextLength;
+				numericUpDownMaxStage->Value        = MTOPTION.MAX_STAGE;
+				numericUpDownStageSelect->Value     = MTOPTION.STAGE_SELECT;
+				numericUpDownRound->Value           = MTOPTION.ROUND;
+				numericUpDownTimer->Value           = MTOPTION.TIMER;
+				numericUpDownSimDelay->Value        = MTOPTION.SIMULATE_DELAY;
+				checkBoxHitJudge->Checked           = MTOPTION.HIT_JUDGE;
+				checkBoxName->Checked               = MTOPTION.DISPLAY_NAME;
+				checkBoxVersus->Checked             = MTOPTION.DISPLAY_VERSUS;
+				checkBoxFramerate->Checked          = MTOPTION.DISPLAY_FRAMERATE;
+				checkBoxRand->Checked               = MTOPTION.DISPLAY_RAND;
+				checkBoxDivide->Checked             = MTOPTION.REPLAY_DIVIDE;
+				checkBoxWindowSize->Checked         = MTOPTION.CHANGE_WINDOW_SIZE;
+				checkBoxTeamRoundHP->Checked        = MTOPTION.TEAM_ROUND_HP;
+				CheckStageValue();
+				if(MTOPTION.REPLAY_VERSION == 2){
+					radioButtonReplayVersion1->Checked = false;
+					radioButtonReplayVersion2->Checked = true;
+				}
+				else{
+					radioButtonReplayVersion1->Checked = true;
+					radioButtonReplayVersion2->Checked = false;
+				}
+			}
+			textBoxProfileName->Text = buf;
+			buttonApply->Enabled = false;
+		}
+		System::Void buttonCopyProfile_Click(System::Object^ sender, System::EventArgs^ e) {
+			// プロファイル複製
+			String^ mes;
+			String^ buf = comboBoxProfile->Items[comboBoxProfile->SelectedIndex]->ToString();
+			String^ bufClone = String::Format("{0}{1}", buf, "_");
+			if(buf->Length > MAX_ARRAY-1){
+				mes = "プロファイル名が長すぎます。¥n複製を行うには、プロファイル名を短くしてください。";
+			}
+			for(int i=0; i < Profile::ProfileList->Count; i++){
+				if(Profile::ProfileList[i] == bufClone){
+					mes = "既に複製されたプロファイルが存在します。";
+				}
+			}
+			if(Profile::ProfileList->Count > 31){
+				mes = "これ以上プロファイルを作成できません。";
+				return;
+			}
+			if(mes != nullptr){
+				MessageBox::Show(mes, "プロファイル複製", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				return;
+			}
+			Profile::ProfileList->Add(bufClone);
+			comboBoxProfile->Items->Add(bufClone);
+
+			IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(bufClone);
+			_tcscpy_s(MTOPTION.PROFILE, static_cast<PTCHAR>(mp.ToPointer()));
+			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+			SaveOption(true);
+
+			comboBoxProfile->SelectedIndex = comboBoxProfile->Items->Count-1;
+			buttonApply->Enabled = false;
+
+		}
+		System::Void buttonDeleteProfile_Click(System::Object^ sender, System::EventArgs^ e) {
+			// プロファイル削除
+			int index = comboBoxProfile->SelectedIndex;
+			String^ buf = comboBoxProfile->Items[index]->ToString();
+			if(MessageBox::Show(String::Format("{0}を削除します。¥nよろしいですか？", buf), "プロファイル削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+				Profile::ProfileList->RemoveAt(index);
+				comboBoxProfile->Items->RemoveAt(index);
+
+				DeleteProfile(buf);
+
+				comboBoxProfile->SelectedIndex = 0;
+			}else{
+				return;
+			}
+		}
+		System::Void buttonAddProfile_Click(System::Object^ sender, System::EventArgs^ e) {
+			// プロファイル追加
+			String^ bufText = textBoxProfileName->Text;
+			if(CheckTextProfileName(bufText)){
+				return;
+			}
+			if(Profile::ProfileList->Count > 31){
+				MessageBox::Show("これ以上プロファイルを作成できません。", "プロファイル追加", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				return;
+			}
+
+			Profile::ProfileList->Add(bufText);
+			comboBoxProfile->Items->Add(bufText);
+
+			SaveOption(true);
+
+			buttonApply->Enabled = false;
+		}
+		System::Void buttonSaveProfile_Click(System::Object^ sender, System::EventArgs^ e) {
+			// プロファイル保存
+			String^ bufText         = textBoxProfileName->Text;
+			String^ bufSelectedItem = comboBoxProfile->SelectedItem->ToString();
+			if(CheckTextProfileName(bufText)){
+				return;
+			}
+			// 上書き
+			if(bufText != bufSelectedItem){
+				for(int i=0; i < Profile::ProfileList->Count; i++){
+					if(Profile::ProfileList[i] == gcnew String(MTOPTION.PROFILE)){
+						Profile::ProfileList[i] = bufText;
+					}
+				}
+				OverWriteProfile(bufText);
+
+				comboBoxProfile->Items[comboBoxProfile->SelectedIndex] = bufText;
+			}
 		}
 	};
 }

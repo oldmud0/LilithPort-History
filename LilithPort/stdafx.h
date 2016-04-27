@@ -18,6 +18,7 @@
 
 using namespace System;
 using namespace System::Windows::Forms;
+using namespace System::Collections;
 using namespace System::Text;
 using namespace System::Drawing;
 using namespace System::Net;
@@ -28,12 +29,14 @@ void ApplicationUnhandledException(Object^ sender, UnhandledExceptionEventArgs^ 
 
 void LoadMTOption();
 void SaveMTOption();
+void SaveProfileOption();
 void CheckMTOption();
+void DeleteSection(TCHAR* obj);
 void ChangeStageValue();
 void SetCaption();
 
 String^ EncryptionIP(String^ ip);
-_int64 DecryptionIP(String^ cipher_ip);
+_int64 DecryptionIP(String^ cipher_ip, bool enc);
 
 UINT CipherRand(UINT32 seed = 0);
 UINT XorShift(UINT32 seed = 0);
@@ -59,6 +62,14 @@ public ref struct MemberInfoBackUp
 	UINT16      ID;
 };
 
+// プロファイルリスト
+public ref class Profile
+{
+	public:
+		static Generic::List<String^>^ ProfileList = gcnew Generic::List<String^>;
+		// バリデーション用
+		static array<String^>^ SystemSection = gcnew array<String^>{"System", "State", "Color"};
+};
 
 // DEBUGGEE
 // KGT2KGAME
@@ -184,7 +195,7 @@ const BYTE VOLUME_SET_2_95_CODE[] = {0x50,0x8B,0x08,0xCC,0x52,0x50,0xFF,0x51,0x3
 
 // バージョン情報
 // LilithPort 1.03以上互換, それ以前はなし
-const UINT LP_VERSION = 104;
+const UINT LP_VERSION = 105;
 
 // 設定項目
 const UINT MAX_NAME   = 32;
@@ -194,6 +205,7 @@ const UINT MAX_TITLE  = 256;
 const UINT MAX_PACKET = 512;
 const UINT MAX_WELCOME = 512;
 const UINT MAX_KEYWORD = 256;
+const UINT MAX_PROFILE = 2048;
 
 const BYTE TYMT_VERSION = 6;
 const UINT TIME_OUT = 3000;
@@ -240,6 +252,8 @@ typedef struct _MT_SP_OPTION
 	UINT  BOOKMARK_DELETED_COUNT;
 	TCHAR BOOKMARK_SERVER_NAME[MAX_TITLE][MAX_ARRAY];
 	TCHAR BOOKMARK_CONNECTION_IP[MAX_NAME][MAX_ARRAY];
+	TCHAR BOOKMARK_CONNECTION_TYPE[MAX_NAME][MAX_ARRAY];
+	TCHAR BOOKMARK_PORT[MAX_NAME][MAX_ARRAY];
 	TCHAR GAME_EXE[_MAX_PATH];
 	TCHAR REPLAY_FOLDER[_MAX_PATH];
 	TCHAR VS_SOUND[_MAX_PATH];
@@ -290,6 +304,9 @@ typedef struct _MT_SP_OPTION
 	bool  AFTER_REST;
 	bool  GET_IP_ENABLE;
 	bool  SHOW_GAME_OPTION;
+	TCHAR PROFILE[MAX_ARRAY];
+	TCHAR PROFILE_LIST[MAX_PROFILE];
+	UINT  PROFILE_INDEX;
 } MT_SP_OPTION;
 
 typedef struct _MT_SP_WINDOW_STATE
@@ -429,7 +446,6 @@ extern MT_SP_OPTION       MTOPTION;
 extern MT_SP_WINDOW_STATE MTWS;
 extern MT_SP_COLOR        MTCOLOR;
 
-
 public ref class PacketPacker
 {
 public:
@@ -492,5 +508,3 @@ public:
 		return data;
 	}
 };
-
-#include "OptionForm.h"

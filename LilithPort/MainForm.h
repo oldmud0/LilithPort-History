@@ -38,7 +38,6 @@ namespace LilithPort {
 
 			// ブックマークをメニューに登録
 			String^ tmpName;
-			
 			if(MTOPTION.BOOKMARK_COUNT > 0) {
 				for(UINT i=0;i < MTOPTION.BOOKMARK_COUNT;i++) {
 					tmpName = gcnew String(MTOPTION.BOOKMARK_SERVER_NAME[i]);
@@ -57,7 +56,15 @@ namespace LilithPort {
 					toolStripMenuItemDelBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelBookMark_Click);
 				}
 			}
-			
+
+			// プロファイルをコンボボックスに登録
+			for(int i=0; i < Profile::ProfileList->Count; i++){
+				if(Profile::ProfileList[i] == gcnew String(MTOPTION.PROFILE)){
+					toolStripDropDownButtonProfile->Text = Profile::ProfileList[i];			
+				}
+				toolStripDropDownButtonProfile->DropDownItems->Add(Profile::ProfileList[i]);
+				toolStripDropDownButtonProfile->DropDownItems[i]->Click += gcnew System::EventHandler(this, &MainForm::toolStripDropDownItemProfile_Click);
+			}
 		}
 
 	protected:
@@ -150,20 +157,11 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator11;
 private: System::Windows::Forms::ToolStripMenuItem^  GameStartNoReplayToolStripMenuItem;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator12;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
+private: System::Windows::Forms::StatusStrip^  statusStrip1;
+private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusLabel;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+private: System::Windows::Forms::ToolStripDropDownButton^  toolStripDropDownButtonProfile;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSeek;
 
 
 
@@ -182,6 +180,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 		{
 			this->components = (gcnew System::ComponentModel::Container());
 			System::Windows::Forms::ToolStripMenuItem^  ReloadListToolStripMenuItem;
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->toolStripMenuItemFile = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemReplay = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -237,6 +236,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->contextMenuStripMember = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->toolStripMenuItemVS = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemWatch = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemSeek = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemPing = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator12 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemKick = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -248,6 +248,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->textBoxInput = (gcnew System::Windows::Forms::TextBox());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->toolTipMember = (gcnew System::Windows::Forms::ToolTip(this->components));
+			this->statusStrip1 = (gcnew System::Windows::Forms::StatusStrip());
+			this->toolStripDropDownButtonProfile = (gcnew System::Windows::Forms::ToolStripDropDownButton());
+			this->toolStripStatusLabel = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			ReloadListToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			this->splitContainer1->Panel1->SuspendLayout();
@@ -255,7 +258,16 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->splitContainer1->SuspendLayout();
 			this->contextMenuStripMember->SuspendLayout();
 			this->contextMenuStripLog->SuspendLayout();
+			this->statusStrip1->SuspendLayout();
 			this->SuspendLayout();
+			// 
+			// ReloadListToolStripMenuItem
+			// 
+			ReloadListToolStripMenuItem->Name = L"ReloadListToolStripMenuItem";
+			ReloadListToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F5;
+			ReloadListToolStripMenuItem->Size = System::Drawing::Size(310, 22);
+			ReloadListToolStripMenuItem->Text = L"メンバーリストの更新(&R)";
+			ReloadListToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ReloadListToolStripMenuItem_Click);
 			// 
 			// menuStrip1
 			// 
@@ -617,8 +629,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			// 
 			// splitContainer1
 			// 
+			this->splitContainer1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
+				| System::Windows::Forms::AnchorStyles::Left) 
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->splitContainer1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-			this->splitContainer1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->splitContainer1->Location = System::Drawing::Point(0, 26);
 			this->splitContainer1->Name = L"splitContainer1";
 			// 
@@ -630,7 +644,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			// 
 			this->splitContainer1->Panel2->Controls->Add(this->richTextBoxLog);
 			this->splitContainer1->Panel2->Controls->Add(this->textBoxInput);
-			this->splitContainer1->Size = System::Drawing::Size(528, 324);
+			this->splitContainer1->Size = System::Drawing::Size(528, 297);
 			this->splitContainer1->SplitterDistance = 90;
 			this->splitContainer1->TabIndex = 2;
 			this->splitContainer1->TabStop = false;
@@ -645,7 +659,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->listBoxMember->ItemHeight = 12;
 			this->listBoxMember->Location = System::Drawing::Point(0, 0);
 			this->listBoxMember->Name = L"listBoxMember";
-			this->listBoxMember->Size = System::Drawing::Size(88, 312);
+			this->listBoxMember->Size = System::Drawing::Size(88, 288);
 			this->listBoxMember->TabIndex = 2;
 			this->listBoxMember->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::listBoxMember_MouseDoubleClick);
 			this->listBoxMember->DrawItem += gcnew System::Windows::Forms::DrawItemEventHandler(this, &MainForm::listBoxMember_DrawItem);
@@ -653,43 +667,50 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			// 
 			// contextMenuStripMember
 			// 
-			this->contextMenuStripMember->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->toolStripMenuItemVS, 
-				this->toolStripMenuItemWatch, this->toolStripMenuItemPing, this->toolStripSeparator12, this->toolStripMenuItemKick});
+			this->contextMenuStripMember->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->toolStripMenuItemVS, 
+				this->toolStripMenuItemWatch, this->toolStripMenuItemSeek, this->toolStripMenuItemPing, this->toolStripSeparator12, this->toolStripMenuItemKick});
 			this->contextMenuStripMember->Name = L"contextMenuStrip1";
 			this->contextMenuStripMember->ShowImageMargin = false;
-			this->contextMenuStripMember->Size = System::Drawing::Size(100, 98);
+			this->contextMenuStripMember->Size = System::Drawing::Size(124, 120);
 			this->contextMenuStripMember->Opening += gcnew System::ComponentModel::CancelEventHandler(this, &MainForm::contextMenuStripMember_Opening);
 			// 
 			// toolStripMenuItemVS
 			// 
 			this->toolStripMenuItemVS->Name = L"toolStripMenuItemVS";
-			this->toolStripMenuItemVS->Size = System::Drawing::Size(99, 22);
+			this->toolStripMenuItemVS->Size = System::Drawing::Size(123, 22);
 			this->toolStripMenuItemVS->Text = L"対戦する";
 			this->toolStripMenuItemVS->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemVS_Click);
 			// 
 			// toolStripMenuItemWatch
 			// 
 			this->toolStripMenuItemWatch->Name = L"toolStripMenuItemWatch";
-			this->toolStripMenuItemWatch->Size = System::Drawing::Size(99, 22);
+			this->toolStripMenuItemWatch->Size = System::Drawing::Size(123, 22);
 			this->toolStripMenuItemWatch->Text = L"観戦する";
 			this->toolStripMenuItemWatch->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemWatch_Click);
+			// 
+			// toolStripMenuItemSeek
+			// 
+			this->toolStripMenuItemSeek->Name = L"toolStripMenuItemSeek";
+			this->toolStripMenuItemSeek->Size = System::Drawing::Size(123, 22);
+			this->toolStripMenuItemSeek->Text = L"対戦募集する";
+			this->toolStripMenuItemSeek->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemSeek_Click);
 			// 
 			// toolStripMenuItemPing
 			// 
 			this->toolStripMenuItemPing->Name = L"toolStripMenuItemPing";
-			this->toolStripMenuItemPing->Size = System::Drawing::Size(99, 22);
+			this->toolStripMenuItemPing->Size = System::Drawing::Size(123, 22);
 			this->toolStripMenuItemPing->Text = L"PING";
 			this->toolStripMenuItemPing->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemPing_Click);
 			// 
 			// toolStripSeparator12
 			// 
 			this->toolStripSeparator12->Name = L"toolStripSeparator12";
-			this->toolStripSeparator12->Size = System::Drawing::Size(96, 6);
+			this->toolStripSeparator12->Size = System::Drawing::Size(120, 6);
 			// 
 			// toolStripMenuItemKick
 			// 
 			this->toolStripMenuItemKick->Name = L"toolStripMenuItemKick";
-			this->toolStripMenuItemKick->Size = System::Drawing::Size(99, 22);
+			this->toolStripMenuItemKick->Size = System::Drawing::Size(123, 22);
 			this->toolStripMenuItemKick->Text = L"KICK";
 			this->toolStripMenuItemKick->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemKick_Click);
 			// 
@@ -702,7 +723,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->richTextBoxLog->Location = System::Drawing::Point(0, 0);
 			this->richTextBoxLog->Name = L"richTextBoxLog";
 			this->richTextBoxLog->ReadOnly = true;
-			this->richTextBoxLog->Size = System::Drawing::Size(432, 303);
+			this->richTextBoxLog->Size = System::Drawing::Size(432, 276);
 			this->richTextBoxLog->TabIndex = 0;
 			this->richTextBoxLog->TabStop = false;
 			this->richTextBoxLog->Text = L"";
@@ -742,7 +763,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			// 
 			this->textBoxInput->BackColor = System::Drawing::SystemColors::Window;
 			this->textBoxInput->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->textBoxInput->Location = System::Drawing::Point(0, 303);
+			this->textBoxInput->Location = System::Drawing::Point(0, 276);
 			this->textBoxInput->MaxLength = 127;
 			this->textBoxInput->Name = L"textBoxInput";
 			this->textBoxInput->Size = System::Drawing::Size(432, 19);
@@ -754,13 +775,35 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->openFileDialog1->Filter = L"MT Replay file (*.mtr)|*.mtr";
 			this->openFileDialog1->Title = L"LilithPort用のリプレイファイル";
 			// 
-			// ReloadListToolStripMenuItem
+			// statusStrip1
 			// 
-			ReloadListToolStripMenuItem->Name = L"ReloadListToolStripMenuItem";
-			ReloadListToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F5;
-			ReloadListToolStripMenuItem->Size = System::Drawing::Size(310, 22);
-			ReloadListToolStripMenuItem->Text = L"メンバーリストの更新(&R)";
-			ReloadListToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ReloadListToolStripMenuItem_Click);
+			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->toolStripDropDownButtonProfile, 
+				this->toolStripStatusLabel});
+			this->statusStrip1->Location = System::Drawing::Point(0, 328);
+			this->statusStrip1->Name = L"statusStrip1";
+			this->statusStrip1->RightToLeft = System::Windows::Forms::RightToLeft::No;
+			this->statusStrip1->Size = System::Drawing::Size(528, 22);
+			this->statusStrip1->TabIndex = 3;
+			this->statusStrip1->Text = L"statusStrip1";
+			// 
+			// toolStripDropDownButtonProfile
+			// 
+			this->toolStripDropDownButtonProfile->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+			this->toolStripDropDownButtonProfile->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+			this->toolStripDropDownButtonProfile->ImageScaling = System::Windows::Forms::ToolStripItemImageScaling::None;
+			this->toolStripDropDownButtonProfile->Name = L"toolStripDropDownButtonProfile";
+			this->toolStripDropDownButtonProfile->RightToLeft = System::Windows::Forms::RightToLeft::No;
+			this->toolStripDropDownButtonProfile->Size = System::Drawing::Size(13, 20);
+			// 
+			// toolStripStatusLabel
+			// 
+			this->toolStripStatusLabel->BorderSides = System::Windows::Forms::ToolStripStatusLabelBorderSides::Left;
+			this->toolStripStatusLabel->BorderStyle = System::Windows::Forms::Border3DStyle::Raised;
+			this->toolStripStatusLabel->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+			this->toolStripStatusLabel->Margin = System::Windows::Forms::Padding(5, 3, 0, 2);
+			this->toolStripStatusLabel->Name = L"toolStripStatusLabel";
+			this->toolStripStatusLabel->Padding = System::Windows::Forms::Padding(5, 0, 0, 0);
+			this->toolStripStatusLabel->Size = System::Drawing::Size(9, 17);
 			// 
 			// MainForm
 			// 
@@ -768,8 +811,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(528, 350);
+			this->Controls->Add(this->statusStrip1);
 			this->Controls->Add(this->splitContainer1);
 			this->Controls->Add(this->menuStrip1);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"MainForm";
 			this->Text = L"LilithPort";
@@ -787,6 +832,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			this->splitContainer1->ResumeLayout(false);
 			this->contextMenuStripMember->ResumeLayout(false);
 			this->contextMenuStripLog->ResumeLayout(false);
+			this->statusStrip1->ResumeLayout(false);
+			this->statusStrip1->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -1525,6 +1572,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				"/game ： ゲームの起動¥n"
 				"/replay ： リプレイファイルの再生¥n"
 				"/quit ： 起動中のゲームを終了¥n"
+				"/reload ： メンバーリストの更新¥n"
 				"/restart ： フリープレイから新規に回線接続¥n"
 				"/rest ： 休憩状態の切り替え¥n"
 				"/seek ： 対戦募集状態の切り替え¥n"
@@ -1726,24 +1774,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				//メンバーリスト手動削除
 				//MemberList->RemoveAt(listBoxMember->SelectedIndex);
 				//listBoxMember->Items->RemoveAt(listBoxMember->SelectedIndex);
-				
-				// Unknown用簡易メッセージ
-				/*
-				IPEndPoint^ ep = gcnew IPEndPoint(IPAddress::Parse("127.0.0.1")->Address, 7499);
-				WriteMessage(String::Format("to > {0}¥n", ep), DebugMessageColor);
-				
-				String^ testmsg = "てすと";
-
-				BYTE len = (BYTE)(testmsg->Length * 2);
-				array<BYTE>^ msg = gcnew array<BYTE>(4 + len);
-
-				msg[0] = PH_MESSAGE;
-				Array::Copy(BitConverter::GetBytes(132), 0, msg, 1, 2);
-				msg[3] = len;
-				Array::Copy(Encoding::Unicode->GetBytes(testmsg), 0, msg, 4, len);
-
-				UDP->BeginSend(msg, msg->Length, ep, gcnew AsyncCallback(SendPackets), UDP);
-				// */
 			}
 		}
 
@@ -1905,6 +1935,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 
 			WriteMessage("メンバーリストを更新しました。(連続しての更新はサーバーに負荷がかかるため、注意してください。)¥n", SystemMessageColor);
 		}
+		void WriteStatus(String^ msg){
+			toolStripStatusLabel->Text = msg;
+		}
 	public:
 		// IP取得完了
 		void GetIPOpenReadCompleted(System::Object^ sender, System::Net::OpenReadCompletedEventArgs^ e) {
@@ -1927,7 +1960,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			}
 			// アドレスの抽出
 			String^ html;
-			_int64 grobal_address;
+			_int64 Global_address;
 			array<String^> ^s1, ^s2, ^s3;
 			Stream^ reply = nullptr;
 			StreamReader^ sr = nullptr;
@@ -1938,10 +1971,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				s1 = html->Split(':');
 				s2 = s1[1]->Split('<');
 				s3 = s2[0]->Split(' ');
-				grobal_address = Int64(Net::IPAddress::Parse(s3[1])->Address);
+				Global_address = Int64(Net::IPAddress::Parse(s3[1])->Address);
 			}
 			catch(Exception^ e) {
-				grobal_address = 0;
+				Global_address = 0;
 				WriteMessage("IPアドレス情報の抽出に失敗しました。¥nLilithPortのバージョンが古い可能性があります。¥n", ErrorMessageColor);
 
 				if(MTINFO.DEBUG){
@@ -1953,7 +1986,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				if(sr != nullptr) sr->Close();
 				if(reply != nullptr) reply->Close();
 			}
-			if(grobal_address > 0) {
+			if(Global_address > 0) {
 				WriteMessage(String::Format("IPアドレスを取得しました。 > {0}¥n", s3[1]), SystemMessageColor);
 				WriteMessage("変換アドレス:ポート > ", SystemMessageColor);
 
@@ -2043,7 +2076,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				}
 			}
 		}
-
+		void ChangeProfileEnabled(){
+			// プロファイルドロップダウン更新
+			toolStripDropDownButtonProfile->DropDownItems->Clear();
+			for(int i=0; i < Profile::ProfileList->Count; i++){
+				if(Profile::ProfileList[i] == gcnew String(MTOPTION.PROFILE)){
+					toolStripDropDownButtonProfile->Text = Profile::ProfileList[i];			
+				}
+				toolStripDropDownButtonProfile->DropDownItems->Add(Profile::ProfileList[i]);
+				toolStripDropDownButtonProfile->DropDownItems[i]->Click += gcnew System::EventHandler(this, &MainForm::toolStripDropDownItemProfile_Click);
+			}
+			toolStripDropDownButtonProfile->Enabled = true;
+		}
 	private:
 		System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 			// 行間を詰める
@@ -2374,6 +2418,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 		}
 		System::Void toolStripMenuItemSetting_Click(System::Object^  sender, System::EventArgs^  e) {
 			if(Option == nullptr || Option->IsDisposed){
+				toolStripDropDownButtonProfile->Enabled = false;
 				Option = gcnew OptionForm;
 				Option->Show(this);
 			}
@@ -2391,7 +2436,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("LilithPort v1.04¥n", SystemMessageColor);
+			WriteMessage("LilithPort v1.05¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2426,18 +2471,22 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 			toolStripMenuItemDelBookMark->Text = L"削除(&D)";
 			toolStripMenuItemDelBookMark->Tag = L"toolStripMenuItemBookMark" + MTOPTION.BOOKMARK_COUNT;
 			toolStripMenuItemDelBookMark->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemDelBookMark_Click);
-				
+			
 			BookMarkServerName = Runtime::InteropServices::Marshal::StringToHGlobalAuto(tmpName);
 			_tcscpy_s(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt], static_cast<PTCHAR>(BookMarkServerName.ToPointer()));
+			Runtime::InteropServices::Marshal::FreeHGlobal(BookMarkServerName);
 
 			BookMarkConnectIP = Runtime::InteropServices::Marshal::StringToHGlobalAuto(tmpIP);
 			_tcscpy_s(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt], static_cast<PTCHAR>(BookMarkConnectIP.ToPointer()));
+			Runtime::InteropServices::Marshal::FreeHGlobal(BookMarkConnectIP);
+
+			_itot_s(MTOPTION.CONNECTION_TYPE, MTOPTION.BOOKMARK_CONNECTION_TYPE[tmpInt], 10);
+			_itot_s(MTOPTION.OPEN_PORT,       MTOPTION.BOOKMARK_PORT[tmpInt],            10);
 
 			MTOPTION.BOOKMARK_COUNT++;
 
 			SaveMTOption();
 		}
-
 		// ブックマーク接続
 		System::Void toolStripMenuItemBookMark_Click(System::Object^ sender, System::EventArgs^ e) {
 			UINT tmpInt = (UINT)((ToolStripMenuItem^)sender)->Tag;
@@ -2447,17 +2496,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				return;
 			}
 
-			_tcscpy_s(MTOPTION.SERVER_NAME, MTOPTION.BOOKMARK_SERVER_NAME[tmpInt]);
-			_tcscpy_s(MTOPTION.CONNECTION_IP, MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt]);
-
-
-			if(MTOPTION.CONNECTION_TYPE == CT_SERVER || MTOPTION.CONNECTION_TYPE == CT_FREE) {
-				MTOPTION.CONNECTION_TYPE = CT_HOST;
-			}
+			_tcscpy_s(MTOPTION.CONNECTION_IP,   MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt]);
+			MTOPTION.CONNECTION_TYPE = (UINT)_ttoi(MTOPTION.BOOKMARK_CONNECTION_TYPE[tmpInt]);
+			MTOPTION.OPEN_PORT       = (UINT)_ttoi(MTOPTION.BOOKMARK_PORT[tmpInt]);
 
 			Restart();
 		}
-
 		// ブックマーク削除
 		System::Void toolStripMenuItemDelBookMark_Click(System::Object^ sender, System::EventArgs^ e) {
 			Object^ tmpTag;
@@ -2469,6 +2513,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 
 				ZeroMemory(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt], sizeof(MTOPTION.BOOKMARK_SERVER_NAME[tmpInt]));
 				ZeroMemory(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt], sizeof(MTOPTION.BOOKMARK_CONNECTION_IP[tmpInt]));
+				ZeroMemory(MTOPTION.BOOKMARK_CONNECTION_TYPE[tmpInt], sizeof(MTOPTION.BOOKMARK_CONNECTION_TYPE[tmpInt]));
+				ZeroMemory(MTOPTION.BOOKMARK_PORT[tmpInt], sizeof(MTOPTION.BOOKMARK_PORT[tmpInt]));
 
 				SaveMTOption();
 			}
@@ -2803,11 +2849,26 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 
 			int index = listBoxMember->SelectedIndex;
 			int id = MemberList[index]->ID;
+
+			if(MessageBox::Show(String::Format("[ {0} ](ID:{1})をキックします。¥nよろしいですか？", MemberList[index]->NAME, MemberList[index]->ID), "KICK", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+			}else{
+				return;
+			}
 			
 			try{
 				// 本人に通知
 				array<BYTE>^ send = gcnew array<BYTE>(3){ PH_LOST, 0xFF, 0xFF };
 				UDP->BeginSend(send, send->Length, MemberList[index]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
+
+				if(ListView != LV_BLIND){
+					WriteTime(0, SystemMessageColor);
+					WriteMessage(String::Format("{0}(ID:{1})をキックしました。¥n", MemberList[index]->NAME, MemberList[index]->ID), SystemMessageColor);
+				}
+				if(MemberList[0]->STATE == MS_WATCH || MemberList[0]->STATE == MS_COUCH){
+					if(TargetID == MemberList[index]->ID){
+						QuitWatch(false);
+					}
+				}
 
 				// グッバイ
 				MemberList->RemoveAt(index);
@@ -2818,22 +2879,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 				Array::Copy(BitConverter::GetBytes(id), 0, quit, 1, 2);
 
 				for(int i = 1; i < MemberList->Count; i++){
-					if(id != MemberList[i]->ID){
-						UDP->BeginSend(quit, quit->Length, MemberList[i]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
-						if(MTINFO.DEBUG){
-							WriteMessage(String::Format("{0}に通知¥n", MemberList[i]->ID), DebugMessageColor);
-						}
-					}
-					else{
-						if(ListView != LV_BLIND){
-							WriteTime(0, SystemMessageColor);
-							WriteMessage(String::Format("{0}(ID:{1})をキックしました。¥n", MemberList[i]->NAME, MemberList[i]->ID), SystemMessageColor);
-						}
-						if(MemberList[0]->STATE == MS_WATCH || MemberList[0]->STATE == MS_COUCH){
-							if(TargetID == MemberList[i]->ID){
-								QuitWatch(false);
-							}
-						}
+					UDP->BeginSend(quit, quit->Length, MemberList[i]->IP_EP, gcnew AsyncCallback(SendPackets), UDP);
+					if(MTINFO.DEBUG){
+						WriteMessage(String::Format("{0}に通知¥n", MemberList[i]->ID), DebugMessageColor);
 					}
 				}
 			}
@@ -2947,6 +2995,25 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemKick;
 					}
 				}
 			}
+		}
+
+		// プロファイル変更
+		System::Void toolStripDropDownItemProfile_Click(System::Object^ sender, System::EventArgs^ e) {
+			if(((ToolStripDropDownItem^)sender)->Text == gcnew String(MTOPTION.PROFILE)){
+				return;
+			}
+			String^ buf = ((ToolStripDropDownItem^)sender)->Text;
+
+			IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(buf);
+			_tcscpy_s(MTOPTION.PROFILE, static_cast<PTCHAR>(mp.ToPointer()));
+			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+			toolStripDropDownButtonProfile->Text = buf;
+
+			LoadMTOption();
+		}
+		System::Void toolStripMenuItemSeek_Click(System::Object^ sender, System::EventArgs^ e) {
+			this->SeekToolStripMenuItem_Click(nullptr, nullptr);
 		}
 	};
 }

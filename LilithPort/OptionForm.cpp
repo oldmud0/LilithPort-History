@@ -19,7 +19,6 @@ void OptionForm::SaveOption(bool apply){
 	}
 
 	IntPtr mp;
-
 	// パス
 	mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxGameExe->Text);
 	_tcscpy_s(MTOPTION.GAME_EXE, static_cast<PTCHAR>(mp.ToPointer()));
@@ -166,4 +165,58 @@ void OptionForm::SaveOption(bool apply){
 		textBoxSeekSound->Text        = gcnew String(MTOPTION.SEEK_SOUND);
 		textBoxKeywordSoundPath->Text = gcnew String(MTOPTION.KEYWORD_SOUND);
 	}
+
+	SaveMTOption();
+}
+void OptionForm::CloseOption(){
+	MainForm^ parent = safe_cast<MainForm^>(this->Owner);
+	parent->ChangeProfileEnabled();
+}
+bool OptionForm::CheckTextProfileName(String^ buf){
+	// プロファイル名バリデーション
+	String^ mes;
+	if(buf == gcnew String(MTOPTION.PROFILE)){
+		return true;
+	}
+	if(buf->Length == 0){
+		mes = "プロファイル名が空欄です。";
+	}
+	if(buf->Contains(",") || buf->Contains("[") || buf->Contains("]")){
+		mes = "プロファイル名に使用できない文字（, [ ]）が含まれています。";
+	}
+	for(int i=0; i < Profile::SystemSection->Length; i++){
+		if(buf == Profile::SystemSection[i]){
+			mes = "そのプロファイル名は使用できません。";
+		}
+	}
+	for(int i=0; i < Profile::ProfileList->Count; i++){
+		if(buf == Profile::ProfileList[i]){
+			mes = "そのプロファイル名は既に存在します。";
+		}
+	}
+	if(mes != nullptr){
+		MessageBox::Show(mes, "プロファイル保存", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		return true;
+	}
+	return false;
+}
+void OptionForm::DeleteProfile(String^ buf){
+	// プロファイル削除
+	TCHAR bufProfile[MAX_ARRAY];
+	IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(buf);
+	_tcscpy_s(bufProfile, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	DeleteSection(bufProfile);
+	SaveProfileOption();
+}
+void OptionForm::OverWriteProfile(String^ buf){
+	// 上書き保存
+	DeleteSection(MTOPTION.PROFILE);
+
+	IntPtr mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(buf);
+	_tcscpy_s(MTOPTION.PROFILE, static_cast<PTCHAR>(mp.ToPointer()));
+	Runtime::InteropServices::Marshal::FreeHGlobal(mp);
+
+	SaveMTOption();
 }
