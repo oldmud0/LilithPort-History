@@ -197,7 +197,7 @@ const BYTE VOLUME_SET_2_95_CODE[] = {0x50,0x8B,0x08,0xCC,0x52,0x50,0xFF,0x51,0x3
 
 // バージョン情報
 // LilithPort 1.03以上互換, それ以前はなし
-const UINT LP_VERSION = 106;
+const UINT LP_VERSION = 107;
 
 // 設定項目
 const UINT MAX_NAME   = 32;
@@ -303,6 +303,7 @@ typedef struct _MT_SP_OPTION
 	UINT  REPLAY_VERSION;
 	bool  RECORD_REPLAY;
 	bool  ALLOW_SPECTATOR;
+	bool  LOG_WORDWRAP;
 	bool  LOG_LOCK;
 	bool  NAME_FLASH;
 	bool  TALK_FLASH;

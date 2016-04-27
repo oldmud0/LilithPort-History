@@ -107,6 +107,7 @@ void LoadMTOption()
 	MTOPTION.SE_VOLUME            = GetPrivateProfileInt(iniSystem, _T("SEVolume"),           100, ini);
 	MTOPTION.RECORD_REPLAY        = GetPrivateProfileInt(iniSystem, _T("RecordReplay"),         0, ini) == 1 ? true : false;
 	MTOPTION.ALLOW_SPECTATOR      = GetPrivateProfileInt(iniSystem, _T("AllowSpectator"),       1, ini) == 1 ? true : false;
+	MTOPTION.LOG_WORDWRAP         = GetPrivateProfileInt(iniSystem, _T("LogWordWrap"),          0, ini) == 1 ? true : false;
 	MTOPTION.LOG_LOCK             = GetPrivateProfileInt(iniSystem, _T("LogLock"),              0, ini) == 1 ? true : false;
 	MTOPTION.NAME_FLASH           = GetPrivateProfileInt(iniSystem, _T("NameFlash"),            1, ini) == 1 ? true : false;
 	MTOPTION.TALK_FLASH           = GetPrivateProfileInt(iniSystem, _T("TalkFlash"),            0, ini) == 1 ? true : false;
@@ -323,6 +324,8 @@ void SaveMTOption()
 	WritePrivateProfileString(iniSystem, _T("RecordReplay"), buf, ini);
 	_itot_s(MTOPTION.ALLOW_SPECTATOR, buf, 10);
 	WritePrivateProfileString(iniSystem, _T("AllowSpectator"), buf, ini);
+	_itot_s(MTOPTION.LOG_WORDWRAP, buf, 10);
+	WritePrivateProfileString(iniSystem, _T("LogWordWrap"), buf, ini);
 	_itot_s(MTOPTION.LOG_LOCK, buf, 10);
 	WritePrivateProfileString(iniSystem, _T("LogLock"), buf, ini);
 	_itot_s(MTOPTION.NAME_FLASH, buf, 10);

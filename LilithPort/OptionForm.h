@@ -2093,16 +2093,16 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			textBoxKeyword->Text          = gcnew String(MTOPTION.KEYWORD);
 
 			// パスのセレクションを末尾に
-			textBoxGameExe->SelectionStart          = textBoxGameExe->TextLength;
-			textBoxReplayFolder->SelectionStart     = textBoxReplayFolder->TextLength;
-			textBoxComment->SelectionStart          = textBoxComment->TextLength;
-			textBoxVSSound->SelectionStart          = textBoxVSSound->TextLength;
-			textBoxNoticeSound->SelectionStart      = textBoxNoticeSound->TextLength;
-			textBoxEnterSound->SelectionStart       = textBoxEnterSound->TextLength;
-			textBoxNameSound->SelectionStart        = textBoxNameSound->TextLength;
-			textBoxTalkSound->SelectionStart        = textBoxTalkSound->TextLength;
-			textBoxSeekSound->SelectionStart        = textBoxSeekSound->TextLength;
-			textBoxKeywordSoundPath->SelectionStart = textBoxKeywordSoundPath->TextLength;
+			textBoxGameExe->SelectionStart          = textBoxGameExe->Text->Length;
+			textBoxReplayFolder->SelectionStart     = textBoxReplayFolder->Text->Length;
+			textBoxComment->SelectionStart          = textBoxComment->Text->Length;
+			textBoxVSSound->SelectionStart          = textBoxVSSound->Text->Length;
+			textBoxNoticeSound->SelectionStart      = textBoxNoticeSound->Text->Length;
+			textBoxEnterSound->SelectionStart       = textBoxEnterSound->Text->Length;
+			textBoxNameSound->SelectionStart        = textBoxNameSound->Text->Length;
+			textBoxTalkSound->SelectionStart        = textBoxTalkSound->Text->Length;
+			textBoxSeekSound->SelectionStart        = textBoxSeekSound->Text->Length;
+			textBoxKeywordSoundPath->SelectionStart = textBoxKeywordSoundPath->Text->Length;
 
 			checkBoxVSSound->Checked          = MTOPTION.VS_SOUND_ENABLE;
 			checkBoxNoticeSound->Checked      = MTOPTION.NOTICE_SOUND_ENABLE;
@@ -2681,8 +2681,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 				// プロファイルセクションの設定値を更新
 				textBoxGameExe->Text                = gcnew String(MTOPTION.GAME_EXE);
 				textBoxReplayFolder->Text           = gcnew String(MTOPTION.REPLAY_FOLDER);
-				textBoxGameExe->SelectionStart      = textBoxGameExe->TextLength;
-				textBoxReplayFolder->SelectionStart = textBoxReplayFolder->TextLength;
+				textBoxGameExe->SelectionStart      = textBoxGameExe->Text->Length;
+				textBoxReplayFolder->SelectionStart = textBoxReplayFolder->Text->Length;
 				numericUpDownMaxStage->Value        = MTOPTION.MAX_STAGE;
 				numericUpDownStageSelect->Value     = MTOPTION.STAGE_SELECT;
 				numericUpDownRound->Value           = MTOPTION.ROUND;

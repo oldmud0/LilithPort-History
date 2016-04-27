@@ -104,6 +104,12 @@ void MainForm::Begin()
 			WriteMessage("サーバの準備が完了しました。¥n[サーバー告知]-------------------¥n", SystemMessageColor);
 
 			// Welcomeメッセージの表示
+			int len = _tcslen(MTOPTION.WELCOME);
+			for(int i = 0; i < len; i++){
+				if(MTOPTION.WELCOME[i] == _T('¥t')){
+					MTOPTION.WELCOME[i] = _T('¥n');
+				}
+			}
 			richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
 			richTextBoxLog->SelectionColor = TalkMessageColor;
 			richTextBoxLog->SelectionBackColor = NoticeBackColor;
@@ -134,24 +140,6 @@ void MainForm::Begin()
 			}
 
 			try{
-				// ローカル接続
-				/*
-				if(MTINFO.DEBUG){
-					if((host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
-						try{
-							address = IPAddress::Parse(host[0])->Address;
-						}
-						catch(Exception^ e){
-							if(MTINFO.DEBUG){
-								WriteMessage("ローカル接続失敗¥n", ErrorMessageColor);
-								WriteMessage(e->ToString() + "¥n", DebugMessageColor);
-							}
-							throw gcnew SocketException;
-						}
-					}
-				}
-				*/
-				
 
 				// MTSPアドレス接続
 				if(host[0]->Length == 5){
@@ -217,6 +205,25 @@ void MainForm::Begin()
 						}
 					}
 				}
+
+				// ローカル接続用
+				/*
+				if(address == 0){
+					try{
+						if((host[0]->StartsWith("192.168.", StringComparison::OrdinalIgnoreCase))) {
+							address = IPAddress::Parse(host[0])->Address;
+						}
+					}
+					catch(Exception^ e){
+						if(MTINFO.DEBUG){
+							WriteMessage("ローカル接続失敗¥n", ErrorMessageColor);
+							WriteMessage(e->ToString() + "¥n", DebugMessageColor);
+						}
+						address = 0;
+					}
+				}
+				*/
+				
 
 				if(address == 0){
 					WriteMessage("接続先が見つかりませんでした。¥n", ErrorMessageColor);
@@ -600,7 +607,13 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 
 			// Welcomeメッセージ
+			for(UINT j = 0; j < _tcslen(MTOPTION.WELCOME); j++){
+				if(MTOPTION.WELCOME[j] == _T('¥t')){
+					MTOPTION.WELCOME[j] = _T('¥n');
+				}
+			}
 			i = _tcslen(MTOPTION.WELCOME)*2;
+
 
 			if(i > 0){
 				Thread::Sleep(50);
@@ -630,7 +643,6 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 		case PH_NOTICE:
 			if(UDP != nullptr){
-
 				form->WriteMessage("[サーバー告知]-------------------¥n", SystemMessageColor);
 				form->WriteNotice(Encoding::Unicode->GetString(rcv, 2, (rcv->Length)-2));
 				form->WriteMessage("-------------------------------¥n", SystemMessageColor);
@@ -1005,7 +1017,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 							}
 							form->WriteTime(0, SystemMessageColor);
 							form->WriteMessage(MemberList[i]->NAME + "の状態を更新しました。¥n", SystemMessageColor);
-							form->WriteMessage("サーバーとの通信が途切れた可能性があります。再接続をしてみてください。¥n", ErrorMessageColor);
+							if(MTOPTION.CONNECTION_TYPE != CT_SERVER && MemberList[i]->ID == 0){
+								form->WriteMessage("サーバーとの通信が途切れた可能性があります。再接続をしてみてください。¥n", ErrorMessageColor);
+							}
 							MemberList[i]->STATE = rcv[3];
 							form->listBoxMember->Refresh();
 						}
@@ -1054,16 +1068,16 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 		case PH_DICE:
 			if(MTOPTION.CONNECTION_TYPE != CT_SERVER){
-				Monitor::Enter(ChatHistory);
+				Monitor::Enter(form->richTextBoxLog);
 				try{
-					//form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+					form->richTextBoxLog->SelectionStart = form->richTextBoxLog->Text->Length;
 
 					form->richTextBoxLog->SelectionColor = TalkMessageColor;
 					form->richTextBoxLog->SelectionBackColor = NoticeBackColor;
 					form->richTextBoxLog->AppendText(Byte(rcv[1]).ToString() + "¥n");
 
-					//form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
-					if(MTOPTION.LOG_LOCK == 0) {
+					form->richTextBoxLog->SelectionStart = form->richTextBoxLog->Text->Length;
+					if(!MTOPTION.LOG_LOCK) {
 						form->richTextBoxLog->ScrollToCaret();
 					}
 				}
@@ -1071,7 +1085,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					WriteErrorLog(e->ToString(), "RichTextBox");
 				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(form->richTextBoxLog);
 				}
 			}
 			break;
@@ -1756,9 +1770,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					try{
 						for(i = 0; i < MemberList->Count; i++){
 							if(id == MemberList[i]->ID){
-								Monitor::Enter(ChatHistory);
+								Monitor::Enter(form->richTextBoxLog);
 								try{
-									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
+									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->Text->Length;
 
 									form->richTextBoxLog->SelectionColor = NameColor[MemberList[i]->TYPE];
 									form->richTextBoxLog->AppendText(MemberList[i]->NAME);
@@ -1772,8 +1786,8 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 									form->richTextBoxLog->SelectionColor = SecretColor;
 									form->richTextBoxLog->AppendText("の ダメージ！！¥n");
 
-									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->TextLength;
-									if(MTOPTION.LOG_LOCK == 0) {
+									form->richTextBoxLog->SelectionStart = form->richTextBoxLog->Text->Length;
+									if(!MTOPTION.LOG_LOCK) {
 										form->richTextBoxLog->ScrollToCaret();
 									}
 								}
@@ -1781,7 +1795,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 									WriteErrorLog(e->ToString(), "RichTextBox");
 								}
 								finally{
-									Monitor::Exit(ChatHistory);
+									Monitor::Exit(form->richTextBoxLog);
 								}
 								break;
 							}
@@ -1898,7 +1912,7 @@ void MainForm::RunSonar()
 				String^ path = gcnew String(MTOPTION.PATH);
 				path += "auto.log";
 
-				Monitor::Enter(ChatHistory);
+				Monitor::Enter(richTextBoxLog);
 				try{
 					richTextBoxLog->SaveFile(path, RichTextBoxStreamType::PlainText);
 				}
@@ -1906,7 +1920,7 @@ void MainForm::RunSonar()
 					WriteErrorLog(e->ToString(), "SaveLog");
 				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(richTextBoxLog);
 				}
 
 				MemberList[0]->RESPONSE = timeGetTime();
@@ -1957,6 +1971,9 @@ void MainForm::RunSonar()
 					UDP->Send(send, send->Length, MemberList[1]->IP_EP);
 				}
 			}
+		}
+		catch(Exception^){
+			WriteMessage("ソナースレッドでエラーが発生しました。¥n", ErrorMessageColor);
 		}
 		finally{
 			Monitor::Exit(MemberList);
@@ -2291,8 +2308,9 @@ void MainForm::RunGame(Object^ obj)
 						c.Eax++;
 						SetThreadContext(thread, &c);
 
-						// やや試験的：ちょっとスリープ(FPS低下現象対策)
-						//Thread::Sleep(500);
+						if(MTINFO.DEBUG){
+							WriteMessage("EVENT:VS_ROUND¥n", DebugMessageColor);
+						}
 
 						if(vs_end){
 							num_vs++;
@@ -2704,6 +2722,7 @@ void MainForm::RunGame(Object^ obj)
 
 					// デバッグ:イベント表示
 					if(MTINFO.DEBUG){
+						/*
 						if (e_address != VS_P1_KEY && e_address != RAND_FUNC && e_address != VS_P2_KEY
 							 && e_address != FRAME_RATE && e_address != SE_VOLUME && e_address != ROUND_END
 							 && e_address != STAGE_SELECT && e_address != VS_ROUND) {
@@ -2712,6 +2731,16 @@ void MainForm::RunGame(Object^ obj)
 							_itoa_s(nValue, pszText, 32 * sizeof(char), 16);
 							WriteMessage(String::Format("EVENT:{0}¥n", gcnew String(pszText)), DebugMessageColor);
 						}
+						*/
+						// 解析用
+						if (e_address != VS_P1_KEY && e_address != RAND_FUNC && e_address != VS_P2_KEY
+							 && e_address != FRAME_RATE && e_address != SE_VOLUME && e_address != VS_ROUND) {
+							int nValue = e_address;
+							char pszText[32];
+							_itoa_s(nValue, pszText, 32 * sizeof(char), 16);
+							WriteMessage(String::Format("EVENT:{0}¥n", gcnew String(pszText)), DebugMessageColor);
+						}
+						
 					}
 				}
 				break;
@@ -3210,7 +3239,6 @@ UINT16 MainForm::LocalInput(UINT16 eax)
 		eax &= 0xFFFD;
 	}
 	
-
 	Monitor::Enter(NetVS->LOCAL);
 	try{
 		NetVS->LOCAL[(NetVS->L_READ + NetVS->DELAY) % NetVS->LOCAL->Length] = eax;
@@ -3238,7 +3266,6 @@ UINT16 MainForm::LocalInput(UINT16 eax)
 			Array::Copy(BitConverter::GetBytes(NetVS->L_FRAME), 0, NetVS->SEND, 1, 4);
 
 			UINT i;
-
 			for(i = 0; i <= NetVS->DELAY; i++){
 				Array::Copy(BitConverter::GetBytes(NetVS->LOCAL[(NetVS->L_READ + i) % NetVS->LOCAL->Length]), 0, NetVS->SEND, 5 + i*2, 2);
 			}
@@ -3506,7 +3533,7 @@ void MainForm::RunAutoRest() {
 		te = GetTickCount();
 		to = MTOPTION.AUTO_REST_TIME;
 		//WriteMessage(String::Format("{0}秒経過¥n", ((te-li.dwTime)/1000) ), DebugMessageColor);
-		if(((te-li.dwTime)/1000) >= to*60){
+		if(((te-li.dwTime)/1000) >= UINT(to*60)){
 			// フリー状態なら休憩状態にする
 			if(UDP != nullptr && MemberList[0]->STATE == MS_FREE){
 				ChangeState((BYTE)MS_REST);
@@ -3536,5 +3563,37 @@ void MainForm::ChangeSeek() {
 		WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
 		WriteTime(0, SystemMessageColor);
 		WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
+	}
+}
+void MainForm::ChangeLogWordWrap() {
+	MTOPTION.LOG_WORDWRAP ^= 1;
+	richTextBoxLog->WordWrap = MTOPTION.LOG_WORDWRAP;
+	toolStripMenuItemWordWrap->Checked = MTOPTION.LOG_WORDWRAP;
+	if(MTOPTION.LOG_WORDWRAP){
+		WriteMessage("テキスト折り返し > オン¥n", SystemMessageColor);
+	}else{
+		WriteMessage("テキスト折り返し > オフ¥n", SystemMessageColor);
+	}
+}
+void MainForm::ClearLog(){
+	if(MessageBox::Show("ログを10行残して削除します。¥nよろしいですか？", "ログの削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+	}else{
+		return;
+	}
+	Monitor::Enter(richTextBoxLog);
+	try{
+		int len = richTextBoxLog->Lines->Length;	// 全体行数
+		if(len > 10){
+			int index = richTextBoxLog->GetFirstCharIndexFromLine(len-11);
+			richTextBoxLog->SelectionStart=0;
+			richTextBoxLog->Select(0, index);
+			richTextBoxLog->SelectedText="[削除されました]¥n";
+		}
+	}
+	catch(Exception ^e){
+		WriteErrorLog(e->ToString(), "SaveLog");
+	}
+	finally{
+		Monitor::Exit(richTextBoxLog);
 	}
 }

@@ -172,6 +172,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime30;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime60;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTime120;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemWordWrap;
+
 
 
 
@@ -236,6 +238,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			this->toolStripSeparator3 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemRecordReplay = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAllowSpectator = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemWordWrap = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->LogLockToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator7 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->toolStripMenuItemAfterRest = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -424,7 +427,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			// 
 			this->ClearToolStripMenuItem->Name = L"ClearToolStripMenuItem";
 			this->ClearToolStripMenuItem->Size = System::Drawing::Size(310, 22);
-			this->ClearToolStripMenuItem->Text = L"ログの全削除(&C)";
+			this->ClearToolStripMenuItem->Text = L"ログの削除(&C)";
 			this->ClearToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ClearToolStripMenuItem_Click);
 			// 
 			// ToggleHitJudgeToolStripMenuItem
@@ -449,9 +452,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			// 
 			// toolStripMenuItemOption
 			// 
-			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->toolStripMenuItemSetting, 
+			this->toolStripMenuItemOption->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {this->toolStripMenuItemSetting, 
 				this->toolStripSeparator2, this->toolStripMenuItemDelay, this->toolStripSeparator3, this->toolStripMenuItemRecordReplay, this->toolStripMenuItemAllowSpectator, 
-				this->LogLockToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest, this->toolStripMenuItemAutoRest});
+				this->toolStripMenuItemWordWrap, this->LogLockToolStripMenuItem, this->toolStripSeparator7, this->toolStripMenuItemAfterRest, 
+				this->toolStripMenuItemAutoRest});
 			this->toolStripMenuItemOption->Name = L"toolStripMenuItemOption";
 			this->toolStripMenuItemOption->Size = System::Drawing::Size(99, 22);
 			this->toolStripMenuItemOption->Text = L"オプション(&O)";
@@ -591,6 +595,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			this->toolStripMenuItemAllowSpectator->Size = System::Drawing::Size(247, 22);
 			this->toolStripMenuItemAllowSpectator->Text = L"観戦の許可(&A)";
 			this->toolStripMenuItemAllowSpectator->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemAllowSpectator_Click);
+			// 
+			// toolStripMenuItemWordWrap
+			// 
+			this->toolStripMenuItemWordWrap->Name = L"toolStripMenuItemWordWrap";
+			this->toolStripMenuItemWordWrap->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemWordWrap->Text = L"ログのテキストを折り返す(&W)";
+			this->toolStripMenuItemWordWrap->Click += gcnew System::EventHandler(this, &MainForm::toolStripMenuItemWordWrap_Click);
 			// 
 			// LogLockToolStripMenuItem
 			// 
@@ -1055,6 +1066,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 		void RecordInput(UINT16 eax, BinaryWriter^ bw, REPLAY_INFO& ri, bool as);
 		void RunAutoRest();
 		void ChangeSeek();
+		void ChangeLogWordWrap();
+		void ClearLog();
 
 		void PacketSendAllMember(array<BYTE>^% datagram, UINT received_id);
 		static void SendPackets(IAsyncResult^ asyncResult);
@@ -1483,98 +1496,72 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				Monitor::Exit(MemberList);
 			}
 
+			// 音声優先度: ニックネーム > キーワード > 発言
+			// ニックネーム音声再生
+			String ^tmpMsg = Encoding::Unicode->GetString(msg, 4, msg[3]);
+			bool inname = 0;
+			if(tmpMsg->Contains(gcnew String(MTOPTION.NAME))) {
+				// 名前が呼ばれたらウィンドウ点滅
+				if(MTOPTION.NAME_FLASH) {
+					WindowFlash();
+				}
+				if(MTOPTION.NAME_SOUND_ENABLE){
+					inname = 1;
+					try{
+						Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.NAME_SOUND));
+						wav->Play();
+					}
+					catch(Exception^){
+					}
+				}
+			}
+			// キーワード反応
+			bool inkeyword = 0;
+			if(MTOPTION.KEYWORD_SOUND_ENABLE && !inname){
+				// 分割バッファ
+				TCHAR *tok, *next;
+				TCHAR s1[MAX_KEYWORD];
+				_tcscpy_s(s1, MTOPTION.KEYWORD);
+				tok = wcstok_s(s1, _T(","), &next);
+				while(tok != NULL){
+					if(tmpMsg->Contains(gcnew String(tok))) {
+						inkeyword = 1;
+						try{
+							Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.KEYWORD_SOUND));
+							wav->Play();
+						}
+						catch(Exception^){
+						}
+						break;
+					}
+					tok = wcstok_s(NULL, _T(","), &next);
+				}
+			}
+			// 発言でウィンドウ点滅
+			if(MemberList[0]->ID != id && !inname) {
+				if(MTOPTION.TALK_FLASH) {
+					WindowFlash();
+				}
+				// 発言で音を再生
+				if(MTOPTION.TALK_SOUND_ENABLE && !inkeyword){
+					try{
+						Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.TALK_SOUND));
+						wav->Play();
+					}
+					catch(Exception^){
+					}
+				}
+			}
+
+			// 時間
+			if(inname||inkeyword){
+				WriteTime(1, DebugMessageColor);
+			}else{
+				WriteTime(1, SystemMessageColor);
+			}
 			// 表示
-			Monitor::Enter(ChatHistory);
-			try{
-
-				// 音声優先度
-				// ニックネーム > キーワード > 発言
-				// ニックネーム音声再生
-				String ^tmpMsg = Encoding::Unicode->GetString(msg, 4, msg[3]);
-				bool inname = 0;
-				if(tmpMsg->Contains(gcnew String(MTOPTION.NAME))) {
-					// 名前が呼ばれたらウィンドウ点滅
-					if(MTOPTION.NAME_FLASH) {
-						WindowFlash();
-					}
-
-					if(MTOPTION.NAME_SOUND_ENABLE){
-						inname = 1;
-						try{
-							Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.NAME_SOUND));
-							wav->Play();
-						}
-						catch(Exception^){
-						}
-					}
-				}
-
-				// キーワード反応
-				bool inkeyword = 0;
-				if(MTOPTION.KEYWORD_SOUND_ENABLE && !inname){
-					// 分割バッファ
-					TCHAR *tok, *next;
-					TCHAR s1[MAX_KEYWORD];
-					_tcscpy_s(s1, MTOPTION.KEYWORD);
-					tok = wcstok_s(s1, _T(","), &next);
-					while(tok != NULL){
-						if(tmpMsg->Contains(gcnew String(tok))) {
-							inkeyword = 1;
-							try{
-								Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.KEYWORD_SOUND));
-								wav->Play();
-							}
-							catch(Exception^){
-							}
-							break;
-						}
-						tok = wcstok_s(NULL, _T(","), &next);
-					}
-				}
-
-				if(MemberList[0]->ID != id && !inname) {
-					// 発言でウィンドウ点滅
-					if(MTOPTION.TALK_FLASH) {
-						WindowFlash();
-					}
-					// 発言で音を再生
-					if(MTOPTION.TALK_SOUND_ENABLE && !inkeyword){
-						try{
-							Media::SoundPlayer^ wav = gcnew Media::SoundPlayer(gcnew String(MTOPTION.TALK_SOUND));
-							wav->Play();
-						}
-						catch(Exception^){
-						}
-					}
-				}
-
-				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
-				// 時間
-				if(inname||inkeyword) {
-					WriteTime(1, DebugMessageColor);
-				}else{
-					WriteTime(1, SystemMessageColor);
-				}
-				
-				// 名前
-				richTextBoxLog->SelectionColor = col;
-				richTextBoxLog->AppendText(String::Format("[ {0} ] ", name));
-
-				// メッセージ
-				richTextBoxLog->SelectionColor = TalkMessageColor;
-				richTextBoxLog->AppendText(tmpMsg + "¥n");
-
-				//richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
-				if(MTOPTION.LOG_LOCK == 0) {
-					richTextBoxLog->ScrollToCaret();
-				}
-			}
-			catch(Exception ^e){
-				WriteErrorLog(e->ToString(), "RichTextBox");
-			}
-			finally{
-				Monitor::Exit(ChatHistory);
-			}
+			WriteMessage(String::Format("[ {0} ] ", name), col);
+			WriteMessage(String::Format("{0}¥n", tmpMsg), TalkMessageColor);
 		}
 
 		void WriteMessage(String^ msg, Color color){
@@ -1583,33 +1570,27 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				richTextBoxLog->Invoke(wmd, msg, color);
 			}
 			else{
-				Monitor::Enter(ChatHistory);
+				Monitor::Enter(richTextBoxLog);
 				try{
-					richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+					richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 
 					richTextBoxLog->SelectionColor = color;
 					richTextBoxLog->AppendText(msg);
 
-					//richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+					richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 
-					if(MTOPTION.LOG_LOCK == 0) {
+					if(!MTOPTION.LOG_LOCK) {
 						richTextBoxLog->ScrollToCaret();
 					}
 				}
-				catch(ObjectDisposedException^){
-				}
-				catch(Exception ^e){
-					WriteErrorLog(e->ToString(), "RichTextBox");
-				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(richTextBoxLog);
 				}
-			}
+			}	
 		}
 		void WriteTime(bool f, Color color){
 			if(f){
-				richTextBoxLog->SelectionColor = color;
-				richTextBoxLog->AppendText(String::Format("[{0}]", DateTime::Now.ToString("HH:mm")));
+				WriteMessage(String::Format("[{0}]", DateTime::Now.ToString("HH:mm")), color);
 			}else{
 				WriteMessage(String::Format("[{0}] ", DateTime::Now.ToString("HH:mm")), color);
 			}
@@ -1630,18 +1611,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			// ¥nで改行
 			msg = msg->Replace("¥¥n", "¥n");
 
-			Monitor::Enter(ChatHistory);
+			Monitor::Enter(richTextBoxLog);
 			try{
-				richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+				richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 
 				richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
 				richTextBoxLog->SelectionColor = TalkMessageColor;
 				richTextBoxLog->SelectionBackColor = NoticeBackColor;
 				richTextBoxLog->AppendText(msg + "¥n");
 
-				//richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+				richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 
-				if(MTOPTION.LOG_LOCK == 0) {
+				if(!MTOPTION.LOG_LOCK) {
 					richTextBoxLog->ScrollToCaret();
 				}
 			}
@@ -1649,8 +1630,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				WriteErrorLog(e->ToString(), "RichTextBox");
 			}
 			finally{
-				Monitor::Exit(ChatHistory);
+				Monitor::Exit(richTextBoxLog);
 			}
+
 		}
 
 		void WriteComment(String^ name, int type, String^ comment){
@@ -1669,23 +1651,21 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			}
 
 			if(comment->Length > 0){
-				Monitor::Enter(ChatHistory);
+				// 時間
+				WriteTime(1, SystemMessageColor);
+				Monitor::Enter(richTextBoxLog);
 				try{
-					richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
-					
-					// 時間
-					WriteTime(1, SystemMessageColor);
-
+					richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 					richTextBoxLog->SelectionColor = NameColor[type];
 					richTextBoxLog->SelectionBackColor = CommentBackColor;
 					richTextBoxLog->AppendText(String::Format("[ {0} ] ", name));
 
 					richTextBoxLog->SelectionColor = TalkMessageColor;
 					richTextBoxLog->SelectionBackColor = CommentBackColor;
-					richTextBoxLog->AppendText(comment + "¥n");
+					richTextBoxLog->AppendText(String::Format("{0}¥n", comment));
 
-					//richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
-					if(MTOPTION.LOG_LOCK == 0) {
+					richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
+					if(!MTOPTION.LOG_LOCK) {
 						richTextBoxLog->ScrollToCaret();
 					}
 				}
@@ -1693,7 +1673,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 					WriteErrorLog(e->ToString(), "RichTextBox");
 				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(richTextBoxLog);
 				}
 			}
 			else{
@@ -1705,7 +1685,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 		void WriteCommandList(){
 			WriteMessage(
 				"/help ： コマンド一覧の表示¥n"
-				"/clear ： ログの全削除¥n"
+				"/clear ： ログの削除¥n"
 				"/log ： RTF形式でログの保存¥n"
 				"/debug ： デバッグモードの切り替え¥n"
 				"/vs ： ランダムに対戦を挑む¥n"
@@ -1761,14 +1741,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				WriteCommandList();
 			}
 			else if(textBoxInput->Text->StartsWith("/clear", StringComparison::OrdinalIgnoreCase)){
-				richTextBoxLog->Clear();
+				ClearLog();
 			}
 			else if(textBoxInput->Text->StartsWith("/log", StringComparison::OrdinalIgnoreCase)){
 				String^ path = gcnew String(MTOPTION.PATH);
 				String^ file = String::Format("MT_{0}.rtf", DateTime::Now.ToString("yyMMdd-HHmmss"));
 				path += file;
 
-				Monitor::Enter(ChatHistory);
+				Monitor::Enter(richTextBoxLog);
 				try{
 					richTextBoxLog->SaveFile(path, RichTextBoxStreamType::RichText);
 				}
@@ -1776,23 +1756,19 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 					WriteErrorLog(e->ToString(), "SaveLog");
 				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(richTextBoxLog);
 				}
 
 				WriteMessage(String::Format("¥"{0}¥"にログを保存しました。¥n", file), SystemMessageColor);
 			}
 			else if(textBoxInput->Text->StartsWith("/debug", StringComparison::OrdinalIgnoreCase)){
-				
 				MTINFO.DEBUG ^= 1;
-
 				if(MTINFO.DEBUG){
 					WriteMessage("デバッグモード > オン¥n", SystemMessageColor);
 				}
 				else{
 					WriteMessage("デバッグモード > オフ¥n", SystemMessageColor);
 				}
-				
-				
 			}
 			else if(textBoxInput->Text->StartsWith("/vs", StringComparison::OrdinalIgnoreCase)){
 				RandomVersus();
@@ -1838,16 +1814,16 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 					array<BYTE>^ send = gcnew array<BYTE>(2){ PH_DICE, dice };
 					PacketSendAllMember(send, 0);
 
-					Monitor::Enter(ChatHistory);
+					Monitor::Enter(richTextBoxLog);
 					try{
-						richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
+						richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
 
 						richTextBoxLog->SelectionColor = TalkMessageColor;
 						richTextBoxLog->SelectionBackColor = NoticeBackColor;
 						richTextBoxLog->AppendText(Byte(dice).ToString() + "¥n");
 
-						//richTextBoxLog->SelectionStart = richTextBoxLog->TextLength;
-						if(MTOPTION.LOG_LOCK == 0) {
+						richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
+						if(!MTOPTION.LOG_LOCK) {
 							richTextBoxLog->ScrollToCaret();
 						}
 					}
@@ -1855,7 +1831,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 						WriteErrorLog(e->ToString(), "RichTextBox");
 					}
 					finally{
-						Monitor::Exit(ChatHistory);
+						Monitor::Exit(richTextBoxLog);
 					}
 				}
 			}
@@ -1896,9 +1872,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			else if(textBoxInput->Text->StartsWith("/test", StringComparison::OrdinalIgnoreCase)){
 				// デバッグ用コマンド
 
+				//Debug::WriteLine("test");
 				//Thread::Sleep(100 * 1000);
 
 				//ChangeState((BYTE)MS_FREE);
+
+				/*
+				richTextBoxLog->SelectionStart = richTextBoxLog->Text->Length;
+				richTextBoxLog->SelectionColor = ErrorMessageColor;
+				richTextBoxLog->AppendText("hogehoge¥n");
+				*/
+				
+				
 
 				
 				// 強制キック
@@ -2299,6 +2284,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			toolStripMenuItemRecordReplay->Checked   = MTOPTION.RECORD_REPLAY;
 			toolStripMenuItemAllowSpectator->Checked = MTOPTION.ALLOW_SPECTATOR;
 			LogLockToolStripMenuItem->Checked        = MTOPTION.LOG_LOCK;
+			toolStripMenuItemWordWrap->Checked       = MTOPTION.LOG_WORDWRAP;
+			richTextBoxLog->WordWrap				 = MTOPTION.LOG_WORDWRAP;
 			toolStripMenuItemAfterRest->Checked      = MTOPTION.AFTER_REST;
 			toolStripMenuItemAutoRestEnable->Checked = MTOPTION.AUTO_REST;
 			switch(MTOPTION.AUTO_REST_TIME){
@@ -2410,7 +2397,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				String^ path = gcnew String(MTOPTION.PATH);
 				path += "log.rtf";
 
-				Monitor::Enter(ChatHistory);
+				Monitor::Enter(richTextBoxLog);
 				try{
 					richTextBoxLog->SaveFile(path, RichTextBoxStreamType::RichText);
 				}
@@ -2418,7 +2405,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 					WriteErrorLog(e->ToString(), "SaveLog");
 				}
 				finally{
-					Monitor::Exit(ChatHistory);
+					Monitor::Exit(richTextBoxLog);
 				}
 			}
 		}
@@ -2464,7 +2451,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			}
 
 			// メッセージ送信
-			if(e->KeyCode == Keys::Enter && textBoxInput->TextLength > 0){
+			if(e->KeyCode == Keys::Enter && textBoxInput->Text->Length > 0){
 				// チャット履歴更新
 				if(ChatHistoryNumber < ChatHistory->Count){
 					if(ChatHistory[ChatHistoryNumber] != textBoxInput->Text){
@@ -2478,45 +2465,50 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				if(MTOPTION.CHAT_HISTORY > 0 && (UINT)ChatHistory->Count > MTOPTION.CHAT_HISTORY){
 					ChatHistory->RemoveAt(0);
 				}
-
 				ChatHistoryNumber = ChatHistory->Count;
 
-				// 告知
-				if(e->Control && MTOPTION.CONNECTION_TYPE == CT_SERVER){
-					// 告知
-					BYTE len = (BYTE)(textBoxInput->TextLength * 2);
-					array<BYTE>^ msg = gcnew array<BYTE>(2 + len);
+				try{
+					if(e->Control && MTOPTION.CONNECTION_TYPE == CT_SERVER){
+						// 告知
+						BYTE len = (BYTE)(textBoxInput->Text->Length * 2);
+						array<BYTE>^ msg = gcnew array<BYTE>(2 + len);
 
-					msg[0] = PH_NOTICE;
-					msg[1] = len;
-					Array::Copy(Encoding::Unicode->GetBytes(textBoxInput->Text), 0, msg, 2, len);
+						msg[0] = PH_NOTICE;
+						msg[1] = len;
+						Array::Copy(Encoding::Unicode->GetBytes(textBoxInput->Text), 0, msg, 2, len);
 
-					PacketSendAllMember(msg, 0);
+						PacketSendAllMember(msg, 0);
+	
+						WriteMessage("[サーバー告知]-------------------¥n", SystemMessageColor);
+						WriteNotice(textBoxInput->Text);
+						WriteMessage("-------------------------------¥n", SystemMessageColor);
+					}
+					else if(textBoxInput->Text[0] == '/'){
+						AnalyzeCommand();
+					}
+					else if(UDP != nullptr && ServerMode >= SM_MATCH){
+						WriteMessage("チャットは禁止されています。¥n", SystemMessageColor);
+					}
+					else if(UDP != nullptr){
+						// チャット発言
+						BYTE len = (BYTE)(textBoxInput->Text->Length * 2);
+						array<BYTE>^ msg = gcnew array<BYTE>(4 + len);
 
-					WriteMessage("[サーバー告知]-------------------¥n", SystemMessageColor);
-					WriteNotice(textBoxInput->Text);
-					WriteMessage("-------------------------------¥n", SystemMessageColor);
+						msg[0] = PH_MESSAGE;
+						Array::Copy(BitConverter::GetBytes(MemberList[0]->ID), 0, msg, 1, 2);
+						msg[3] = len;
+						Array::Copy(Encoding::Unicode->GetBytes(textBoxInput->Text), 0, msg, 4, len);
+
+						TalkMessage(MemberList[0]->ID, msg);
+					}
+					else{
+						WriteMessage(textBoxInput->Text + "¥n", TalkMessageColor);
+					}
 				}
-				else if(textBoxInput->Text[0] == '/'){
-					AnalyzeCommand();
-				}
-				else if(UDP != nullptr && ServerMode >= SM_MATCH){
-					WriteMessage("チャットは禁止されています。¥n", SystemMessageColor);
-				}
-				else if(UDP != nullptr){
-					// チャット
-					BYTE len = (BYTE)(textBoxInput->TextLength * 2);
-					array<BYTE>^ msg = gcnew array<BYTE>(4 + len);
-
-					msg[0] = PH_MESSAGE;
-					Array::Copy(BitConverter::GetBytes(MemberList[0]->ID), 0, msg, 1, 2);
-					msg[3] = len;
-					Array::Copy(Encoding::Unicode->GetBytes(textBoxInput->Text), 0, msg, 4, len);
-
-					TalkMessage(MemberList[0]->ID, msg);
-				}
-				else{
-					WriteMessage(textBoxInput->Text + "¥n", TalkMessageColor);
+				catch(Exception^ e){
+					if(MTINFO.DEBUG){
+						WriteMessage(String::Format("{0}¥n", e->ToString()), DebugMessageColor);
+					}
 				}
 
 				textBoxInput->Clear();
@@ -2525,9 +2517,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 		}
 
 		System::Void listBoxMember_DrawItem(System::Object^  sender, System::Windows::Forms::DrawItemEventArgs^  e) {
-
 			if(e->Index == -1) return;
-
 			try{
 				UINT state = MemberList[e->Index]->STATE;
 				Brush^ b = gcnew SolidBrush(NameColor[MemberList[e->Index]->TYPE]);
@@ -2652,7 +2642,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 		}
 
 		System::Void toolStripMenuItemVersion_Click(System::Object^  sender, System::EventArgs^  e) {
-			WriteMessage("LilithPort v1.06¥n", SystemMessageColor);
+			WriteMessage("LilithPort v1.07¥n", SystemMessageColor);
 		}
 
 		System::Void toolStripMenuItemExit_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -2816,12 +2806,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 
 		// ログの全削除
 		System::Void ClearToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			if(MessageBox::Show("表示されているログをすべて削除します。¥nよろしいですか？", "ログの全削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
-			}else{
-				return;
-			}
-
-			richTextBoxLog->Clear();
+			ClearLog();
 		}
 
 		// 当たり判定の表示切替
@@ -2845,7 +2830,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 			String^ file = String::Format("LilithPort_{0}.log", DateTime::Now.ToString("yyMMdd-HHmmss"));
 			path += file;
 
-			Monitor::Enter(ChatHistory);
+			Monitor::Enter(richTextBoxLog);
 			try{
 				richTextBoxLog->SaveFile(path, RichTextBoxStreamType::PlainText);
 			}
@@ -2853,7 +2838,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 				WriteErrorLog(e->ToString(), "SaveLog");
 			}
 			finally{
-				Monitor::Exit(ChatHistory);
+				Monitor::Exit(richTextBoxLog);
 			}
 
 			WriteMessage(String::Format("¥"{0}¥"にログを保存しました。¥n", file), SystemMessageColor);
@@ -3262,6 +3247,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoRestTi
 		System::Void toolStripMenuItemAutoRestTime120_Click(System::Object^  sender, System::EventArgs^  e) {
 			SetAutoRestTime(120);
 			toolStripMenuItemAutoRestTime120->Checked = 1;
+		}
+		// ログのテキストを折り返す
+		System::Void toolStripMenuItemWordWrap_Click(System::Object^ sender, System::EventArgs^  e) {
+			ChangeLogWordWrap();
 		}
 	};
 }
