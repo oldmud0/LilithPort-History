@@ -22,7 +22,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			ManagedExtensions="2"
+			ManagedExtensions="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit)"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="2"
 				EnableUAC="false"
 				GenerateDebugInformation="true"
@@ -96,7 +96,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			ManagedExtensions="2"
+			ManagedExtensions="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit)"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="1"
 				EnableUAC="false"
 				GenerateDebugInformation="true"
@@ -211,6 +211,10 @@
 			</File>
 			<File
 				RelativePath=".¥OptionForm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".¥StartupForm.cpp"
 				>
 			</File>
 			<File

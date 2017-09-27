@@ -54,24 +54,36 @@ namespace LilithPort {
 	private: System::Windows::Forms::Button^  buttonCancel;
 	private: System::Windows::Forms::Label^  labelName;
 	private: System::Windows::Forms::TextBox^  textBoxName;
-	private: System::Windows::Forms::NumericUpDown^  numericUpDownPort;
-	private: System::Windows::Forms::Label^  labelMaxConnection;
-	private: System::Windows::Forms::NumericUpDown^  numericUpDownMaxConnection;
+
+
+
 	private: System::Windows::Forms::Label^  labelComment;
 	private: System::Windows::Forms::TextBox^  textBoxComment;
 	private: System::Windows::Forms::GroupBox^  groupBoxStartMode;
 	private: System::Windows::Forms::TextBox^  textBoxServerName;
 	private: System::Windows::Forms::GroupBox^  groupBoxConnection;
-	private: System::Windows::Forms::Label^  labelIP;
-	private: System::Windows::Forms::Label^  labelAccessPort;
+
+
 	private: System::Windows::Forms::GroupBox^  groupBoxProfile;
 	private: System::Windows::Forms::GroupBox^  groupBoxWelcome;
 	private: System::Windows::Forms::RichTextBox^  textBoxWelcome;
+	private: System::Windows::Forms::ToolTip^  toolTipStartupForm;
+	private: System::Windows::Forms::Button^  buttonConnect;
+	private: System::Windows::Forms::Button^  buttonOpenPortUPnP;
+	private: System::Windows::Forms::Button^  buttonClosePortUPnP;
+	private: System::Windows::Forms::Label^  labelButtonUPnP;
+
+
+
+
+
+
+
+	private: System::ComponentModel::IContainer^  components;
 	private:
 		/// <summary>
 		/// 必要なデザイナ変数です。
 		/// </summary>
-		System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -80,6 +92,7 @@ namespace LilithPort {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			this->components = (gcnew System::ComponentModel::Container());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(StartupForm::typeid));
 			this->radioButtonServer = (gcnew System::Windows::Forms::RadioButton());
 			this->radioButtonHost = (gcnew System::Windows::Forms::RadioButton());
@@ -94,20 +107,18 @@ namespace LilithPort {
 			this->labelComment = (gcnew System::Windows::Forms::Label());
 			this->textBoxName = (gcnew System::Windows::Forms::TextBox());
 			this->labelName = (gcnew System::Windows::Forms::Label());
-			this->numericUpDownPort = (gcnew System::Windows::Forms::NumericUpDown());
-			this->numericUpDownMaxConnection = (gcnew System::Windows::Forms::NumericUpDown());
-			this->labelMaxConnection = (gcnew System::Windows::Forms::Label());
 			this->groupBoxStartMode = (gcnew System::Windows::Forms::GroupBox());
+			this->labelButtonUPnP = (gcnew System::Windows::Forms::Label());
+			this->buttonClosePortUPnP = (gcnew System::Windows::Forms::Button());
+			this->buttonOpenPortUPnP = (gcnew System::Windows::Forms::Button());
 			this->textBoxServerName = (gcnew System::Windows::Forms::TextBox());
 			this->groupBoxConnection = (gcnew System::Windows::Forms::GroupBox());
-			this->labelAccessPort = (gcnew System::Windows::Forms::Label());
-			this->labelIP = (gcnew System::Windows::Forms::Label());
 			this->groupBoxProfile = (gcnew System::Windows::Forms::GroupBox());
 			this->groupBoxWelcome = (gcnew System::Windows::Forms::GroupBox());
 			this->textBoxWelcome = (gcnew System::Windows::Forms::RichTextBox());
+			this->toolTipStartupForm = (gcnew System::Windows::Forms::ToolTip(this->components));
+			this->buttonConnect = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownOpenPort))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownPort))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->BeginInit();
 			this->groupBoxStartMode->SuspendLayout();
 			this->groupBoxConnection->SuspendLayout();
 			this->groupBoxProfile->SuspendLayout();
@@ -120,8 +131,9 @@ namespace LilithPort {
 			this->radioButtonServer->Location = System::Drawing::Point(8, 18);
 			this->radioButtonServer->Name = L"radioButtonServer";
 			this->radioButtonServer->Size = System::Drawing::Size(56, 16);
-			this->radioButtonServer->TabIndex = 1;
+			this->radioButtonServer->TabIndex = 4;
 			this->radioButtonServer->Text = L"Server";
+			this->toolTipStartupForm->SetToolTip(this->radioButtonServer, L"サーバを建てて他の接続者を待ち受けます。¥r¥n指定した待受ポート(UDP)を開放する必要があります。");
 			this->radioButtonServer->UseVisualStyleBackColor = true;
 			this->radioButtonServer->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonServer_CheckedChanged);
 			// 
@@ -131,8 +143,9 @@ namespace LilithPort {
 			this->radioButtonHost->Location = System::Drawing::Point(70, 18);
 			this->radioButtonHost->Name = L"radioButtonHost";
 			this->radioButtonHost->Size = System::Drawing::Size(47, 16);
-			this->radioButtonHost->TabIndex = 1;
+			this->radioButtonHost->TabIndex = 5;
 			this->radioButtonHost->Text = L"Host";
+			this->toolTipStartupForm->SetToolTip(this->radioButtonHost, L"サーバに接続します。¥r¥n指定した待受ポート(UDP)を通信に使用します。¥r¥n(ポートを開放すると動作が安定します。)");
 			this->radioButtonHost->UseVisualStyleBackColor = true;
 			this->radioButtonHost->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonHost_CheckedChanged);
 			// 
@@ -142,8 +155,9 @@ namespace LilithPort {
 			this->radioButtonClient->Location = System::Drawing::Point(123, 18);
 			this->radioButtonClient->Name = L"radioButtonClient";
 			this->radioButtonClient->Size = System::Drawing::Size(53, 16);
-			this->radioButtonClient->TabIndex = 1;
+			this->radioButtonClient->TabIndex = 6;
 			this->radioButtonClient->Text = L"Client";
+			this->toolTipStartupForm->SetToolTip(this->radioButtonClient, L"サーバに接続します。¥r¥nポートは自動的に割り当てられます。¥r¥n(ポートを開放しなくても接続できますが、動作がやや不安定です。)");
 			this->radioButtonClient->UseVisualStyleBackColor = true;
 			this->radioButtonClient->CheckedChanged += gcnew System::EventHandler(this, &StartupForm::radioButtonClient_CheckedChanged);
 			// 
@@ -155,40 +169,51 @@ namespace LilithPort {
 			this->labelServerName->Size = System::Drawing::Size(49, 12);
 			this->labelServerName->TabIndex = 0;
 			this->labelServerName->Text = L"サーバ名:";
+			this->toolTipStartupForm->SetToolTip(this->labelServerName, L"あなたのサーバ名です。¥r¥nタイトルバーやブックマークに表示されます。¥r¥n『@』を先頭につけるとチャット禁止モードで起動します。¥r¥n『#』を先頭につけると匿名モード" 
+				L"(チャット禁止・ランダム対戦のみ)で起動します。");
+			this->labelServerName->MouseLeave += gcnew System::EventHandler(this, &StartupForm::label_MouseLeave);
+			this->labelServerName->MouseEnter += gcnew System::EventHandler(this, &StartupForm::label_MouseEnter);
 			// 
 			// textBoxIP
 			// 
-			this->textBoxIP->Location = System::Drawing::Point(70, 18);
+			this->textBoxIP->Location = System::Drawing::Point(8, 23);
 			this->textBoxIP->Name = L"textBoxIP";
-			this->textBoxIP->Size = System::Drawing::Size(116, 19);
-			this->textBoxIP->TabIndex = 2;
+			this->textBoxIP->Size = System::Drawing::Size(178, 19);
+			this->textBoxIP->TabIndex = 11;
+			this->textBoxIP->WordWrap = false;
 			// 
 			// labelOpenPort
 			// 
 			this->labelOpenPort->AutoSize = true;
-			this->labelOpenPort->Location = System::Drawing::Point(7, 65);
+			this->labelOpenPort->Location = System::Drawing::Point(6, 67);
 			this->labelOpenPort->Name = L"labelOpenPort";
 			this->labelOpenPort->Size = System::Drawing::Size(59, 12);
 			this->labelOpenPort->TabIndex = 0;
 			this->labelOpenPort->Text = L"待受ポート:";
+			this->toolTipStartupForm->SetToolTip(this->labelOpenPort, L"通信に使用するポート番号(UDP)です。¥r¥n1024-65535まで指定できます。(デフォルト値: 7500)¥r¥n7500番をサーバで使用すると、接続者はIPアド" 
+				L"レスまたはホスト名入力のみで接続できます。¥r¥n(例: [ lilith.port.xx:54321 ] -> [ lilith.port.xx ])");
+			this->labelOpenPort->MouseLeave += gcnew System::EventHandler(this, &StartupForm::label_MouseLeave);
+			this->labelOpenPort->MouseEnter += gcnew System::EventHandler(this, &StartupForm::label_MouseEnter);
 			// 
 			// numericUpDownOpenPort
 			// 
-			this->numericUpDownOpenPort->Location = System::Drawing::Point(133, 63);
+			this->numericUpDownOpenPort->Location = System::Drawing::Point(133, 65);
 			this->numericUpDownOpenPort->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {65535, 0, 0, 0});
 			this->numericUpDownOpenPort->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1024, 0, 0, 0});
 			this->numericUpDownOpenPort->Name = L"numericUpDownOpenPort";
 			this->numericUpDownOpenPort->Size = System::Drawing::Size(53, 19);
-			this->numericUpDownOpenPort->TabIndex = 4;
+			this->numericUpDownOpenPort->TabIndex = 8;
+			this->numericUpDownOpenPort->Tag = L"";
 			this->numericUpDownOpenPort->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {7500, 0, 0, 0});
 			// 
 			// buttonOK
 			// 
-			this->buttonOK->Location = System::Drawing::Point(274, 205);
+			this->buttonOK->Location = System::Drawing::Point(210, 205);
 			this->buttonOK->Name = L"buttonOK";
 			this->buttonOK->Size = System::Drawing::Size(58, 24);
-			this->buttonOK->TabIndex = 6;
+			this->buttonOK->TabIndex = 12;
 			this->buttonOK->Text = L"起動";
+			this->toolTipStartupForm->SetToolTip(this->buttonOK, L"サーバ待ち受けを開始します。");
 			this->buttonOK->UseVisualStyleBackColor = true;
 			this->buttonOK->Click += gcnew System::EventHandler(this, &StartupForm::buttonOK_Click);
 			// 
@@ -198,8 +223,9 @@ namespace LilithPort {
 			this->buttonCancel->Location = System::Drawing::Point(338, 205);
 			this->buttonCancel->Name = L"buttonCancel";
 			this->buttonCancel->Size = System::Drawing::Size(57, 24);
-			this->buttonCancel->TabIndex = 7;
+			this->buttonCancel->TabIndex = 14;
 			this->buttonCancel->Text = L"閉じる";
+			this->toolTipStartupForm->SetToolTip(this->buttonCancel, L"オフラインでフリープレイモードに移行します。");
 			this->buttonCancel->UseVisualStyleBackColor = true;
 			this->buttonCancel->Click += gcnew System::EventHandler(this, &StartupForm::buttonCancel_Click);
 			// 
@@ -209,6 +235,7 @@ namespace LilithPort {
 			this->textBoxComment->Name = L"textBoxComment";
 			this->textBoxComment->Size = System::Drawing::Size(94, 19);
 			this->textBoxComment->TabIndex = 2;
+			this->textBoxComment->WordWrap = false;
 			// 
 			// labelComment
 			// 
@@ -218,6 +245,9 @@ namespace LilithPort {
 			this->labelComment->Size = System::Drawing::Size(40, 12);
 			this->labelComment->TabIndex = 4;
 			this->labelComment->Text = L"コメント:";
+			this->toolTipStartupForm->SetToolTip(this->labelComment, L"入室時に表示されます。¥r¥n匿名モードのサーバでは表示されません。");
+			this->labelComment->MouseLeave += gcnew System::EventHandler(this, &StartupForm::label_MouseLeave);
+			this->labelComment->MouseEnter += gcnew System::EventHandler(this, &StartupForm::label_MouseEnter);
 			// 
 			// textBoxName
 			// 
@@ -225,6 +255,7 @@ namespace LilithPort {
 			this->textBoxName->Name = L"textBoxName";
 			this->textBoxName->Size = System::Drawing::Size(94, 19);
 			this->textBoxName->TabIndex = 1;
+			this->textBoxName->WordWrap = false;
 			// 
 			// labelName
 			// 
@@ -234,90 +265,84 @@ namespace LilithPort {
 			this->labelName->Size = System::Drawing::Size(61, 12);
 			this->labelName->TabIndex = 0;
 			this->labelName->Text = L"ニックネーム:";
-			// 
-			// numericUpDownPort
-			// 
-			this->numericUpDownPort->Location = System::Drawing::Point(133, 40);
-			this->numericUpDownPort->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {65535, 0, 0, 0});
-			this->numericUpDownPort->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1024, 0, 0, 0});
-			this->numericUpDownPort->Name = L"numericUpDownPort";
-			this->numericUpDownPort->Size = System::Drawing::Size(53, 19);
-			this->numericUpDownPort->TabIndex = 4;
-			this->numericUpDownPort->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {7500, 0, 0, 0});
-			// 
-			// numericUpDownMaxConnection
-			// 
-			this->numericUpDownMaxConnection->Location = System::Drawing::Point(146, 88);
-			this->numericUpDownMaxConnection->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-			this->numericUpDownMaxConnection->Name = L"numericUpDownMaxConnection";
-			this->numericUpDownMaxConnection->Size = System::Drawing::Size(40, 19);
-			this->numericUpDownMaxConnection->TabIndex = 3;
-			this->numericUpDownMaxConnection->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-			// 
-			// labelMaxConnection
-			// 
-			this->labelMaxConnection->AutoSize = true;
-			this->labelMaxConnection->Location = System::Drawing::Point(7, 90);
-			this->labelMaxConnection->Name = L"labelMaxConnection";
-			this->labelMaxConnection->Size = System::Drawing::Size(79, 12);
-			this->labelMaxConnection->TabIndex = 0;
-			this->labelMaxConnection->Text = L"最大接続者数:";
+			this->toolTipStartupForm->SetToolTip(this->labelName, L"あなたの表示名です。¥r¥nリプレイファイル名でも使われます。¥r¥n匿名モードのサーバでは表示されません。");
+			this->labelName->MouseLeave += gcnew System::EventHandler(this, &StartupForm::label_MouseLeave);
+			this->labelName->MouseEnter += gcnew System::EventHandler(this, &StartupForm::label_MouseEnter);
 			// 
 			// groupBoxStartMode
 			// 
+			this->groupBoxStartMode->Controls->Add(this->labelButtonUPnP);
+			this->groupBoxStartMode->Controls->Add(this->buttonClosePortUPnP);
+			this->groupBoxStartMode->Controls->Add(this->buttonOpenPortUPnP);
 			this->groupBoxStartMode->Controls->Add(this->textBoxServerName);
 			this->groupBoxStartMode->Controls->Add(this->radioButtonServer);
 			this->groupBoxStartMode->Controls->Add(this->labelOpenPort);
 			this->groupBoxStartMode->Controls->Add(this->labelServerName);
-			this->groupBoxStartMode->Controls->Add(this->labelMaxConnection);
-			this->groupBoxStartMode->Controls->Add(this->numericUpDownMaxConnection);
 			this->groupBoxStartMode->Controls->Add(this->numericUpDownOpenPort);
 			this->groupBoxStartMode->Controls->Add(this->radioButtonHost);
 			this->groupBoxStartMode->Controls->Add(this->radioButtonClient);
 			this->groupBoxStartMode->Location = System::Drawing::Point(201, 12);
 			this->groupBoxStartMode->Name = L"groupBoxStartMode";
-			this->groupBoxStartMode->Size = System::Drawing::Size(194, 115);
+			this->groupBoxStartMode->Size = System::Drawing::Size(194, 131);
 			this->groupBoxStartMode->TabIndex = 8;
 			this->groupBoxStartMode->TabStop = false;
 			this->groupBoxStartMode->Text = L"起動モード";
+			// 
+			// labelButtonUPnP
+			// 
+			this->labelButtonUPnP->AutoSize = true;
+			this->labelButtonUPnP->Location = System::Drawing::Point(6, 93);
+			this->labelButtonUPnP->Name = L"labelButtonUPnP";
+			this->labelButtonUPnP->Size = System::Drawing::Size(59, 24);
+			this->labelButtonUPnP->TabIndex = 8;
+			this->labelButtonUPnP->Text = L"UPnP¥r¥nポート開閉:";
+			this->toolTipStartupForm->SetToolTip(this->labelButtonUPnP, L"UPnP機能を使ってポートを開放できます。¥r¥nルータ設定・ファイアウォール設定でUPnPが有効になっている必要があります。¥r¥n環境によっては、正常に動作しないこと" 
+				L"があります。¥r¥n（二重ルータ・ファイアウォール設定・セキュリティソフト設定等）¥r¥n※注意：ポート開放はセキュリティリスクを伴います。ご理解の上、自己責任でご使用" 
+				L"ください。");
+			this->labelButtonUPnP->MouseLeave += gcnew System::EventHandler(this, &StartupForm::label_MouseLeave);
+			this->labelButtonUPnP->MouseEnter += gcnew System::EventHandler(this, &StartupForm::label_MouseEnter);
+			// 
+			// buttonClosePortUPnP
+			// 
+			this->buttonClosePortUPnP->Location = System::Drawing::Point(134, 93);
+			this->buttonClosePortUPnP->Name = L"buttonClosePortUPnP";
+			this->buttonClosePortUPnP->Size = System::Drawing::Size(52, 24);
+			this->buttonClosePortUPnP->TabIndex = 10;
+			this->buttonClosePortUPnP->Text = L"閉鎖";
+			this->toolTipStartupForm->SetToolTip(this->buttonClosePortUPnP, L"待受ポート番号のUDPポートを閉鎖します。¥r¥nLilithPortで開放したポートのみ閉鎖できます。");
+			this->buttonClosePortUPnP->UseVisualStyleBackColor = true;
+			this->buttonClosePortUPnP->Click += gcnew System::EventHandler(this, &StartupForm::buttonClosePortUPnP_Click);
+			// 
+			// buttonOpenPortUPnP
+			// 
+			this->buttonOpenPortUPnP->Location = System::Drawing::Point(76, 93);
+			this->buttonOpenPortUPnP->Name = L"buttonOpenPortUPnP";
+			this->buttonOpenPortUPnP->Size = System::Drawing::Size(52, 24);
+			this->buttonOpenPortUPnP->TabIndex = 9;
+			this->buttonOpenPortUPnP->Text = L"開放";
+			this->toolTipStartupForm->SetToolTip(this->buttonOpenPortUPnP, L"待受ポート番号のUDPポートを開放します。¥r¥n使用後は手動でのポート閉鎖を推奨します。");
+			this->buttonOpenPortUPnP->UseVisualStyleBackColor = true;
+			this->buttonOpenPortUPnP->Click += gcnew System::EventHandler(this, &StartupForm::buttonOpenPortUPnP_Click);
 			// 
 			// textBoxServerName
 			// 
 			this->textBoxServerName->Location = System::Drawing::Point(70, 38);
 			this->textBoxServerName->Name = L"textBoxServerName";
 			this->textBoxServerName->Size = System::Drawing::Size(116, 19);
-			this->textBoxServerName->TabIndex = 5;
+			this->textBoxServerName->TabIndex = 7;
+			this->textBoxServerName->WordWrap = false;
 			// 
 			// groupBoxConnection
 			// 
-			this->groupBoxConnection->Controls->Add(this->labelAccessPort);
-			this->groupBoxConnection->Controls->Add(this->labelIP);
 			this->groupBoxConnection->Controls->Add(this->textBoxIP);
-			this->groupBoxConnection->Controls->Add(this->numericUpDownPort);
-			this->groupBoxConnection->Location = System::Drawing::Point(201, 133);
+			this->groupBoxConnection->Location = System::Drawing::Point(201, 149);
 			this->groupBoxConnection->Name = L"groupBoxConnection";
-			this->groupBoxConnection->Size = System::Drawing::Size(194, 66);
+			this->groupBoxConnection->Size = System::Drawing::Size(194, 50);
 			this->groupBoxConnection->TabIndex = 9;
 			this->groupBoxConnection->TabStop = false;
-			this->groupBoxConnection->Text = L"接続先";
-			// 
-			// labelAccessPort
-			// 
-			this->labelAccessPort->AutoSize = true;
-			this->labelAccessPort->Location = System::Drawing::Point(7, 42);
-			this->labelAccessPort->Name = L"labelAccessPort";
-			this->labelAccessPort->Size = System::Drawing::Size(71, 12);
-			this->labelAccessPort->TabIndex = 5;
-			this->labelAccessPort->Text = L"接続先ポート:";
-			// 
-			// labelIP
-			// 
-			this->labelIP->AutoSize = true;
-			this->labelIP->Location = System::Drawing::Point(7, 21);
-			this->labelIP->Name = L"labelIP";
-			this->labelIP->Size = System::Drawing::Size(43, 12);
-			this->labelIP->TabIndex = 3;
-			this->labelIP->Text = L"アドレス:";
+			this->groupBoxConnection->Text = L"接続先アドレス";
+			this->toolTipStartupForm->SetToolTip(this->groupBoxConnection, L"IPアドレス, ホスト名, 変換アドレスのいずれかを入力します。¥r¥n『:』に繋げてポート番号を指定します。¥r¥nポート番号を省略した場合、7500ポートに接続します" 
+				L"。¥r¥n(例:[ lilith.port.xx:7500 ], [ 123.456.xxx.xxx ])");
 			// 
 			// groupBoxProfile
 			// 
@@ -335,12 +360,13 @@ namespace LilithPort {
 			// groupBoxWelcome
 			// 
 			this->groupBoxWelcome->Controls->Add(this->textBoxWelcome);
-			this->groupBoxWelcome->Location = System::Drawing::Point(12, 85);
+			this->groupBoxWelcome->Location = System::Drawing::Point(12, 86);
 			this->groupBoxWelcome->Name = L"groupBoxWelcome";
 			this->groupBoxWelcome->Size = System::Drawing::Size(183, 113);
 			this->groupBoxWelcome->TabIndex = 11;
 			this->groupBoxWelcome->TabStop = false;
-			this->groupBoxWelcome->Text = L"サーバメッセージ";
+			this->groupBoxWelcome->Text = L"サーバ告知";
+			this->toolTipStartupForm->SetToolTip(this->groupBoxWelcome, L"入室時に表示されるWelcomeメッセージです。");
 			// 
 			// textBoxWelcome
 			// 
@@ -348,9 +374,29 @@ namespace LilithPort {
 			this->textBoxWelcome->MaxLength = 254;
 			this->textBoxWelcome->Name = L"textBoxWelcome";
 			this->textBoxWelcome->Size = System::Drawing::Size(167, 86);
-			this->textBoxWelcome->TabIndex = 0;
+			this->textBoxWelcome->TabIndex = 3;
 			this->textBoxWelcome->Text = L"";
 			this->textBoxWelcome->WordWrap = false;
+			// 
+			// toolTipStartupForm
+			// 
+			this->toolTipStartupForm->AutomaticDelay = 0;
+			this->toolTipStartupForm->AutoPopDelay = 30000;
+			this->toolTipStartupForm->InitialDelay = 0;
+			this->toolTipStartupForm->ReshowDelay = 0;
+			this->toolTipStartupForm->UseAnimation = false;
+			this->toolTipStartupForm->UseFading = false;
+			// 
+			// buttonConnect
+			// 
+			this->buttonConnect->Location = System::Drawing::Point(274, 205);
+			this->buttonConnect->Name = L"buttonConnect";
+			this->buttonConnect->Size = System::Drawing::Size(58, 24);
+			this->buttonConnect->TabIndex = 13;
+			this->buttonConnect->Text = L"接続";
+			this->toolTipStartupForm->SetToolTip(this->buttonConnect, L"オンライン接続を開始します。");
+			this->buttonConnect->UseVisualStyleBackColor = true;
+			this->buttonConnect->Click += gcnew System::EventHandler(this, &StartupForm::buttonOK_Click);
 			// 
 			// StartupForm
 			// 
@@ -358,25 +404,26 @@ namespace LilithPort {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->CancelButton = this->buttonCancel;
 			this->ClientSize = System::Drawing::Size(407, 241);
-			this->ControlBox = false;
+			this->Controls->Add(this->buttonConnect);
 			this->Controls->Add(this->groupBoxWelcome);
 			this->Controls->Add(this->groupBoxProfile);
 			this->Controls->Add(this->groupBoxConnection);
 			this->Controls->Add(this->groupBoxStartMode);
 			this->Controls->Add(this->buttonOK);
 			this->Controls->Add(this->buttonCancel);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"StartupForm";
+			this->RightToLeft = System::Windows::Forms::RightToLeft::No;
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"スタートアップ";
 			this->Load += gcnew System::EventHandler(this, &StartupForm::StartupForm_Load);
 			this->Shown += gcnew System::EventHandler(this, &StartupForm::StartupForm_Shown);
+			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &StartupForm::StartupForm_FormClosed);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownOpenPort))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownPort))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDownMaxConnection))->EndInit();
 			this->groupBoxStartMode->ResumeLayout(false);
 			this->groupBoxStartMode->PerformLayout();
 			this->groupBoxConnection->ResumeLayout(false);
@@ -388,8 +435,19 @@ namespace LilithPort {
 
 		}
 #pragma endregion
+	protected:
+
+		// StartupForm.cpp
+		bool StartupForm::CheckValidate();
+
 	private:
+
+		// コントロールボックスからの閉じる認識用
+		static bool ConnectionStart = false;
+
 		System::Void StartupForm_Load(System::Object^  sender, System::EventArgs^  e) {
+			ConnectionStart = false;
+
 			textBoxServerName->MaxLength      = MAX_NAME;
 			textBoxIP->MaxLength              = MAX_ARRAY;
 			textBoxName->MaxLength            = MAX_NAME;
@@ -400,7 +458,6 @@ namespace LilithPort {
 			default:
 				radioButtonServer->Checked = true;
 
-				numericUpDownPort->Enabled = false;
 				break;
 			case CT_HOST:
 				radioButtonHost->Checked = true;
@@ -416,115 +473,45 @@ namespace LilithPort {
 			textBoxServerName->Text = gcnew String(MTOPTION.SERVER_NAME);
 			textBoxIP->Text = gcnew String(MTOPTION.CONNECTION_IP);
 			
-
 			numericUpDownOpenPort->Value = MTOPTION.OPEN_PORT;
-
 			textBoxName->Text = gcnew String(MTOPTION.NAME);
-			numericUpDownPort->Value = MTOPTION.PORT;
-			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 
 			textBoxComment->Text = gcnew String(MTOPTION.COMMENT);
+			// タブを改行に
+			ReplaceWelcomeTab(true);
 			textBoxWelcome->Text = gcnew String(MTOPTION.WELCOME);
-		}
 
+		}
 		System::Void StartupForm_Shown(System::Object^  sender, System::EventArgs^  e) {
-			buttonOK->Focus();
-		}
-
-		System::Void buttonOK_Click(System::Object^  sender, System::EventArgs^  e) {
-			IntPtr mp;
-			TCHAR p1[MAX_ARRAY];
-			TCHAR *p2;
-
 			if(radioButtonServer->Checked){
-				MTOPTION.CONNECTION_TYPE = CT_SERVER;
+				buttonOK->Focus();
+			}else{
+				buttonConnect->Focus();
+			}
+		}
+		System::Void buttonOK_Click(System::Object^  sender, System::EventArgs^  e) {
+			// 起動・接続ボタン
+			if(!CheckValidate()){
+				return;
+			}
+			ConnectionStart = true;
 
-				// サーバ名チェック
-				if(textBoxServerName->Text->Length == 0){
-					MessageBox::Show("サーバ名を入力してください。¥n¥nSERVERモードで起動するには、¥nサーバ名を入力する必要があります。", "SERVERモードエラー", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-					return;
-				}
-				mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxServerName->Text);
-				_tcscpy_s(p1, static_cast<PTCHAR>(mp.ToPointer()));
-				Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-				p2 = _tcschr(p1, _T(','));
-				if (p2 != NULL){
-					MessageBox::Show("サーバ名に使用できない文字(,)があります。¥nサーバ名を確認してください。", "SERVERモードエラー", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-					return;
-				}
-			}
-			else if(radioButtonHost->Checked){
-				MTOPTION.CONNECTION_TYPE = CT_HOST;
-			}
-			else if(radioButtonClient->Checked){
-				MTOPTION.CONNECTION_TYPE = CT_CLIENT;
-			}
-			else{
+			this->Close();
+		}
+		System::Void buttonCancel_Click(System::Object^  sender, System::EventArgs^  e) {
+			// 閉じるボタン
+			MTOPTION.CONNECTION_TYPE = CT_FREE;
+			ConnectionStart = false;
+
+			this->Close();
+		}
+		System::Void StartupForm_FormClosed(System::Object^  sender, System::Windows::Forms::FormClosedEventArgs^  e) {
+			if(!ConnectionStart){
 				MTOPTION.CONNECTION_TYPE = CT_FREE;
 			}
-
-
-			// サーバ名
-			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxServerName->Text);
-			_tcscpy_s(MTOPTION.SERVER_NAME, static_cast<PTCHAR>(mp.ToPointer()));
-			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-			// IPチェック
-			if(MTOPTION.CONNECTION_TYPE == CT_HOST || MTOPTION.CONNECTION_TYPE == CT_CLIENT) {
-				if(textBoxIP->Text->Length == 0){
-					MessageBox::Show("接続先アドレスを入力してください。¥n¥nHOST, CLIENTモードで起動するには、¥n接続先のアドレスを入力する必要があります。", "HOST, CLIENTモードエラー", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-					return;
-				}
-				mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxIP->Text);
-				_tcscpy_s(p1, static_cast<PTCHAR>(mp.ToPointer()));
-				p2 = _tcschr(p1, _T(','));
-				if (p2 != NULL){
-					MessageBox::Show("接続先アドレスに使用できない文字(,)があります。¥n接続先アドレスを確認してください。", "HOST, CLIENTモードエラー", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-					return;
-				}
-			}
-
-			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxIP->Text);
-			_tcscpy_s(MTOPTION.CONNECTION_IP, static_cast<PTCHAR>(mp.ToPointer()));
-			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-			// 名前チェック
-			if(textBoxName->Text->Length == 0){
-				textBoxName->Text = gcnew String(MTOPTION.NAME);
-
-				if(textBoxName->Text->Length == 0){
-					textBoxName->Text = gcnew String("名無しさん");
-				}
-			}
-
-			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxName->Text);
-			_tcscpy_s(MTOPTION.NAME, static_cast<PTCHAR>(mp.ToPointer()));
-			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-			MTOPTION.OPEN_PORT      = (UINT)numericUpDownOpenPort->Value;
-			MTOPTION.PORT           = (UINT)numericUpDownPort->Value;
-			MTOPTION.MAX_CONNECTION = (UINT)numericUpDownMaxConnection->Value;
-
-			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxComment->Text);
-			_tcscpy_s(MTOPTION.COMMENT, static_cast<PTCHAR>(mp.ToPointer()));
-			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-			mp = Runtime::InteropServices::Marshal::StringToHGlobalAuto(textBoxWelcome->Text);
-			_tcscpy_s(MTOPTION.WELCOME, static_cast<PTCHAR>(mp.ToPointer()));
-			Runtime::InteropServices::Marshal::FreeHGlobal(mp);
-
-			this->Close();
 		}
-
-		System::Void buttonCancel_Click(System::Object^  sender, System::EventArgs^  e) {
-			MTOPTION.CONNECTION_TYPE = CT_FREE;
-			
-			this->Close();
-		}
-
 		System::Void radioButtonServer_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = true;
-			numericUpDownPort->Enabled     = false;
 			labelOpenPort->Enabled         = true;
 			labelServerName->Enabled       = true;
 			textBoxServerName->Enabled     = true;
@@ -532,32 +519,76 @@ namespace LilithPort {
 			groupBoxConnection->Enabled    = false;
 			groupBoxWelcome->Enabled       = true;
 
+			labelButtonUPnP->Enabled       = true;
+			buttonOpenPortUPnP->Enabled    = true;
+			buttonClosePortUPnP->Enabled   = true;
+
 			buttonOK->Enabled = true;
+			buttonConnect->Enabled = false;
 		}
 
 		System::Void radioButtonHost_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = true;
-			numericUpDownPort->Enabled     = true;
 			labelOpenPort->Enabled         = true;
 			labelServerName->Enabled       = false;
 			textBoxServerName->Enabled     = false;
 			textBoxIP->Enabled             = true;
 			groupBoxConnection->Enabled    = true;
 			groupBoxWelcome->Enabled       = false;
-		}
 
+			labelButtonUPnP->Enabled       = true;
+			buttonOpenPortUPnP->Enabled    = true;
+			buttonClosePortUPnP->Enabled   = true;
+
+			buttonOK->Enabled = false;
+			buttonConnect->Enabled = true;
+		}
 		System::Void radioButtonClient_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			numericUpDownOpenPort->Enabled = false;
-			numericUpDownPort->Enabled     = true;
 			labelOpenPort->Enabled         = false;
 			labelServerName->Enabled       = false;
 			textBoxServerName->Enabled     = false;
 			textBoxIP->Enabled             = true;
 			groupBoxConnection->Enabled    = true;
 			groupBoxWelcome->Enabled       = false;
+
+			labelButtonUPnP->Enabled       = false;
+			buttonOpenPortUPnP->Enabled    = false;
+			buttonClosePortUPnP->Enabled   = false;
+
+			buttonOK->Enabled = false;
+			buttonConnect->Enabled = true;
 		}
-		System::Void buttonEnd_Click(System::Object^  sender, System::EventArgs^  e) {
-			 exit(0);
+		System::Void label_MouseEnter(System::Object^  sender, System::EventArgs^  e) {
+			// マウスオーバーでラベルに下線
+			Label^ obj = (Label^)sender;
+			obj->Font = gcnew System::Drawing::Font(this->Font, FontStyle::Underline);
+		}
+		System::Void label_MouseLeave(System::Object^  sender, System::EventArgs^  e) {
+			Label^ obj = (Label^)sender;
+			obj->Font = gcnew System::Drawing::Font(this->Font, FontStyle::Regular);
+		}
+		System::Void buttonOpenPortUPnP_Click(System::Object^  sender, System::EventArgs^  e) {
+			// ポート開放ボタン
+			buttonOpenPortUPnP->Enabled = false;
+			buttonClosePortUPnP->Enabled = false;
+
+			MTOPTION.OPEN_PORT = (UINT)numericUpDownOpenPort->Value;
+			UPnP_PortOpenClose(true, false);
+
+			buttonOpenPortUPnP->Enabled = true;
+			buttonClosePortUPnP->Enabled = true;
+		}
+		System::Void buttonClosePortUPnP_Click(System::Object^  sender, System::EventArgs^  e) {
+			// ポート閉鎖ボタン
+			buttonOpenPortUPnP->Enabled = false;
+			buttonClosePortUPnP->Enabled = false;
+
+			MTOPTION.OPEN_PORT = (UINT)numericUpDownOpenPort->Value;
+			UPnP_PortOpenClose(false, false);
+
+			buttonOpenPortUPnP->Enabled = true;
+			buttonClosePortUPnP->Enabled = true;
 		}
 	};
 }

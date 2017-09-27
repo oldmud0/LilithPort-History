@@ -207,6 +207,14 @@ private: System::Windows::Forms::TextBox^  textBoxMTAddr;
 private: System::Windows::Forms::Label^  labelAddrBase64;
 private: System::Windows::Forms::Label^  labelAddrMT;
 private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
+private: System::Windows::Forms::GroupBox^  groupBoxLog;
+private: System::Windows::Forms::RadioButton^  radioButtonLogRTF;
+private: System::Windows::Forms::RadioButton^  radioButtonLogTXT;
+private: System::Windows::Forms::CheckBox^  checkBoxLogClearWithoutWelcome;
+
+
+
+
 
 
 
@@ -305,6 +313,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->checkBoxWindowSize = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxHitJudge = (gcnew System::Windows::Forms::CheckBox());
 			this->groupBoxView = (gcnew System::Windows::Forms::GroupBox());
+			this->checkBoxShowResult = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxVersus = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxName = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxFramerate = (gcnew System::Windows::Forms::CheckBox());
@@ -358,12 +367,15 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->IPgroupBox = (gcnew System::Windows::Forms::GroupBox());
 			this->IPtextBox = (gcnew System::Windows::Forms::TextBox());
 			this->tabPageDetails = (gcnew System::Windows::Forms::TabPage());
+			this->groupBoxLog = (gcnew System::Windows::Forms::GroupBox());
+			this->radioButtonLogTXT = (gcnew System::Windows::Forms::RadioButton());
+			this->radioButtonLogRTF = (gcnew System::Windows::Forms::RadioButton());
 			this->groupBoxDetails = (gcnew System::Windows::Forms::GroupBox());
+			this->checkBoxLogClearWithoutWelcome = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxShowGameOption = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxNameFlash = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxGetIP = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxTalkFlash = (gcnew System::Windows::Forms::CheckBox());
-			this->checkBoxShowResult = (gcnew System::Windows::Forms::CheckBox());
 			this->tabPageSound->SuspendLayout();
 			this->groupBoxKeywordSound->SuspendLayout();
 			this->groupBoxSeekSound->SuspendLayout();
@@ -407,6 +419,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->Base64groupBox->SuspendLayout();
 			this->IPgroupBox->SuspendLayout();
 			this->tabPageDetails->SuspendLayout();
+			this->groupBoxLog->SuspendLayout();
 			this->groupBoxDetails->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -1272,6 +1285,17 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->groupBoxView->TabStop = false;
 			this->groupBoxView->Text = L"タイトルバー";
 			// 
+			// checkBoxShowResult
+			// 
+			this->checkBoxShowResult->AutoSize = true;
+			this->checkBoxShowResult->Location = System::Drawing::Point(16, 64);
+			this->checkBoxShowResult->Name = L"checkBoxShowResult";
+			this->checkBoxShowResult->Size = System::Drawing::Size(72, 16);
+			this->checkBoxShowResult->TabIndex = 5;
+			this->checkBoxShowResult->Text = L"対戦勝敗";
+			this->checkBoxShowResult->UseVisualStyleBackColor = true;
+			this->checkBoxShowResult->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			// 
 			// checkBoxVersus
 			// 
 			this->checkBoxVersus->AutoSize = true;
@@ -1675,7 +1699,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			// 
 			this->groupBoxSE->Controls->Add(this->labelSE);
 			this->groupBoxSE->Controls->Add(this->trackBarSE);
-			this->groupBoxSE->Location = System::Drawing::Point(8, 68);
+			this->groupBoxSE->Location = System::Drawing::Point(8, 70);
 			this->groupBoxSE->Name = L"groupBoxSE";
 			this->groupBoxSE->Size = System::Drawing::Size(352, 52);
 			this->groupBoxSE->TabIndex = 2;
@@ -1851,6 +1875,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			// 
 			// tabPageDetails
 			// 
+			this->tabPageDetails->Controls->Add(this->groupBoxLog);
 			this->tabPageDetails->Controls->Add(this->groupBoxDetails);
 			this->tabPageDetails->Location = System::Drawing::Point(4, 22);
 			this->tabPageDetails->Name = L"tabPageDetails";
@@ -1860,23 +1885,68 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->tabPageDetails->Text = L"詳細";
 			this->tabPageDetails->UseVisualStyleBackColor = true;
 			// 
+			// groupBoxLog
+			// 
+			this->groupBoxLog->Controls->Add(this->radioButtonLogTXT);
+			this->groupBoxLog->Controls->Add(this->radioButtonLogRTF);
+			this->groupBoxLog->Location = System::Drawing::Point(8, 8);
+			this->groupBoxLog->Name = L"groupBoxLog";
+			this->groupBoxLog->Size = System::Drawing::Size(352, 52);
+			this->groupBoxLog->TabIndex = 1;
+			this->groupBoxLog->TabStop = false;
+			this->groupBoxLog->Text = L"ログファイル保存形式";
+			// 
+			// radioButtonLogTXT
+			// 
+			this->radioButtonLogTXT->AutoSize = true;
+			this->radioButtonLogTXT->Location = System::Drawing::Point(126, 20);
+			this->radioButtonLogTXT->Name = L"radioButtonLogTXT";
+			this->radioButtonLogTXT->Size = System::Drawing::Size(120, 16);
+			this->radioButtonLogTXT->TabIndex = 1;
+			this->radioButtonLogTXT->Text = L"プレーンテキスト(.txt)";
+			this->radioButtonLogTXT->UseVisualStyleBackColor = true;
+			this->radioButtonLogTXT->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::radioButtonLogTXT_CheckedChanged);
+			// 
+			// radioButtonLogRTF
+			// 
+			this->radioButtonLogRTF->AutoSize = true;
+			this->radioButtonLogRTF->Location = System::Drawing::Point(16, 20);
+			this->radioButtonLogRTF->Name = L"radioButtonLogRTF";
+			this->radioButtonLogRTF->Size = System::Drawing::Size(104, 16);
+			this->radioButtonLogRTF->TabIndex = 0;
+			this->radioButtonLogRTF->Text = L"リッチテキスト(.rtf)";
+			this->radioButtonLogRTF->UseVisualStyleBackColor = true;
+			this->radioButtonLogRTF->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::radioButtonLogRTF_CheckedChanged);
+			// 
 			// groupBoxDetails
 			// 
+			this->groupBoxDetails->Controls->Add(this->checkBoxLogClearWithoutWelcome);
 			this->groupBoxDetails->Controls->Add(this->checkBoxShowGameOption);
 			this->groupBoxDetails->Controls->Add(this->checkBoxNameFlash);
 			this->groupBoxDetails->Controls->Add(this->checkBoxGetIP);
 			this->groupBoxDetails->Controls->Add(this->checkBoxTalkFlash);
-			this->groupBoxDetails->Location = System::Drawing::Point(9, 7);
+			this->groupBoxDetails->Location = System::Drawing::Point(8, 70);
 			this->groupBoxDetails->Name = L"groupBoxDetails";
-			this->groupBoxDetails->Size = System::Drawing::Size(351, 282);
+			this->groupBoxDetails->Size = System::Drawing::Size(352, 223);
 			this->groupBoxDetails->TabIndex = 0;
 			this->groupBoxDetails->TabStop = false;
 			this->groupBoxDetails->Text = L"詳細設定";
 			// 
+			// checkBoxLogClearWithoutWelcome
+			// 
+			this->checkBoxLogClearWithoutWelcome->AutoSize = true;
+			this->checkBoxLogClearWithoutWelcome->Location = System::Drawing::Point(16, 108);
+			this->checkBoxLogClearWithoutWelcome->Name = L"checkBoxLogClearWithoutWelcome";
+			this->checkBoxLogClearWithoutWelcome->Size = System::Drawing::Size(171, 16);
+			this->checkBoxLogClearWithoutWelcome->TabIndex = 4;
+			this->checkBoxLogClearWithoutWelcome->Text = L"ログの削除でサーバ告知を残す";
+			this->checkBoxLogClearWithoutWelcome->UseVisualStyleBackColor = true;
+			this->checkBoxLogClearWithoutWelcome->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
+			// 
 			// checkBoxShowGameOption
 			// 
 			this->checkBoxShowGameOption->AutoSize = true;
-			this->checkBoxShowGameOption->Location = System::Drawing::Point(8, 85);
+			this->checkBoxShowGameOption->Location = System::Drawing::Point(16, 86);
 			this->checkBoxShowGameOption->Name = L"checkBoxShowGameOption";
 			this->checkBoxShowGameOption->Size = System::Drawing::Size(199, 16);
 			this->checkBoxShowGameOption->TabIndex = 3;
@@ -1887,7 +1957,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			// checkBoxNameFlash
 			// 
 			this->checkBoxNameFlash->AutoSize = true;
-			this->checkBoxNameFlash->Location = System::Drawing::Point(8, 40);
+			this->checkBoxNameFlash->Location = System::Drawing::Point(16, 42);
 			this->checkBoxNameFlash->Name = L"checkBoxNameFlash";
 			this->checkBoxNameFlash->Size = System::Drawing::Size(203, 16);
 			this->checkBoxNameFlash->TabIndex = 1;
@@ -1898,7 +1968,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			// checkBoxGetIP
 			// 
 			this->checkBoxGetIP->AutoSize = true;
-			this->checkBoxGetIP->Location = System::Drawing::Point(8, 62);
+			this->checkBoxGetIP->Location = System::Drawing::Point(16, 64);
 			this->checkBoxGetIP->Name = L"checkBoxGetIP";
 			this->checkBoxGetIP->Size = System::Drawing::Size(200, 16);
 			this->checkBoxGetIP->TabIndex = 2;
@@ -1909,24 +1979,13 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			// checkBoxTalkFlash
 			// 
 			this->checkBoxTalkFlash->AutoSize = true;
-			this->checkBoxTalkFlash->Location = System::Drawing::Point(8, 18);
+			this->checkBoxTalkFlash->Location = System::Drawing::Point(16, 20);
 			this->checkBoxTalkFlash->Name = L"checkBoxTalkFlash";
 			this->checkBoxTalkFlash->Size = System::Drawing::Size(153, 16);
 			this->checkBoxTalkFlash->TabIndex = 0;
 			this->checkBoxTalkFlash->Text = L"発言でウィンドウを点滅する";
 			this->checkBoxTalkFlash->UseVisualStyleBackColor = true;
 			this->checkBoxTalkFlash->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
-			// 
-			// checkBoxShowResult
-			// 
-			this->checkBoxShowResult->AutoSize = true;
-			this->checkBoxShowResult->Location = System::Drawing::Point(16, 64);
-			this->checkBoxShowResult->Name = L"checkBoxShowResult";
-			this->checkBoxShowResult->Size = System::Drawing::Size(72, 16);
-			this->checkBoxShowResult->TabIndex = 5;
-			this->checkBoxShowResult->Text = L"対戦勝敗";
-			this->checkBoxShowResult->UseVisualStyleBackColor = true;
-			this->checkBoxShowResult->CheckedChanged += gcnew System::EventHandler(this, &OptionForm::ApplyButtonEnable);
 			// 
 			// OptionForm
 			// 
@@ -2013,6 +2072,8 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			this->IPgroupBox->ResumeLayout(false);
 			this->IPgroupBox->PerformLayout();
 			this->tabPageDetails->ResumeLayout(false);
+			this->groupBoxLog->ResumeLayout(false);
+			this->groupBoxLog->PerformLayout();
 			this->groupBoxDetails->ResumeLayout(false);
 			this->groupBoxDetails->PerformLayout();
 			this->ResumeLayout(false);
@@ -2115,6 +2176,7 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			checkBoxGetIP->Checked            = MTOPTION.GET_IP_ENABLE;
 			checkBoxShowGameOption->Checked   = MTOPTION.SHOW_GAME_OPTION;
 			checkBoxShowResult->Checked       = MTOPTION.SHOW_RESULT;
+			checkBoxLogClearWithoutWelcome->Checked = MTOPTION.LOG_CLEAR_WITHOUT_WELCOME;
 
 			numericUpDownMaxConnection->Value = MTOPTION.MAX_CONNECTION;
 			trackBarBGM->Value                = MTOPTION.BGM_VOLUME / 5;
@@ -2131,6 +2193,15 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 			checkBoxRand->Checked             = MTOPTION.DISPLAY_RAND;
 			checkBoxDivide->Checked           = MTOPTION.REPLAY_DIVIDE;
 			checkBoxWindowSize->Checked       = MTOPTION.CHANGE_WINDOW_SIZE;
+
+			if(MTOPTION.LOG_FORMAT_RTF){
+				radioButtonLogRTF->Checked    = true;
+				radioButtonLogTXT->Checked    = false;
+			}else{
+				radioButtonLogRTF->Checked    = false;
+				radioButtonLogTXT->Checked    = true;
+			}
+
 			checkBoxTalkFlash->Checked        = MTOPTION.TALK_FLASH;
 			checkBoxNameFlash->Checked        = MTOPTION.NAME_FLASH;
 			checkBoxTeamRoundHP->Checked      = MTOPTION.TEAM_ROUND_HP;
@@ -2794,6 +2865,14 @@ private: System::Windows::Forms::CheckBox^  checkBoxShowResult;
 
 				comboBoxProfile->Items[comboBoxProfile->SelectedIndex] = bufText;
 			}
+		}
+		System::Void radioButtonLogRTF_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			// ログ保存形式 > rtf
+			buttonApply->Enabled = true;
+		}
+		System::Void radioButtonLogTXT_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			// ログ保存形式 > txt
+			buttonApply->Enabled = true;
 		}
 	};
 }

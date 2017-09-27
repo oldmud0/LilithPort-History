@@ -35,7 +35,7 @@ void MainForm::Begin()
 
 			MemberList->Add(me);
 			MemberListBackUp->Add(bk);
-			listBoxMember->Items->Add(gcnew String("野試合会場"));
+			listBoxMember->Items->Add(gcnew String("匿名モード"));
 		}
 		else{
 			MemberList->Add(me);
@@ -79,11 +79,12 @@ void MainForm::Begin()
 	}
 
 	// ネットに接続
-	if(UDP != nullptr){
+	if(UDP != nullptr && MTOPTION.CONNECTION_TYPE != CT_FREE){
 
 		// 設定を保存
 		SaveMTOption();
 
+		// 自動休憩スレッド開始
 		if(MTOPTION.AUTO_REST && MemberList[0]->STATE == MS_FREE){
 			AutoRestThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunAutoRest));
 			AutoRestThread->Start();
@@ -94,22 +95,17 @@ void MainForm::Begin()
 			// 鯖受信開始
 			UDP->BeginReceive(gcnew AsyncCallback(ReceivePackets), this);
 
-			// ソナー軌道
+			// ソナー起動
 			Ranging = true;
 			SonarThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::RunSonar));
 			SonarThread->Start();
 
 			this->Text += String::Format("  [{0}] [Server Port:{1}]", ServerName, MTOPTION.OPEN_PORT);
 			WriteTime(0, SystemMessageColor);
-			WriteMessage("サーバの準備が完了しました。¥n[サーバー告知]-------------------¥n", SystemMessageColor);
+			WriteMessage("サーバの準備が完了しました。¥n[サーバ告知]---------------------¥n", SystemMessageColor);
 
 			// Welcomeメッセージの表示
-			int len = _tcslen(MTOPTION.WELCOME);
-			for(int i = 0; i < len; i++){
-				if(MTOPTION.WELCOME[i] == _T('¥t')){
-					MTOPTION.WELCOME[i] = _T('¥n');
-				}
-			}
+			ReplaceWelcomeTab(true);
 			richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
 			richTextBoxLog->SelectionColor = TalkMessageColor;
 			richTextBoxLog->SelectionBackColor = NoticeBackColor;
@@ -334,10 +330,10 @@ void MainForm::Begin()
 						}
 						else if(ServerName[0] == '#'){
 							ServerMode = SM_NORA;
-							WriteMessage("おおっと！ 野良サーバ¥n", SystemMessageColor);
+							WriteMessage("匿名モードサーバです。¥n", SystemMessageColor);
 
 							ListView = LV_BLIND;
-							listBoxMember->Items[0] = gcnew String("野試合会場");
+							listBoxMember->Items[0] = gcnew String("匿名モード");
 						}
 					}
 
@@ -449,6 +445,9 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 		case PH_PING:
 			rcv[0] = PH_PONG;
 			UDP->Send(rcv, rcv->Length, ep);
+			if(MTINFO.DEBUG){
+				form->WriteMessage(String::Format("Ping要求 from {0}¥n", ep), DebugMessageColor);
+			}
 			break;
 
 		case PH_PONG:
@@ -607,13 +606,8 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 			}
 
 			// Welcomeメッセージ
-			for(UINT j = 0; j < _tcslen(MTOPTION.WELCOME); j++){
-				if(MTOPTION.WELCOME[j] == _T('¥t')){
-					MTOPTION.WELCOME[j] = _T('¥n');
-				}
-			}
+			ReplaceWelcomeTab(true);
 			i = _tcslen(MTOPTION.WELCOME)*2;
-
 
 			if(i > 0){
 				Thread::Sleep(50);
@@ -643,7 +637,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 		case PH_NOTICE:
 			if(UDP != nullptr){
-				form->WriteMessage("[サーバー告知]-------------------¥n", SystemMessageColor);
+				form->WriteMessage("[サーバ告知]---------------------¥n", SystemMessageColor);
 				form->WriteNotice(Encoding::Unicode->GetString(rcv, 2, (rcv->Length)-2));
 				form->WriteMessage("-------------------------------¥n", SystemMessageColor);
 			}
@@ -1018,7 +1012,7 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 							form->WriteTime(0, SystemMessageColor);
 							form->WriteMessage(MemberList[i]->NAME + "の状態を更新しました。¥n", SystemMessageColor);
 							if(MTOPTION.CONNECTION_TYPE != CT_SERVER && MemberList[i]->ID == 0){
-								form->WriteMessage("サーバーとの通信が途切れた可能性があります。再接続をしてみてください。¥n", ErrorMessageColor);
+								form->WriteMessage("サーバとの通信が途切れた可能性があります。再接続をしてみてください。¥n", ErrorMessageColor);
 							}
 							MemberList[i]->STATE = rcv[3];
 							form->listBoxMember->Refresh();
@@ -1092,6 +1086,12 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 
 		case PH_REQ_VS:
 
+			if(MemberList[0]->STATE == MS_SEEK && GameThread != nullptr){
+				form->QuitGame();
+				GameThread = nullptr;
+				Thread::Sleep(500);
+			}
+
 			// 準備時間が長すぎた場合は新規接続受付
 			if(NetVS != nullptr && MemberList[0]->STATE == MS_READY){
 				if((timeGetTime() - NetVS->START_UP) > TIME_OUT*2 + 1000){
@@ -1099,12 +1099,6 @@ void MainForm::ReceivePackets(IAsyncResult^ asyncResult)
 					delete NetVS;
 					NetVS = nullptr;
 				}
-			}
-
-			if(MemberList[0]->STATE == MS_SEEK && GameThread != nullptr){
-				form->QuitGame();
-				GameThread = nullptr;
-				Thread::Sleep(500);
 			}
 
 			send = gcnew array<BYTE>(2);
@@ -1994,6 +1988,12 @@ void MainForm::RunGame(Object^ obj)
 
 	// 送信間隔を計算
 	if(run_type == RT_VS){
+		if(NetVS == nullptr){
+			// 同時凸対策
+			WriteMessage("エラーが発生しました。同時に対戦要求を送った可能性があります。¥n", ErrorMessageColor);
+			return;
+		}
+
 		NetVS->INTERVAL  = 0;
 		NetVS->INTERVAL2 = 0;
 
@@ -2993,7 +2993,9 @@ void MainForm::RunGame(Object^ obj)
 				ChangeState((BYTE)MS_REST);
 			}
 			else{
-				ChangeState((BYTE)MS_FREE);
+				if(MemberList[0]->STATE != MS_SEEK){
+					ChangeState((BYTE)MS_FREE);
+				}
 			}
 		}
 
@@ -3532,7 +3534,11 @@ void MainForm::RunAutoRest() {
 		GetLastInputInfo(&li);
 		te = GetTickCount();
 		to = MTOPTION.AUTO_REST_TIME;
-		//WriteMessage(String::Format("{0}秒経過¥n", ((te-li.dwTime)/1000) ), DebugMessageColor);
+
+		if(MTINFO.DEBUG){
+			// WriteMessage(String::Format("{0}秒経過¥n", ((te-li.dwTime)/1000) ), DebugMessageColor);
+		}
+
 		if(((te-li.dwTime)/1000) >= UINT(to*60)){
 			// フリー状態なら休憩状態にする
 			if(UDP != nullptr && MemberList[0]->STATE == MS_FREE){
@@ -3551,7 +3557,9 @@ void MainForm::ChangeSeek() {
 		ChangeState((BYTE)MS_SEEK);
 		WriteMessage("対戦募集状態を変更しました。 > オン¥n", SystemMessageColor);
 		WriteTime(0, SystemMessageColor);
-		WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", MemberList[0]->NAME), SystemMessageColor);
+		WriteMessage(String::Format("{0}が対戦募集状態になりました。¥n", (ServerMode == SM_NORA ? L"◆" :
+																			MemberList[0]->NAME)), SystemMessageColor);
+
 	}
 	else if(MemberList[0]->STATE == MS_SEEK){
 		if(GameThread != nullptr && GameThread->IsAlive){
@@ -3559,10 +3567,10 @@ void MainForm::ChangeSeek() {
 		}else{
 			ChangeState((BYTE)MS_FREE);
 		}
-		
 		WriteMessage("対戦募集状態を変更しました。 > オフ¥n", SystemMessageColor);
 		WriteTime(0, SystemMessageColor);
-		WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", MemberList[0]->NAME), SystemMessageColor);
+		WriteMessage(String::Format("{0}が対戦募集を締め切りました。¥n", (ServerMode == SM_NORA ? L"◆" :
+																			MemberList[0]->NAME)), SystemMessageColor);
 	}
 }
 void MainForm::ChangeLogWordWrap() {
@@ -3576,18 +3584,49 @@ void MainForm::ChangeLogWordWrap() {
 	}
 }
 void MainForm::ClearLog(){
-	if(MessageBox::Show("ログを10行残して削除します。¥nよろしいですか？", "ログの削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
+	if(MessageBox::Show("ログを削除します。¥nよろしいですか？", "ログの削除", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes){
 	}else{
 		return;
 	}
 	Monitor::Enter(richTextBoxLog);
 	try{
-		int len = richTextBoxLog->Lines->Length;	// 全体行数
-		if(len > 10){
-			int index = richTextBoxLog->GetFirstCharIndexFromLine(len-11);
-			richTextBoxLog->SelectionStart=0;
-			richTextBoxLog->Select(0, index);
-			richTextBoxLog->SelectedText="[削除されました]¥n";
+		// ログ削除
+		richTextBoxLog->Clear();
+
+		WriteTime(0, SystemMessageColor);
+		WriteMessage("[削除されました]¥n", SystemMessageColor);
+
+		if(MemberList[0]->TYPE == CT_FREE){return;}
+
+		if(MTOPTION.LOG_CLEAR_WITHOUT_WELCOME){ // サーバ告知残す
+			WriteMessage("[サーバ告知]---------------------¥n", SystemMessageColor);
+			richTextBoxLog->SelectionFont = gcnew Drawing::Font(richTextBoxLog->Font->FontFamily, richTextBoxLog->Font->Size + 2);
+			richTextBoxLog->SelectionColor = TalkMessageColor;
+			richTextBoxLog->SelectionBackColor = NoticeBackColor;
+			richTextBoxLog->AppendText(gcnew String(MTOPTION.WELCOME)+"¥n");
+			WriteMessage("-------------------------------¥n", SystemMessageColor);
+		}
+		
+	}
+	catch(Exception ^e){
+		WriteErrorLog(e->ToString(), "SaveLog");
+	}
+	finally{
+		Monitor::Exit(richTextBoxLog);
+	}
+}
+void MainForm::SaveLog(){
+	// 形式別ログ保存
+	String^ path = gcnew String(MTOPTION.PATH);
+	String^ file = String::Format("LilithPort_{0}.{1}", DateTime::Now.ToString("yyyyMMdd-HHmmss"),
+														MTOPTION.LOG_FORMAT_RTF ? "rtf" : "txt");
+	path += file;
+	Monitor::Enter(richTextBoxLog);
+	try{
+		if(MTOPTION.LOG_FORMAT_RTF){
+			richTextBoxLog->SaveFile(path, RichTextBoxStreamType::RichText);
+		}else{
+			richTextBoxLog->SaveFile(path, RichTextBoxStreamType::PlainText);
 		}
 	}
 	catch(Exception ^e){
@@ -3596,4 +3635,6 @@ void MainForm::ClearLog(){
 	finally{
 		Monitor::Exit(richTextBoxLog);
 	}
+
+	WriteMessage(String::Format("¥"{0}¥"にログを保存しました。¥n", file), SystemMessageColor);
 }

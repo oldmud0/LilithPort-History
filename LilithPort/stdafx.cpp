@@ -6,6 +6,7 @@
 
 extern CRITICAL_SECTION CS_CAPTION;
 using namespace System::Collections;
+using namespace System::Diagnostics;
 
 // 落ちる前にエラー内容をロギング
 void WriteErrorLog(String^ text, String^ caption)
@@ -53,7 +54,6 @@ void ApplicationUnhandledException(Object^ sender, UnhandledExceptionEventArgs^ 
 
 	Application::Exit();
 }
-
 // iniの読み込み
 void LoadMTOption()
 {
@@ -98,32 +98,35 @@ void LoadMTOption()
 	GetPrivateProfileString(iniSystem, _T("Keyword"),            _T(""),            MTOPTION.KEYWORD,        MAX_KEYWORD, ini);
 	GetPrivateProfileString(iniSystem, _T("Name"),               _T("名無しさん"),  MTOPTION.NAME,           MAX_NAME,    ini);
 	GetPrivateProfileString(iniSystem, _T("Comment"),            _T(""),            MTOPTION.COMMENT,        MAX_NAME,    ini);
-	MTOPTION.CONNECTION_TYPE      = GetPrivateProfileInt(iniSystem, _T("ConnectType"),          0, ini);
-	MTOPTION.PORT                 = GetPrivateProfileInt(iniSystem, _T("Port"),              7500, ini);
-	MTOPTION.OPEN_PORT            = GetPrivateProfileInt(iniSystem, _T("OpenPort"),          7500, ini);
-	MTOPTION.AUTO_SAVE            = GetPrivateProfileInt(iniSystem, _T("AutoSave"),             0, ini);
-	MTOPTION.MAX_CONNECTION       = GetPrivateProfileInt(iniSystem, _T("MaxConnection"),        1, ini);
-	MTOPTION.BGM_VOLUME           = GetPrivateProfileInt(iniSystem, _T("BGMVolume"),          100, ini);
-	MTOPTION.SE_VOLUME            = GetPrivateProfileInt(iniSystem, _T("SEVolume"),           100, ini);
-	MTOPTION.RECORD_REPLAY        = GetPrivateProfileInt(iniSystem, _T("RecordReplay"),         0, ini) == 1 ? true : false;
-	MTOPTION.ALLOW_SPECTATOR      = GetPrivateProfileInt(iniSystem, _T("AllowSpectator"),       1, ini) == 1 ? true : false;
-	MTOPTION.LOG_WORDWRAP         = GetPrivateProfileInt(iniSystem, _T("LogWordWrap"),          0, ini) == 1 ? true : false;
-	MTOPTION.LOG_LOCK             = GetPrivateProfileInt(iniSystem, _T("LogLock"),              0, ini) == 1 ? true : false;
-	MTOPTION.NAME_FLASH           = GetPrivateProfileInt(iniSystem, _T("NameFlash"),            1, ini) == 1 ? true : false;
-	MTOPTION.TALK_FLASH           = GetPrivateProfileInt(iniSystem, _T("TalkFlash"),            0, ini) == 1 ? true : false;
-	MTOPTION.AFTER_REST           = GetPrivateProfileInt(iniSystem, _T("AfterRest"),            0, ini) == 1 ? true : false;
-	MTOPTION.AUTO_REST            = GetPrivateProfileInt(iniSystem, _T("AutoRest"),             0, ini) == 1 ? true : false;
-	MTOPTION.AUTO_REST_TIME       = GetPrivateProfileInt(iniSystem, _T("AutoRestTime"),        30, ini);
-	MTOPTION.ENTER_SOUND_ENABLE   = GetPrivateProfileInt(iniSystem, _T("EnterSoundEnable"),     0, ini) == 1 ? true : false;
-	MTOPTION.VS_SOUND_ENABLE      = GetPrivateProfileInt(iniSystem, _T("VSSoundEnable"),        0, ini) == 1 ? true : false;
-	MTOPTION.NOTICE_SOUND_ENABLE  = GetPrivateProfileInt(iniSystem, _T("NoticeSoundEnable"),    0, ini) == 1 ? true : false;
-	MTOPTION.NAME_SOUND_ENABLE    = GetPrivateProfileInt(iniSystem, _T("NameSoundEnable"),      1, ini) == 1 ? true : false;
-	MTOPTION.TALK_SOUND_ENABLE    = GetPrivateProfileInt(iniSystem, _T("TalkSoundEnable"),      1, ini) == 1 ? true : false;
-	MTOPTION.SEEK_SOUND_ENABLE    = GetPrivateProfileInt(iniSystem, _T("SeekSoundEnable"),      1, ini) == 1 ? true : false;
-	MTOPTION.KEYWORD_SOUND_ENABLE = GetPrivateProfileInt(iniSystem, _T("KeywordSoundEnable"),   1, ini) == 1 ? true : false;
-	MTOPTION.GET_IP_ENABLE        = GetPrivateProfileInt(iniSystem, _T("GetIPEnable"),          1, ini) == 1 ? true : false;
-	MTOPTION.SHOW_GAME_OPTION     = GetPrivateProfileInt(iniSystem, _T("ShowGameOption"),       1, ini) == 1 ? true : false;
-	MTOPTION.SHOW_RESULT          = GetPrivateProfileInt(iniSystem, _T("ShowResult"),           1, ini) == 1 ? true : false;
+	MTOPTION.CONNECTION_TYPE			= GetPrivateProfileInt(iniSystem, _T("ConnectType"),          0, ini);
+	MTOPTION.PORT						= GetPrivateProfileInt(iniSystem, _T("Port"),              7500, ini);
+	MTOPTION.OPEN_PORT					= GetPrivateProfileInt(iniSystem, _T("OpenPort"),          7500, ini);
+	MTOPTION.AUTO_SAVE					= GetPrivateProfileInt(iniSystem, _T("AutoSave"),             0, ini);
+	MTOPTION.MAX_CONNECTION				= GetPrivateProfileInt(iniSystem, _T("MaxConnection"),      100, ini);
+	MTOPTION.BGM_VOLUME					= GetPrivateProfileInt(iniSystem, _T("BGMVolume"),          100, ini);
+	MTOPTION.SE_VOLUME					= GetPrivateProfileInt(iniSystem, _T("SEVolume"),           100, ini);
+	MTOPTION.RECORD_REPLAY				= GetPrivateProfileInt(iniSystem, _T("RecordReplay"),         0, ini) == 1 ? true : false;
+	MTOPTION.ALLOW_SPECTATOR			= GetPrivateProfileInt(iniSystem, _T("AllowSpectator"),       1, ini) == 1 ? true : false;
+	MTOPTION.LOG_WORDWRAP				= GetPrivateProfileInt(iniSystem, _T("LogWordWrap"),          0, ini) == 1 ? true : false;
+	MTOPTION.LOG_LOCK					= GetPrivateProfileInt(iniSystem, _T("LogLock"),              0, ini) == 1 ? true : false;
+	MTOPTION.LOG_FORMAT_RTF				= GetPrivateProfileInt(iniSystem, _T("LogFormatRTF"),         1, ini) == 1 ? true : false;
+	MTOPTION.NAME_FLASH					= GetPrivateProfileInt(iniSystem, _T("NameFlash"),            1, ini) == 1 ? true : false;
+	MTOPTION.TALK_FLASH					= GetPrivateProfileInt(iniSystem, _T("TalkFlash"),            0, ini) == 1 ? true : false;
+	MTOPTION.AFTER_REST					= GetPrivateProfileInt(iniSystem, _T("AfterRest"),            0, ini) == 1 ? true : false;
+	MTOPTION.AUTO_REST					= GetPrivateProfileInt(iniSystem, _T("AutoRest"),             0, ini) == 1 ? true : false;
+	MTOPTION.AUTO_REST_TIME				= GetPrivateProfileInt(iniSystem, _T("AutoRestTime"),        30, ini);
+	MTOPTION.ENTER_SOUND_ENABLE			= GetPrivateProfileInt(iniSystem, _T("EnterSoundEnable"),     0, ini) == 1 ? true : false;
+	MTOPTION.VS_SOUND_ENABLE			= GetPrivateProfileInt(iniSystem, _T("VSSoundEnable"),        0, ini) == 1 ? true : false;
+	MTOPTION.NOTICE_SOUND_ENABLE		= GetPrivateProfileInt(iniSystem, _T("NoticeSoundEnable"),    0, ini) == 1 ? true : false;
+	MTOPTION.NAME_SOUND_ENABLE			= GetPrivateProfileInt(iniSystem, _T("NameSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.TALK_SOUND_ENABLE			= GetPrivateProfileInt(iniSystem, _T("TalkSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.SEEK_SOUND_ENABLE			= GetPrivateProfileInt(iniSystem, _T("SeekSoundEnable"),      1, ini) == 1 ? true : false;
+	MTOPTION.KEYWORD_SOUND_ENABLE		= GetPrivateProfileInt(iniSystem, _T("KeywordSoundEnable"),   1, ini) == 1 ? true : false;
+	MTOPTION.GET_IP_ENABLE				= GetPrivateProfileInt(iniSystem, _T("GetIPEnable"),          1, ini) == 1 ? true : false;
+	MTOPTION.SHOW_GAME_OPTION			= GetPrivateProfileInt(iniSystem, _T("ShowGameOption"),       1, ini) == 1 ? true : false;
+	MTOPTION.SHOW_RESULT				= GetPrivateProfileInt(iniSystem, _T("ShowResult"),           1, ini) == 1 ? true : false;
+	MTOPTION.LOG_CLEAR_WITHOUT_WELCOME	= GetPrivateProfileInt(iniSystem, _T("LogClearWithoutWelcome"), 1, ini) == 1 ? true : false;
+	
 	
 	// ブックマーク読み込み
 	MTOPTION.BOOKMARK_COUNT = 0;
@@ -244,12 +247,7 @@ void LoadMTOption()
 	MTCOLOR.SECRET         = GetPrivateProfileInt(iniColor, _T("Secret"),        Color::HotPink.ToArgb(),     ini);
 
 	// Welcomeのタブを改行に
-	int len = _tcslen(MTOPTION.WELCOME);
-	for(int i = 0; i < len; i++){
-		if(MTOPTION.WELCOME[i] == _T('¥t')){
-			MTOPTION.WELCOME[i] = _T('¥n');
-		}
-	}
+	ReplaceWelcomeTab(true);
 
 	// 1.04以下互換用
 	if(iniVersion == 0){
@@ -261,14 +259,6 @@ void LoadMTOption()
 // iniに書き出し
 void SaveMTOption()
 {
-	// 改行をタブに置換
-	int len = _tcslen(MTOPTION.WELCOME);
-	for(int i = 0; i < len; i++){
-		if(MTOPTION.WELCOME[i] == _T('¥n')){
-			MTOPTION.WELCOME[i] = _T('¥t');
-		}
-	}
-
 	IntPtr mp;
 	TCHAR ini[_MAX_PATH], buf[MAX_NAME];
 	TCHAR tmpStrName[MAX_TITLE] = _T("");
@@ -276,6 +266,9 @@ void SaveMTOption()
 	TCHAR tmpStrType[MAX_TITLE] = _T("");
 	TCHAR tmpStrPort[MAX_TITLE] = _T("");
 	TCHAR* iniSection = MTOPTION.PROFILE;
+
+	// 改行をタブに置換
+	ReplaceWelcomeTab(false);
 
 	// stdafx.hに記述
 	TCHAR iniSystem[MAX_NAME], iniState[MAX_NAME], iniColor[MAX_NAME];
@@ -308,56 +301,33 @@ void SaveMTOption()
 	WritePrivateProfileString(iniSystem, _T("Name"),                 MTOPTION.NAME,                   ini);
 	WritePrivateProfileString(iniSystem, _T("Comment"),              MTOPTION.COMMENT,                ini);
 
-	_itot_s(MTOPTION.PORT, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("Port"), buf, ini);
-	_itot_s(MTOPTION.OPEN_PORT, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("OpenPort"), buf, ini);
-	_itot_s(MTOPTION.AUTO_SAVE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("AutoSave"), buf, ini);
-	_itot_s(MTOPTION.MAX_CONNECTION, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("MaxConnection"), buf, ini);
-	_itot_s(MTOPTION.BGM_VOLUME, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("BGMVolume"), buf, ini);
-	_itot_s(MTOPTION.SE_VOLUME, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("SEVolume"), buf, ini);
-	_itot_s(MTOPTION.RECORD_REPLAY, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("RecordReplay"), buf, ini);
-	_itot_s(MTOPTION.ALLOW_SPECTATOR, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("AllowSpectator"), buf, ini);
-	_itot_s(MTOPTION.LOG_WORDWRAP, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("LogWordWrap"), buf, ini);
-	_itot_s(MTOPTION.LOG_LOCK, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("LogLock"), buf, ini);
-	_itot_s(MTOPTION.NAME_FLASH, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("NameFlash"), buf, ini);
-	_itot_s(MTOPTION.TALK_FLASH, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("TalkFlash"), buf, ini);
-	_itot_s(MTOPTION.AFTER_REST, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("AfterRest"), buf, ini);
-	_itot_s(MTOPTION.AUTO_REST, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("AutoRest"), buf, ini);
-	_itot_s(MTOPTION.AUTO_REST_TIME, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("AutoRestTime"), buf, ini);
-	_itot_s(MTOPTION.ENTER_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("EnterSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.VS_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("VSSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.NOTICE_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("NoticeSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.NAME_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("NameSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.TALK_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("TalkSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.SEEK_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("SeekSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.KEYWORD_SOUND_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("KeywordSoundEnable"), buf, ini);
-	_itot_s(MTOPTION.GET_IP_ENABLE, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("GetIPEnable"), buf, ini);
-	_itot_s(MTOPTION.SHOW_GAME_OPTION, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("ShowGameOption"), buf, ini);
-	_itot_s(MTOPTION.SHOW_RESULT, buf, 10);
-	WritePrivateProfileString(iniSystem, _T("ShowResult"), buf, ini);
+	_itot_s(MTOPTION.PORT, buf, 10);					WritePrivateProfileString(iniSystem, _T("Port"), buf, ini);
+	_itot_s(MTOPTION.OPEN_PORT, buf, 10);				WritePrivateProfileString(iniSystem, _T("OpenPort"), buf, ini);
+	_itot_s(MTOPTION.AUTO_SAVE, buf, 10);				WritePrivateProfileString(iniSystem, _T("AutoSave"), buf, ini);
+	_itot_s(MTOPTION.MAX_CONNECTION, buf, 10);			WritePrivateProfileString(iniSystem, _T("MaxConnection"), buf, ini);
+	_itot_s(MTOPTION.BGM_VOLUME, buf, 10);				WritePrivateProfileString(iniSystem, _T("BGMVolume"), buf, ini);
+	_itot_s(MTOPTION.SE_VOLUME, buf, 10);				WritePrivateProfileString(iniSystem, _T("SEVolume"), buf, ini);
+	_itot_s(MTOPTION.RECORD_REPLAY, buf, 10);			WritePrivateProfileString(iniSystem, _T("RecordReplay"), buf, ini);
+	_itot_s(MTOPTION.ALLOW_SPECTATOR, buf, 10);			WritePrivateProfileString(iniSystem, _T("AllowSpectator"), buf, ini);
+	_itot_s(MTOPTION.LOG_WORDWRAP, buf, 10);			WritePrivateProfileString(iniSystem, _T("LogWordWrap"), buf, ini);
+	_itot_s(MTOPTION.LOG_LOCK, buf, 10);				WritePrivateProfileString(iniSystem, _T("LogLock"), buf, ini);
+	_itot_s(MTOPTION.LOG_FORMAT_RTF, buf, 10);			WritePrivateProfileString(iniSystem, _T("LogFormatRTF"), buf, ini);
+	_itot_s(MTOPTION.NAME_FLASH, buf, 10);				WritePrivateProfileString(iniSystem, _T("NameFlash"), buf, ini);
+	_itot_s(MTOPTION.TALK_FLASH, buf, 10);				WritePrivateProfileString(iniSystem, _T("TalkFlash"), buf, ini);
+	_itot_s(MTOPTION.AFTER_REST, buf, 10);				WritePrivateProfileString(iniSystem, _T("AfterRest"), buf, ini);
+	_itot_s(MTOPTION.AUTO_REST, buf, 10);				WritePrivateProfileString(iniSystem, _T("AutoRest"), buf, ini);
+	_itot_s(MTOPTION.AUTO_REST_TIME, buf, 10);			WritePrivateProfileString(iniSystem, _T("AutoRestTime"), buf, ini);
+	_itot_s(MTOPTION.ENTER_SOUND_ENABLE, buf, 10);		WritePrivateProfileString(iniSystem, _T("EnterSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.VS_SOUND_ENABLE, buf, 10);			WritePrivateProfileString(iniSystem, _T("VSSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.NOTICE_SOUND_ENABLE, buf, 10);		WritePrivateProfileString(iniSystem, _T("NoticeSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.NAME_SOUND_ENABLE, buf, 10);		WritePrivateProfileString(iniSystem, _T("NameSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.TALK_SOUND_ENABLE, buf, 10);		WritePrivateProfileString(iniSystem, _T("TalkSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.SEEK_SOUND_ENABLE, buf, 10);		WritePrivateProfileString(iniSystem, _T("SeekSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.KEYWORD_SOUND_ENABLE, buf, 10);	WritePrivateProfileString(iniSystem, _T("KeywordSoundEnable"), buf, ini);
+	_itot_s(MTOPTION.GET_IP_ENABLE, buf, 10);			WritePrivateProfileString(iniSystem, _T("GetIPEnable"), buf, ini);
+	_itot_s(MTOPTION.SHOW_GAME_OPTION, buf, 10);		WritePrivateProfileString(iniSystem, _T("ShowGameOption"), buf, ini);
+	_itot_s(MTOPTION.SHOW_RESULT, buf, 10);				WritePrivateProfileString(iniSystem, _T("ShowResult"), buf, ini);
+	_itot_s(MTOPTION.LOG_CLEAR_WITHOUT_WELCOME, buf, 10); WritePrivateProfileString(iniSystem, _T("LogClearWithoutWelcome"), buf, ini);
 
 	// ブックマーク書き込み
 	if(MTOPTION.BOOKMARK_COUNT > 0) {
@@ -471,6 +441,15 @@ void SaveMTOption()
 	WritePrivateProfileString(iniColor, _T("CommentBack"), buf, ini);
 	_ultot_s(MTCOLOR.SECRET, buf, 10);
 	WritePrivateProfileString(iniColor, _T("Secret"), buf, ini);
+}
+// Welcomeメッセージの改行置換
+void ReplaceWelcomeTab(bool TtoN){
+	int len = _tcslen(MTOPTION.WELCOME);
+	for(int i = 0; i < len; i++){
+		if(MTOPTION.WELCOME[i] == (TtoN ? _T('¥t') : _T('¥n'))){
+			MTOPTION.WELCOME[i] = (TtoN ? _T('¥n') : _T('¥t'));
+		}
+	}
 }
 // プロファイルセクション削除
 void DeleteSection(TCHAR* obj){
@@ -605,7 +584,6 @@ void SetCaption()
 
 	LeaveCriticalSection(&CS_CAPTION);
 }
-
 // 暗号復号用乱数
 UINT CipherRand(UINT32 seed)
 {
@@ -769,5 +747,171 @@ _int64 MTDecryptionIP(String^ cipher_ip)
 	}
 	catch(Exception^){
 		return 0;
+	}
+}
+// ローカルIP取得(Winsock)
+BSTR GetLocalIP(){
+	WSADATA wsaData;
+	char hostname[MAX_TITLE];
+	char ip[MAX_TITLE];
+	struct hostent *hostent;
+	struct in_addr inaddr;
+	BSTR bstr_ip;
+
+	try{
+		if(WSAStartup(MAKEWORD(1, 0), &wsaData) != 0){
+			// エラー
+			throw gcnew Exception;
+			return nullptr;
+		}
+		// ホスト名取得
+		gethostname(hostname, sizeof(hostname));
+		hostent = gethostbyname(hostname);
+		if(hostent == NULL){
+			throw gcnew Exception;
+			return nullptr;
+		}
+		// ホスト名からIPを取得
+		memcpy(&inaddr, hostent->h_addr_list[0], 4);
+		strcpy(ip, inet_ntoa(inaddr));
+
+		// IPの文字列型変換 CHAR -> TCHAR -> BSTR
+		TCHAR buf[sizeof(ip)];
+		mbstowcs_s(0, buf, sizeof(ip), ip, _TRUNCATE);
+		bstr_ip = ::SysAllocString(buf);
+	}
+	catch(Exception^){
+		return nullptr;
+	}
+	finally{
+		WSACleanup();
+	}
+
+	return bstr_ip;
+}
+void UPnP_PortOpenClose(bool s, bool auto_close){ /* open:close, auto:manual */
+	// UPnPポート開閉
+	if(MTINFO.DEBUG){Debug::WriteLine("UPnP > UPnP_PortOpenClose");}
+
+	IUPnPNAT *nat						= nullptr;
+	IStaticPortMappingCollection *maps	= nullptr;
+	IStaticPortMapping *map				= nullptr;
+	IStaticPortMapping *item			= nullptr;
+
+	UINT port = MTOPTION.OPEN_PORT;
+
+	BSTR localip = GetLocalIP();
+	if(localip == nullptr){
+		if(MTINFO.DEBUG){Debug::WriteLine("Winsock > ローカルIP取得失敗");}
+		if(auto_close){return;}
+		MessageBox::Show("ローカルIPの取得に失敗しました。¥n通信環境を確認してみてください。", "UPnPポート開閉", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		return;
+	}
+	if(MTINFO.DEBUG){Debug::WriteLine(String::Format("Winsock > ローカルIP取得成功: {0}", gcnew String(localip)));}
+
+	BSTR proto = L"UDP";
+	BSTR desc = L"LilithPort UDP";
+	String^ mestitle = L"UPnPポート開閉";
+	String^ errmes_tmp = L"¥nUPnPを使用できない環境の可能性があります。¥nルータのUPnP有効設定・ファイアウォール設定を確認してみてください。";
+	BSTR buf= L"";
+	//BSTR exip;
+
+	try{
+		if(nat == nullptr){
+			// 初期化
+			if(MTINFO.DEBUG){Debug::WriteLine("UPnP > nat初期化");}
+			CoInitialize(nullptr);
+			if(CoCreateInstance(CLSID_UPnPNAT, nullptr, CLSCTX_ALL, IID_IUPnPNAT, (void **)&nat) != S_OK){
+				if(!auto_close){
+					MessageBox::Show("UPnPの初期化に失敗しました。" + errmes_tmp, mestitle, MessageBoxButtons::OK, MessageBoxIcon::Error);
+				}
+				if(MTINFO.DEBUG){Debug::WriteLine("UPnP > nat初期化失敗");}
+				return;
+			}
+			if(MTINFO.DEBUG){Debug::WriteLine("UPnP > nat初期化成功");}
+		}
+		if(nat->get_StaticPortMappingCollection(&maps) != S_OK){
+			if(MTINFO.DEBUG){Debug::WriteLine("UPnP > UDPポートポートマッピング情報取得失敗");}
+			if(!auto_close){
+				MessageBox::Show("UPnPのポートマッピング情報取得に失敗しました。¥n", mestitle, MessageBoxButtons::OK, MessageBoxIcon::Information);
+			}
+			return;
+		}
+		if(MTINFO.DEBUG){Debug::WriteLine("UPnP > UDPポートポートマッピング情報取得成功");}
+
+		
+		// ポート設定が存在するか確認　説明文照合
+		if(maps->get_Item(port, proto, &map) == S_OK){
+			// 設定がある
+			map->get_Description(&buf);
+			if(MTINFO.DEBUG){Debug::WriteLine(String::Format("UPnP > map->get_Description: {0}", gcnew String(buf)));}
+
+			if(s){ // 開放: 上書き確認
+				if(MessageBox::Show(String::Format("既にUPnP設定が存在します。¥n設定を上書きしますか？¥nポート説明: {0}", gcnew String(buf)), mestitle, MessageBoxButtons::YesNo, MessageBoxIcon::Question)
+					!= ::DialogResult::Yes){
+					return;
+				}
+			}
+			else if(gcnew String(buf) != gcnew String(desc)){	// 閉鎖: LilithPort外での設定なので警告
+				if(auto_close){return;}	// 自動はやめとく
+				if(MessageBox::Show(String::Format("LilithPort以外のUPnP設定を閉鎖します。¥n別の通信で使用している可能性があります。¥n閉鎖してもよろしいですか？¥nポート説明: {0}", gcnew String(buf)), mestitle, MessageBoxButtons::YesNo, MessageBoxIcon::Question)
+					!= ::DialogResult::Yes){
+					return;
+				}
+			}
+		}else{
+			// 設定がない
+			if(MTINFO.DEBUG){Debug::WriteLine("UPnP > maps->get_Item != S_OK");}
+
+			if(!s){ // 閉鎖: 必要なし
+				if(auto_close){return;} // 問題なし
+				MessageBox::Show("閉鎖するUPnP設定が存在しません。¥n閉鎖する必要はありません。", mestitle, MessageBoxButtons::OK, MessageBoxIcon::Information);
+				return;
+			}
+		}
+		
+		if(s){	// 開放
+			if(maps->Add(port, proto, port, localip, VARIANT_TRUE, desc, &map) != S_OK){
+				MessageBox::Show("ポート開放に失敗しました。" + errmes_tmp, mestitle, MessageBoxButtons::OK, MessageBoxIcon::Error);
+				if(MTINFO.DEBUG){Debug::WriteLine("UPnP > UDPポート開放失敗");}
+				return;
+			}
+			MessageBox::Show(String::Format("ポート開放に成功しました。¥nポート番号: {0}¥n¥n※このメッセージが表示されても、¥n環境によって通信できない場合もあります。", port), mestitle, MessageBoxButtons::OK, MessageBoxIcon::Information);
+			if(MTINFO.DEBUG){
+				Debug::WriteLine(String::Format("UPnP > UDPポート開放成功 > ポート番号: {0}", port));
+			}
+		}else{	// 閉鎖
+			if(maps->Remove(port, proto) != S_OK){
+				if(!auto_close){
+					MessageBox::Show("ポート閉鎖に失敗しました。" + errmes_tmp, mestitle, MessageBoxButtons::OK, MessageBoxIcon::Error);
+				}
+				if(MTINFO.DEBUG){Debug::WriteLine("UPnP > UDPポート閉鎖失敗");}
+				return;
+			}
+			if(!auto_close){
+				MessageBox::Show(String::Format("ポート閉鎖に成功しました。¥nポート番号: {0}", port), mestitle, MessageBoxButtons::OK, MessageBoxIcon::Information);
+			}
+			if(MTINFO.DEBUG){Debug::WriteLine(String::Format("UPnP > UDPポート閉鎖成功 > ポート番号: {0}", port));}
+		}
+		// WAN-IP抽出
+		//maps->get_Item(NULL,NULL,&item);
+		//maps->get_Item(port, proto, &item);
+		//item->get_ExternalIPAddress(&exip);
+		//WriteMessage(String::Format("{0}¥n", gcnew String(exip)), DebugMessageColor);
+
+		// 開放ポート情報からWAN-IP抽出
+		//map->get_ExternalIPAddress(&externalip);
+		//WriteMessage(String::Format("{0}¥n", gcnew String(externalip)), DebugMessageColor);
+	}
+	catch(Exception^ e){
+		MessageBox::Show("エラーが発生しました。" + errmes_tmp, mestitle, MessageBoxButtons::OK, MessageBoxIcon::Error);
+		if(MTINFO.DEBUG){if(MTINFO.DEBUG){Debug::WriteLine( String::Format("{0}¥n", e->ToString() ));}}
+	}
+	finally{
+		if(nat	!= nullptr){nat->Release();}
+		if(maps != nullptr){maps->Release();}
+		if(map	!= nullptr){map->Release();}
+		if(item	!= nullptr){item->Release();}
+		CoUninitialize();
 	}
 }
